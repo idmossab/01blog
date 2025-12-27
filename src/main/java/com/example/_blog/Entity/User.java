@@ -19,7 +19,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "username", nullable = false, unique = true)
+    @Column( nullable = false, unique = true)
     private String username;
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -28,6 +28,6 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
-    private List<Post> posts;
+    private List<Blog> blogs;
 
 }

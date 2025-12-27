@@ -1,5 +1,5 @@
 run:
-	./mvnw spring-boot:run
+	./mvnw spring-boot:run 
 db:      
 	docker rm -f 01blogdb
 	docker run --name 01blogdb \
@@ -14,3 +14,9 @@ admin:
 	./mvnw spring-boot:run -Dspring-boot.run.arguments="--server.port=8081 --admin"
 start_db:
 	docker start 01blogdb
+clean:
+	./mvnw clean
+build:
+	./mvnw clean package -
+dependency-update:
+	./mvnw versions:use-latest-releases
