@@ -1,6 +1,5 @@
 package com.example._blog.Entity;
 
-
 import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;
 
@@ -20,10 +19,10 @@ import lombok.Data;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(nullable=false)
+    private int userId;
+    @Column(nullable = false)
     private String firstName;
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String lastName;
     @Column(nullable = false, unique = true)
     private String userName;
@@ -35,8 +34,8 @@ public class User {
     private String avatar;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status=UserStatus.ACTIVE;
+    private UserStatus status = UserStatus.ACTIVE;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role=UserRole.USER;
+    private UserRole role = UserRole.USER;
 }
