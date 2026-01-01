@@ -1,21 +1,13 @@
 package com.example._blog.Entity;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import com.example._blog.Entity.enums.BlogStatus;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,23 +15,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "blogs")
+@Table(name = "comments")
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Blog {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idBlog;
-    @Column(nullable = false)
-    private String title;
+    private int id;
     @Column(nullable = false)
     private String content;
-    @Enumerated(EnumType.STRING)
-    private BlogStatus status = BlogStatus.ACTIVE;
+    @ManyToOne
+    @JoinColumn(name = "blogId", nullable = false)
+    private Blog blog;
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private User user;
-    @OneToMany(mappedBy = "blog",cascade=CascadeType.ALL, orphanRemoval=true)
-    private List<Comment> comments=new ArrayList<>();
 }
