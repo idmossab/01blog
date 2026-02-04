@@ -1,47 +1,18 @@
 <div class="container py-4">
   <nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3">
     <span class="navbar-brand fw-bold">01Blog</span>
-    <span class="text-muted">Welcome back, {{ user?.firstName }}</span>
-    <div class="ms-auto">
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <div class="text-end">
+        <div class="fw-semibold">{{ user?.firstName }} {{ user?.lastName }}</div>
+        <small class="text-muted">@{{ user?.userName }}</small>
+      </div>
       <button class="btn btn-outline-secondary" (click)="logout()">Logout</button>
     </div>
   </nav>
 
   <div class="row g-4">
-    <div class="col-lg-4">
+    <div class="col-lg-5">
       <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">My profile</h5>
-          <div class="mb-2">
-            <label class="form-label">First name</label>
-            <input class="form-control" type="text" [(ngModel)]="profile.firstName" />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Last name</label>
-            <input class="form-control" type="text" [(ngModel)]="profile.lastName" />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Username</label>
-            <input class="form-control" type="text" [(ngModel)]="profile.userName" />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Email</label>
-            <input class="form-control" type="email" [(ngModel)]="profile.email" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">New password</label>
-            <input class="form-control" type="password" [(ngModel)]="profile.password" />
-          </div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-dark" (click)="updateProfile()">Update</button>
-            <button class="btn btn-outline-danger" (click)="deleteAccount()">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <div class="card shadow-sm mb-4">
         <div class="card-body">
           <h5 class="card-title">Create a blog</h5>
           <div class="mb-2">
@@ -64,140 +35,25 @@
             </select>
           </div>
           <button class="btn btn-dark w-100" (click)="createBlog()">Publish</button>
-        </div>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h5 class="card-title mb-0">Blogs</h5>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-secondary btn-sm" (click)="loadMyBlogs()">My Blogs</button>
-              <select class="form-select form-select-sm" [(ngModel)]="statusFilter" (change)="loadByStatus()">
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="HIDDEN">HIDDEN</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
-
-          <div class="list-group">
-            <button
-              class="list-group-item list-group-item-action"
-              *ngFor="let blog of blogs"
-              (click)="selectBlog(blog.idBlog)"
-            >
-              <div class="fw-semibold">{{ blog.title }}</div>
-              <small class="text-muted">{{ blog.content }}</small>
-            </button>
-          </div>
+          <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
         </div>
       </div>
     </div>
 
-    <div class="col-lg-4">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Interactions</h5>
-          <p class="text-muted" *ngIf="!selectedBlogId">Select a blog to view comments and likes.</p>
-          <div *ngIf="selectedBlogId">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <button class="btn btn-dark btn-sm" (click)="likeSelected()">Like</button>
-              <button class="btn btn-outline-secondary btn-sm" (click)="unlikeSelected()">Unlike</button>
-              <span class="text-muted">{{ likes.length }} likes</span>
-            </div>
-
-            <div class="mb-3">
-              <h6>Comments ({{ comments.length }})</h6>
-              <div class="list-group mb-2">
-                <div class="list-group-item d-flex justify-content-between" *ngFor="let comment of comments">
-                  <span>{{ comment.content }}</span>
-                  <button class="btn btn-outline-danger btn-sm" (click)="deleteComment(comment.id)">Delete</button>
-                </div>
-              </div>
-              <textarea class="form-control mb-2" rows="3" [(ngModel)]="newComment"></textarea>
-              <button class="btn btn-dark w-100" (click)="addComment()">Add Comment</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Edit selected blog</h5>
-          <p class="text-muted" *ngIf="!selectedBlogId">Select a blog first.</p>
-          <div *ngIf="selectedBlogId">
-            <div class="mb-2">
-              <label class="form-label">Title</label>
-              <input class="form-control" type="text" [(ngModel)]="blogEditTitle" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Content</label>
-              <textarea class="form-control" rows="3" [(ngModel)]="blogEditContent"></textarea>
-            </div>
-            <div class="d-flex gap-2">
-              <button class="btn btn-dark" (click)="updateBlog()">Save</button>
-              <button class="btn btn-outline-danger" (click)="deleteBlog()">Delete Blog</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Comment tools</h5>
-          <div class="mb-2">
-            <label class="form-label">Comment ID</label>
-            <input class="form-control" type="number" [(ngModel)]="commentEditId" />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">New content</label>
-            <textarea class="form-control" rows="2" [(ngModel)]="commentEditContent"></textarea>
-          </div>
-          <button class="btn btn-dark w-100 mb-3" (click)="updateComment()">Update Comment</button>
-
-          <div class="mb-2">
-            <label class="form-label">Lookup comment by ID</label>
-            <input class="form-control" type="number" [(ngModel)]="commentLookupId" />
-          </div>
-          <button class="btn btn-outline-secondary w-100 mb-2" (click)="loadCommentById()">Load Comment</button>
-          <p class="text-muted" *ngIf="commentLookup">Found: {{ commentLookup.content }}</p>
-
-          <div class="mb-2">
-            <label class="form-label">Comments by user ID</label>
-            <input class="form-control" type="number" [(ngModel)]="commentLookupUserId" />
-          </div>
-          <button class="btn btn-outline-secondary w-100" (click)="loadCommentsByUser()">Load User Comments</button>
-          <p class="text-muted mt-2" *ngIf="commentUserList.length">
-            {{ commentUserList.length }} comments loaded
-          </p>
-        </div>
-      </div>
-
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="card-title">Likes by user</h5>
-          <div class="mb-2">
-            <label class="form-label">User ID</label>
-            <input class="form-control" type="number" [(ngModel)]="likeUserId" />
-          </div>
-          <button class="btn btn-outline-secondary w-100" (click)="loadLikesByUser()">Load Likes</button>
-          <p class="text-muted mt-2">{{ likes.length }} likes loaded</p>
-        </div>
-      </div>
-
+    <div class="col-lg-7">
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-2">
-            <h5 class="card-title mb-0">Users list</h5>
-            <button class="btn btn-outline-secondary btn-sm" (click)="loadUsers()">Refresh</button>
+            <h5 class="card-title mb-0">My blogs</h5>
+            <button class="btn btn-outline-secondary btn-sm" (click)="loadMyBlogs()">Refresh</button>
           </div>
+
           <div class="list-group">
-            <div class="list-group-item" *ngFor="let u of users">
-              <div class="fw-semibold">{{ u.userName }}</div>
-              <small class="text-muted">{{ u.email }}</small>
+            <div class="list-group-item" *ngFor="let blog of blogs">
+              <div class="fw-semibold">{{ blog.title }}</div>
+              <small class="text-muted">{{ blog.content }}</small>
             </div>
+            <div class="text-muted" *ngIf="!blogs.length && !loading">No blogs yet.</div>
           </div>
         </div>
       </div>
