@@ -1,9 +1,7 @@
 package com.example._blog.Entity;
 
-
 import java.time.Instant;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,21 +16,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "likes")
 @Getter @Setter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment {
-    @Id
+public class Like {
+     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false,length=10000)
-    private String content;
     @ManyToOne
-    @JoinColumn(name = "blogId", nullable = false)
+    @JoinColumn(name = "blogId")
     private Blog blog;
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "userId")
     private User user;
     @Builder.Default
     private Instant createdAt=Instant.now();
