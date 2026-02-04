@@ -29,10 +29,10 @@ public class Comment {
     @Column(nullable = false,length=10000)
     private String content;
     @ManyToOne
-    @JoinColumn(name = "blogId", nullable = false)
+    @JoinColumn(name = "blog_id", nullable = false)
     private Blog blog;
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @Builder.Default
     private Instant createdAt=Instant.now();

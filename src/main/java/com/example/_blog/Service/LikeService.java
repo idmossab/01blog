@@ -31,7 +31,7 @@ public class LikeService {
 
     @Transactional
     public Like like(Long blogId, Long userId) {
-        if (likeRepo.existsByBlogIdBlogAndUserUserId(blogId, userId)) {
+        if (likeRepo.existsByBlogIdAndUserId(blogId, userId)) {
             throw new ResponseStatusException(CONFLICT, "Already liked");
         }
         Blog blog = blogRepo.findById(blogId)
@@ -53,7 +53,7 @@ public class LikeService {
 
     @Transactional
     public void unlike(Long blogId, Long userId) {
-        Like existing = likeRepo.findByBlogIdBlogAndUserUserId(blogId, userId);
+        Like existing = likeRepo.findByBlogIdAndUserId(blogId, userId).orElse(null);
         if (existing == null) {
             throw new ResponseStatusException(NOT_FOUND, "Like not found");
         }
@@ -66,10 +66,10 @@ public class LikeService {
     }
 
     public List<Like> getByBlog(Long blogId) {
-        return likeRepo.findByBlogIdBlog(blogId);
+        return likeRepo.findByBlogId(blogId);
     }
 
     public List<Like> getByUser(Long userId) {
-        return likeRepo.findByUserUserId(userId);
+        return likeRepo.findByUserId(userId);
     }
 }

@@ -9,7 +9,7 @@ import com.example._blog.Entity.Comment;
 
 @Repository
 public interface CommentRepo extends JpaRepository<Comment, Long> {
-    List<Comment> findByBlogIdBlog(Long blogId);
-    List<Comment> findByUserUserId(Long userId);
-    long countByBlogIdBlog(Long blogId);
+    List<Comment> findByBlogId(Long blogId);
+    List<Comment> findByUserId(Long userId);
+    long countByBlogId(Long blogId);
 }

@@ -53,10 +53,8 @@ public class UserService {
 
     // LOGIN (email OR username)
     public AuthResponse login(UserLoginRequest req) {
-        User u = repo.findByEmail(req.emailOrUsername());
-        if (u == null) {
-            u = repo.findByUserName(req.emailOrUsername());
-        }
+        User u = repo.findByEmail(req.emailOrUsername())
+                .orElseGet(() -> repo.findByUserName(req.emailOrUsername()).orElse(null));
         if (u == null) {
             throw new ResponseStatusException(NOT_FOUND, "User not found");
         }
@@ -105,7 +103,7 @@ public class UserService {
 
     private UserResponse toResponse(User user) {
         return new UserResponse(
-                user.getUserId(),
+                user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getUserName(),

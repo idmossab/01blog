@@ -52,7 +52,7 @@
               <div class="fw-semibold">{{ blog.title }}</div>
               <small class="text-muted">{{ blog.content }}</small>
               <div class="mt-2 d-flex flex-wrap gap-2">
-                <ng-container *ngFor="let media of getMedia(blog.idBlog)">
+                <ng-container *ngFor="let media of getMedia(blog.id)">
                   <img
                     *ngIf="media.mediaType?.startsWith('image')"
                     [src]="media.url"

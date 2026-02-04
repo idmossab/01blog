@@ -25,10 +25,10 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "blogId")
+    @JoinColumn(name = "blog_id")
     private Blog blog;
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
     @Builder.Default
     private Instant createdAt=Instant.now();

@@ -10,8 +10,8 @@ import com.example._blog.Entity.enums.BlogStatus;
 
 @Repository
 public interface BlogRepo extends JpaRepository<Blog, Long> {
-    List<Blog> findByUserUserId(Long userId);
+    List<Blog> findByUserId(Long userId);
     List<Blog> findByStatus(BlogStatus status);
-    List<Blog> findByUserUserIdAndStatus(Long userId, BlogStatus status);
-    long countByUserUserId(Long userId);
+    List<Blog> findByUserIdAndStatus(Long userId, BlogStatus status);
+    long countByUserId(Long userId);
 }

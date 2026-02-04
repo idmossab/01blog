@@ -28,7 +28,7 @@ public class Media {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "blogId", nullable = false)
+    @JoinColumn(name = "blog_id", nullable = false)
     private Blog blog;
 
     private String url;

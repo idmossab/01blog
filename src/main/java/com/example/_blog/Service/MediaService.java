@@ -75,6 +75,6 @@ public class MediaService {
     }
 
     public List<Media> getByBlog(Long blogId) {
-        return mediaRepo.findByBlogIdBlog(blogId);
+        return mediaRepo.findByBlogId(blogId);
     }
 }

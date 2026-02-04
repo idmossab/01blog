@@ -72,10 +72,10 @@ public class CommentService {
     }
 
     public List<Comment> getByBlog(Long blogId) {
-        return commentRepo.findByBlogIdBlog(blogId);
+        return commentRepo.findByBlogId(blogId);
     }
 
     public List<Comment> getByUser(Long userId) {
-        return commentRepo.findByUserUserId(userId);
+        return commentRepo.findByUserId(userId);
     }
 }

@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
   loadMyBlogs(): void {
     if (!this.user) return;
     this.loading = true;
-    this.api.getBlogsByUser(this.user.userId).subscribe({
+    this.api.getBlogsByUser(this.user.id).subscribe({
       next: (data) => {
         this.blogs = data;
         this.loading = false;
@@ -58,16 +58,16 @@ export class HomeComponent implements OnInit {
   createBlog(): void {
     if (!this.user) return;
     this.error = '';
-    this.api.createBlog(this.user.userId, this.newBlog).subscribe({
+    this.api.createBlog(this.user.id, this.newBlog).subscribe({
       next: (blog) => {
         this.blogs = [blog, ...this.blogs];
         this.newBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
-        if (blog.idBlog && this.mediaFiles.length) {
+        if (blog.id && this.mediaFiles.length) {
           const files = [...this.mediaFiles];
           this.mediaFiles = [];
-          this.api.uploadMedia(blog.idBlog, files).subscribe({
+          this.api.uploadMedia(blog.id, files).subscribe({
             next: (media) => {
-              this.mediaByBlog[blog.idBlog!] = media;
+              this.mediaByBlog[blog.id!] = media;
             },
             error: (err) => {
               this.error = err?.error?.message || err?.error || 'Failed to upload media';

@@ -30,7 +30,7 @@ import lombok.Setter;
 public class Blog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idBlog;
+    private Long id;
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
@@ -39,7 +39,7 @@ public class Blog {
     @Enumerated(EnumType.STRING)
     private BlogStatus status = BlogStatus.ACTIVE;
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @Column(name = "media")
     private String media;

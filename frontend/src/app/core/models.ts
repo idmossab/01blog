@@ -1,5 +1,5 @@
 export interface UserResponse {
-  userId: number;
+  id: number;
   firstName: string;
   lastName: string;
   userName: string;
@@ -15,7 +15,7 @@ export interface AuthResponse {
 }
 
 export interface Blog {
-  idBlog?: number;
+  id?: number;
   title: string;
   content: string;
   status?: string;

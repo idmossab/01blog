@@ -62,7 +62,7 @@ public class BlogService {
     }
 
     public List<Blog> getByUser(Long userId) {
-        return blogRepo.findByUserUserId(userId);
+        return blogRepo.findByUserId(userId);
     }
 
     public List<Blog> getByStatus(BlogStatus status) {

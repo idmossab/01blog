@@ -6,7 +6,7 @@ import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;
 
 public record UserResponse(
-        Long userId,
+        Long id,
         String firstName,
         String lastName,
         String userName,
