@@ -34,12 +34,12 @@ export class RegisterComponent {
       email: this.email,
       password: this.password
     }).subscribe({
-      next: (user) => {
-        this.auth.setCurrentUser(user);
+      next: (res) => {
+        this.auth.setSession(res.user, res.token);
         this.router.navigateByUrl('/home');
       },
       error: (err) => {
-        this.error = err?.error || 'Registration failed';
+        this.error = err?.error?.message || err?.error || 'Registration failed';
         this.loading = false;
       }
     });

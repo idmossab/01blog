@@ -25,12 +25,12 @@ export class LoginComponent {
     this.error = '';
     this.loading = true;
     this.api.login({ emailOrUsername: this.emailOrUsername, password: this.password }).subscribe({
-      next: (user) => {
-        this.auth.setCurrentUser(user);
+      next: (res) => {
+        this.auth.setSession(res.user, res.token);
         this.router.navigateByUrl('/home');
       },
       error: (err) => {
-        this.error = err?.error || 'Login failed';
+        this.error = err?.error?.message || err?.error || 'Login failed';
         this.loading = false;
       }
     });

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Blog, Comment, Like, Media, UserResponse } from './models';
+import { AuthResponse, Blog, Comment, Like, Media, UserResponse } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -16,11 +16,11 @@ export class ApiService {
     email: string;
     password: string;
   }) {
-    return this.http.post<UserResponse>(`${this.baseUrl}/users/register`, payload);
+    return this.http.post<AuthResponse>(`${this.baseUrl}/users/register`, payload);
   }
 
   login(payload: { emailOrUsername: string; password: string }) {
-    return this.http.post<UserResponse>(`${this.baseUrl}/users/login`, payload);
+    return this.http.post<AuthResponse>(`${this.baseUrl}/users/login`, payload);
   }
 
   getUsers() {

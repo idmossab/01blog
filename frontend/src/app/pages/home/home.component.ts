@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = err?.error || 'Failed to load blogs';
+        this.error = err?.error?.message || err?.error || 'Failed to load blogs';
         this.loading = false;
       }
     });
@@ -70,13 +70,13 @@ export class HomeComponent implements OnInit {
               this.mediaByBlog[blog.idBlog!] = media;
             },
             error: (err) => {
-              this.error = err?.error || 'Failed to upload media';
+              this.error = err?.error?.message || err?.error || 'Failed to upload media';
             }
           });
         }
       },
       error: (err) => {
-        this.error = err?.error || 'Failed to create blog';
+        this.error = err?.error?.message || err?.error || 'Failed to create blog';
       }
     });
   }

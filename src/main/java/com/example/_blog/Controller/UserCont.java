@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import com.example._blog.Dto.AuthResponse;
 import com.example._blog.Dto.UserLoginRequest;
 import com.example._blog.Dto.UserRegisterRequest;
 import com.example._blog.Dto.UserResponse;
@@ -31,15 +32,15 @@ public class UserCont {
 
     //REGISTER
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody @Valid UserRegisterRequest req) {
-        UserResponse created = service.register(req);
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid UserRegisterRequest req) {
+        AuthResponse created = service.register(req);
         return ResponseEntity.ok(created);
     }
 
     //LOGIN (email OR username)
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody @Valid UserLoginRequest req) {
-        UserResponse u = service.login(req);
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid UserLoginRequest req) {
+        AuthResponse u = service.login(req);
         return ResponseEntity.ok(u);
     }
 

@@ -9,6 +9,11 @@ export interface UserResponse {
   createdAt: string;
 }
 
+export interface AuthResponse {
+  token: string;
+  user: UserResponse;
+}
+
 export interface Blog {
   idBlog?: number;
   title: string;

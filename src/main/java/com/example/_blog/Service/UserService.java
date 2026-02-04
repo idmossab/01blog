@@ -10,23 +10,27 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.util.List;
 
+import com.example._blog.Dto.AuthResponse;
 import com.example._blog.Dto.UserLoginRequest;
 import com.example._blog.Dto.UserRegisterRequest;
 import com.example._blog.Dto.UserResponse;
 import com.example._blog.Entity.User;
 import com.example._blog.Repositories.UserRepo;
+import com.example._blog.Security.JwtService;
 
 @Service
 public class UserService {
     private final UserRepo repo;
     private final PasswordEncoder encoder;
-    public UserService(UserRepo repo, PasswordEncoder encoder) {
+    private final JwtService jwtService;
+    public UserService(UserRepo repo, PasswordEncoder encoder, JwtService jwtService) {
         this.repo = repo;
         this.encoder = encoder;
+        this.jwtService = jwtService;
     }
 
     // REGISTER
-    public UserResponse register(UserRegisterRequest req) {
+    public AuthResponse register(UserRegisterRequest req) {
         if (repo.existsByEmail(req.email())) {
             throw new ResponseStatusException(CONFLICT, "Email already used");
         }
@@ -43,11 +47,12 @@ public class UserService {
                 .build();
 
         // INSERT
-        return toResponse(repo.save(user));
+        User saved = repo.save(user);
+        return new AuthResponse(jwtService.generateToken(saved), toResponse(saved));
     }
 
     // LOGIN (email OR username)
-    public UserResponse login(UserLoginRequest req) {
+    public AuthResponse login(UserLoginRequest req) {
         User u = repo.findByEmail(req.emailOrUsername());
         if (u == null) {
             u = repo.findByUserName(req.emailOrUsername());
@@ -60,7 +65,7 @@ public class UserService {
             throw new ResponseStatusException(UNAUTHORIZED, "Wrong password");
         }
 
-        return toResponse(u);
+        return new AuthResponse(jwtService.generateToken(u), toResponse(u));
     }
 
     public List<UserResponse> getAll() {
