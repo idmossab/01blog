@@ -12,7 +12,7 @@ import { Blog, Comment, Like, UserResponse } from '../../core/models';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
   user: UserResponse | null = null;

@@ -1,51 +1,82 @@
-<div class="auth-shell">
-  <div class="brand">
-    <div class="logo">01</div>
-    <div class="brand-text">
-      <h1>Create your 01Blog</h1>
-      <p>Start documenting your learning milestones.</p>
+<div class="container py-5">
+  <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h3 mb-3 text-center">Create your 01Blog</h1>
+          <p class="text-center text-muted mb-4">Start documenting your learning milestones.</p>
+
+          <form (ngSubmit)="submit()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">First name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  class="form-control"
+                  [(ngModel)]="firstName"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Last name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  class="form-control"
+                  [(ngModel)]="lastName"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input
+                type="text"
+                name="userName"
+                class="form-control"
+                [(ngModel)]="userName"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                name="email"
+                class="form-control"
+                [(ngModel)]="email"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                [(ngModel)]="password"
+                minlength="6"
+                required
+              />
+            </div>
+
+            <button class="btn btn-dark w-100" type="submit" [disabled]="loading">
+              {{ loading ? 'Creating...' : 'Register' }}
+            </button>
+
+            <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+
+            <p class="text-center mt-3 mb-0">
+              Already have an account?
+              <a routerLink="/login">Sign in</a>
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-
-  <form class="card" (ngSubmit)="submit()">
-    <h2>Join the community</h2>
-
-    <div class="grid">
-      <label>
-        First name
-        <input type="text" name="firstName" [(ngModel)]="firstName" required />
-      </label>
-
-      <label>
-        Last name
-        <input type="text" name="lastName" [(ngModel)]="lastName" required />
-      </label>
-    </div>
-
-    <label>
-      Username
-      <input type="text" name="userName" [(ngModel)]="userName" required />
-    </label>
-
-    <label>
-      Email
-      <input type="email" name="email" [(ngModel)]="email" required />
-    </label>
-
-    <label>
-      Password
-      <input type="password" name="password" [(ngModel)]="password" minlength="6" required />
-    </label>
-
-    <button class="primary" type="submit" [disabled]="loading">
-      {{ loading ? 'Creating...' : 'Register' }}
-    </button>
-
-    <p class="error" *ngIf="error">{{ error }}</p>
-
-    <p class="hint">
-      Already have an account?
-      <a routerLink="/login">Sign in</a>
-    </p>
-  </form>
 </div>
