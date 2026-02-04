@@ -24,15 +24,14 @@
             <textarea class="form-control" rows="4" [(ngModel)]="newBlog.content"></textarea>
           </div>
           <div class="mb-2">
-            <label class="form-label">Media URL</label>
-            <input class="form-control" type="text" [(ngModel)]="newBlog.media" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select class="form-select" [(ngModel)]="newBlog.status">
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="HIDDEN">HIDDEN</option>
-            </select>
+            <label class="form-label">Upload images or video (max 10)</label>
+            <input
+              class="form-control"
+              type="file"
+              multiple
+              accept="image/*,video/*"
+              (change)="onMediaChange($event)"
+            />
           </div>
           <button class="btn btn-dark w-100" (click)="createBlog()">Publish</button>
           <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
@@ -52,6 +51,22 @@
             <div class="list-group-item" *ngFor="let blog of blogs">
               <div class="fw-semibold">{{ blog.title }}</div>
               <small class="text-muted">{{ blog.content }}</small>
+              <div class="mt-2 d-flex flex-wrap gap-2">
+                <ng-container *ngFor="let media of getMedia(blog.idBlog)">
+                  <img
+                    *ngIf="media.mediaType?.startsWith('image')"
+                    [src]="media.url"
+                    alt="media"
+                    style="height: 64px; width: 64px; object-fit: cover; border-radius: 6px;"
+                  />
+                  <video
+                    *ngIf="media.mediaType?.startsWith('video')"
+                    [src]="media.url"
+                    style="height: 64px; width: 96px; object-fit: cover; border-radius: 6px;"
+                    muted
+                  ></video>
+                </ng-container>
+              </div>
             </div>
             <div class="text-muted" *ngIf="!blogs.length && !loading">No blogs yet.</div>
           </div>

@@ -21,6 +21,13 @@ export interface Blog {
   updatedAt?: string | null;
 }
 
+export interface Media {
+  id?: number;
+  url: string;
+  mediaType?: string;
+  createdAt?: string;
+}
+
 export interface Comment {
   id?: number;
   content: string;

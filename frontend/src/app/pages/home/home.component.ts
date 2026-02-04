@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { Blog, UserResponse } from '../../core/models';
+import { Blog, Media, UserResponse } from '../../core/models';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +19,8 @@ export class HomeComponent implements OnInit {
   blogs: Blog[] = [];
 
   newBlog: Blog = { title: '', content: '', status: 'ACTIVE', media: '' };
+  mediaFiles: File[] = [];
+  mediaByBlog: Record<number, Media[]> = {};
 
   error = '';
   loading = false;
@@ -60,11 +62,46 @@ export class HomeComponent implements OnInit {
       next: (blog) => {
         this.blogs = [blog, ...this.blogs];
         this.newBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
+        if (blog.idBlog && this.mediaFiles.length) {
+          const files = [...this.mediaFiles];
+          this.mediaFiles = [];
+          this.api.uploadMedia(blog.idBlog, files).subscribe({
+            next: (media) => {
+              this.mediaByBlog[blog.idBlog!] = media;
+            },
+            error: (err) => {
+              this.error = err?.error || 'Failed to upload media';
+            }
+          });
+        }
       },
       error: (err) => {
         this.error = err?.error || 'Failed to create blog';
       }
     });
+  }
+
+  onMediaChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    if (files.length > 10) {
+      this.error = 'Maximum 10 files allowed';
+      this.mediaFiles = [];
+      input.value = '';
+      return;
+    }
+    this.mediaFiles = files;
+  }
+
+  getMedia(blogId: number | undefined): Media[] {
+    if (!blogId) return [];
+    if (!this.mediaByBlog[blogId]) {
+      this.api.getMediaByBlog(blogId).subscribe({
+        next: (data) => (this.mediaByBlog[blogId] = data),
+        error: () => (this.mediaByBlog[blogId] = [])
+      });
+    }
+    return this.mediaByBlog[blogId] || [];
   }
 
   logout(): void {

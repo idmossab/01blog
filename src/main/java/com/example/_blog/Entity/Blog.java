@@ -2,9 +2,6 @@ package com.example._blog.Entity;
 
 import java.time.Instant;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import com.example._blog.Entity.enums.BlogStatus;
 
 import jakarta.persistence.Column;
@@ -44,8 +41,7 @@ public class Blog {
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private User user;
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "media", columnDefinition = "json")
+    @Column(name = "media")
     private String media;
     @Builder.Default
     private Long commentCount = 0L;
