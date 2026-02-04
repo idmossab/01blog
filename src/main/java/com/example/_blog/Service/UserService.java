@@ -8,6 +8,8 @@ import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+import java.util.List;
+
 import com.example._blog.Dto.UserLoginRequest;
 import com.example._blog.Dto.UserRegisterRequest;
 import com.example._blog.Dto.UserResponse;
@@ -59,6 +61,41 @@ public class UserService {
         }
 
         return toResponse(u);
+    }
+
+    public List<UserResponse> getAll() {
+        return repo.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public UserResponse getById(Long userId) {
+        return toResponse(repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found")));
+    }
+
+    public UserResponse update(Long userId, UserRegisterRequest req) {
+        User existing = repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+
+        if (!existing.getEmail().equals(req.email()) && repo.existsByEmail(req.email())) {
+            throw new ResponseStatusException(CONFLICT, "Email already used");
+        }
+        if (!existing.getUserName().equals(req.userName()) && repo.existsByUserName(req.userName())) {
+            throw new ResponseStatusException(CONFLICT, "Username already used");
+        }
+
+        existing.setFirstName(req.firstName());
+        existing.setLastName(req.lastName());
+        existing.setUserName(req.userName());
+        existing.setEmail(req.email());
+        existing.setPassword(encoder.encode(req.password()));
+
+        return toResponse(repo.save(existing));
+    }
+
+    public void delete(Long userId) {
+        User existing = repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+        repo.delete(existing);
     }
 
     private UserResponse toResponse(User user) {
