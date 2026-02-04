@@ -1,0 +1,51 @@
+<div class="auth-shell">
+  <div class="brand">
+    <div class="logo">01</div>
+    <div class="brand-text">
+      <h1>Create your 01Blog</h1>
+      <p>Start documenting your learning milestones.</p>
+    </div>
+  </div>
+
+  <form class="card" (ngSubmit)="submit()">
+    <h2>Join the community</h2>
+
+    <div class="grid">
+      <label>
+        First name
+        <input type="text" name="firstName" [(ngModel)]="firstName" required />
+      </label>
+
+      <label>
+        Last name
+        <input type="text" name="lastName" [(ngModel)]="lastName" required />
+      </label>
+    </div>
+
+    <label>
+      Username
+      <input type="text" name="userName" [(ngModel)]="userName" required />
+    </label>
+
+    <label>
+      Email
+      <input type="email" name="email" [(ngModel)]="email" required />
+    </label>
+
+    <label>
+      Password
+      <input type="password" name="password" [(ngModel)]="password" minlength="6" required />
+    </label>
+
+    <button class="primary" type="submit" [disabled]="loading">
+      {{ loading ? 'Creating...' : 'Register' }}
+    </button>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <p class="hint">
+      Already have an account?
+      <a routerLink="/login">Sign in</a>
+    </p>
+  </form>
+</div>

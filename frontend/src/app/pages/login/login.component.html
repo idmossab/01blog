@@ -1,0 +1,33 @@
+<div class="auth-shell">
+  <div class="brand">
+    <div class="logo">01</div>
+    <div class="brand-text">
+      <h1>01Blog</h1>
+      <p>Log in to share your learning journey.</p>
+    </div>
+  </div>
+
+  <form class="card" (ngSubmit)="submit()">
+    <h2>Welcome back</h2>
+    <label>
+      Email or Username
+      <input type="text" name="emailOrUsername" [(ngModel)]="emailOrUsername" required />
+    </label>
+
+    <label>
+      Password
+      <input type="password" name="password" [(ngModel)]="password" required />
+    </label>
+
+    <button class="primary" type="submit" [disabled]="loading">
+      {{ loading ? 'Signing in...' : 'Login' }}
+    </button>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <p class="hint">
+      New here?
+      <a routerLink="/register">Create an account</a>
+    </p>
+  </form>
+</div>

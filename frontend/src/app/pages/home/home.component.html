@@ -1,0 +1,185 @@
+<div class="home-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">01</div>
+      <div>
+        <h1>01Blog</h1>
+        <p>Welcome back, {{ user?.firstName }}</p>
+      </div>
+    </div>
+    <button class="ghost" (click)="logout()">Logout</button>
+  </header>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>My profile</h2>
+      <label>
+        First name
+        <input type="text" [(ngModel)]="profile.firstName" />
+      </label>
+      <label>
+        Last name
+        <input type="text" [(ngModel)]="profile.lastName" />
+      </label>
+      <label>
+        Username
+        <input type="text" [(ngModel)]="profile.userName" />
+      </label>
+      <label>
+        Email
+        <input type="email" [(ngModel)]="profile.email" />
+      </label>
+      <label>
+        New password
+        <input type="password" [(ngModel)]="profile.password" />
+      </label>
+      <div class="actions">
+        <button class="primary" (click)="updateProfile()">Update</button>
+        <button class="ghost" (click)="deleteAccount()">Delete Account</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Create a blog</h2>
+      <label>
+        Title
+        <input type="text" [(ngModel)]="newBlog.title" />
+      </label>
+      <label>
+        Content
+        <textarea rows="5" [(ngModel)]="newBlog.content"></textarea>
+      </label>
+      <label>
+        Media URL (optional)
+        <input type="text" [(ngModel)]="newBlog.media" />
+      </label>
+      <label>
+        Status
+        <select [(ngModel)]="newBlog.status">
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="HIDDEN">HIDDEN</option>
+        </select>
+      </label>
+      <button class="primary" (click)="createBlog()">Publish</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Blogs</h2>
+        <div class="actions">
+          <button class="ghost" (click)="loadMyBlogs()">My Blogs</button>
+          <select [(ngModel)]="statusFilter" (change)="loadByStatus()">
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="HIDDEN">HIDDEN</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+      <div class="list">
+        <button
+          class="blog-card"
+          *ngFor="let blog of blogs"
+          (click)="selectBlog(blog.idBlog)"
+        >
+          <h3>{{ blog.title }}</h3>
+          <p>{{ blog.content }}</p>
+          <span>{{ blog.status }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Interactions</h2>
+      <p *ngIf="!selectedBlogId">Select a blog to view comments and likes.</p>
+
+      <div *ngIf="selectedBlogId">
+        <div class="chip-row">
+          <button class="primary" (click)="likeSelected()">Like</button>
+          <button class="ghost" (click)="unlikeSelected()">Unlike</button>
+          <span>{{ likes.length }} likes</span>
+        </div>
+
+        <div class="comments">
+          <h3>Comments ({{ comments.length }})</h3>
+          <div class="comment" *ngFor="let comment of comments">
+            <span>{{ comment.content }}</span>
+            <button class="ghost" (click)="deleteComment(comment.id)">Delete</button>
+          </div>
+          <textarea rows="3" [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+          <button class="primary" (click)="addComment()">Add Comment</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Edit selected blog</h2>
+      <p *ngIf="!selectedBlogId">Select a blog first.</p>
+      <div *ngIf="selectedBlogId">
+        <label>
+          Title
+          <input type="text" [(ngModel)]="blogEditTitle" />
+        </label>
+        <label>
+          Content
+          <textarea rows="4" [(ngModel)]="blogEditContent"></textarea>
+        </label>
+        <div class="actions">
+          <button class="primary" (click)="updateBlog()">Save</button>
+          <button class="ghost" (click)="deleteBlog()">Delete Blog</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Comment tools</h2>
+      <label>
+        Comment ID
+        <input type="number" [(ngModel)]="commentEditId" />
+      </label>
+      <label>
+        New content
+        <textarea rows="3" [(ngModel)]="commentEditContent"></textarea>
+      </label>
+      <button class="primary" (click)="updateComment()">Update Comment</button>
+
+      <div class="divider"></div>
+      <label>
+        Lookup comment by ID
+        <input type="number" [(ngModel)]="commentLookupId" />
+      </label>
+      <button class="ghost" (click)="loadCommentById()">Load Comment</button>
+      <p *ngIf="commentLookup">Found: {{ commentLookup.content }}</p>
+
+      <div class="divider"></div>
+      <label>
+        Comments by user ID
+        <input type="number" [(ngModel)]="commentLookupUserId" />
+      </label>
+      <button class="ghost" (click)="loadCommentsByUser()">Load User Comments</button>
+      <p *ngIf="commentUserList.length">{{ commentUserList.length }} comments loaded</p>
+    </div>
+
+    <div class="panel">
+      <h2>Likes by user</h2>
+      <label>
+        User ID
+        <input type="number" [(ngModel)]="likeUserId" />
+      </label>
+      <button class="ghost" (click)="loadLikesByUser()">Load Likes</button>
+      <p>{{ likes.length }} likes loaded</p>
+    </div>
+
+    <div class="panel">
+      <h2>Users list</h2>
+      <button class="ghost" (click)="loadUsers()">Refresh</button>
+      <div class="list">
+        <div class="user-card" *ngFor="let u of users">
+          <strong>{{ u.userName }}</strong>
+          <span>{{ u.email }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
