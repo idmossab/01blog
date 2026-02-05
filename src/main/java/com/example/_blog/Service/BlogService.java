@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.example._blog.Entity.Blog;
@@ -27,6 +28,9 @@ public class BlogService {
     }
 
     public Blog create(Blog blog, Long userId) {
+        if (!hasText(blog.getTitle()) || !hasText(blog.getContent())) {
+            throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
+        }
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
         blog.setUser(user);
@@ -38,6 +42,9 @@ public class BlogService {
     @org.springframework.transaction.annotation.Transactional
     public Blog createWithMedia(Long userId, String title, String content, BlogStatus status,
                                 java.util.List<org.springframework.web.multipart.MultipartFile> files) {
+        if (!hasText(title) || !hasText(content)) {
+            throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
+        }
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
 
@@ -53,6 +60,10 @@ public class BlogService {
         Blog saved = blogRepo.save(blog);
         mediaService.uploadToBlog(saved, files, false);
         return saved;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     public Blog update(Long blogId, Blog changes) {

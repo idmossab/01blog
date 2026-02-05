@@ -26,14 +26,32 @@
           <div class="mb-2">
             <label class="form-label">Upload images or video (max 10)</label>
             <input
-              class="form-control"
+              class="d-none"
               type="file"
               multiple
               accept="image/*,video/*"
+              #mediaInput
               (change)="onMediaChange($event)"
             />
           </div>
-          <button class="btn btn-dark w-100" (click)="createBlog()">Publish</button>
+          <div class="mb-3">
+            <div class="media-grid">
+              <button class="media-tile add-tile" type="button" (click)="triggerMediaPicker()">
+                <div class="plus">+</div>
+                <div class="label">Add media</div>
+              </button>
+
+              <div class="media-tile preview-tile" *ngFor="let media of mediaPreviews; let i = index">
+                <img *ngIf="media.kind === 'image'" [src]="media.url" alt="preview" />
+                <video *ngIf="media.kind === 'video'" [src]="media.url" muted controls></video>
+                <button class="remove-btn" type="button" (click)="removeMedia(i)">Remove</button>
+              </div>
+            </div>
+            <div class="text-muted small mt-2" *ngIf="mediaPreviews.length">
+              Total size: {{ totalMediaSize | number }} bytes
+            </div>
+          </div>
+          <button class="btn btn-dark w-100" (click)="createBlog()" [disabled]="!hasRequiredText()">Publish</button>
           <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
         </div>
       </div>
