@@ -141,4 +141,15 @@ export class ApiService {
   getLikeStatus(blogId: number, userId: number) {
     return this.http.get<LikeStatus>(`${this.baseUrl}/likes/status?blogId=${blogId}&userId=${userId}`);
   }
+
+  getFollowingIds() {
+    return this.http.get<number[]>(`${this.baseUrl}/api/follows/me/following`);
+  }
+
+  followUser(userId: number) {
+    return this.http.post<{ message: string; followingUserId: number }>(
+      `${this.baseUrl}/api/follows/${userId}`,
+      {}
+    );
+  }
 }

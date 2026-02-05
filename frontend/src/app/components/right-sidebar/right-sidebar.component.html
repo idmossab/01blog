@@ -1,0 +1,41 @@
+<div class="sidebar-card">
+  <div class="sidebar-header">
+    <h6>Who to follow</h6>
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      placeholder="Search users"
+      [formControl]="searchControl"
+    />
+  </div>
+
+  <div class="sidebar-list" #scrollContainer>
+    <div class="text-muted small px-2" *ngIf="loading">Loading...</div>
+
+    <div class="user-row" *ngFor="let user of displayedUsers">
+      <div class="user-info">
+        <div class="avatar">{{ user.firstName[0] }}{{ user.lastName[0] }}</div>
+        <div>
+          <div class="name">{{ user.firstName }} {{ user.lastName }}</div>
+          <div class="handle">@{{ user.userName }}</div>
+        </div>
+      </div>
+      <button
+        class="btn btn-sm btn-outline-dark"
+        type="button"
+        [disabled]="followLoadingIds.has(user.userId)"
+        (click)="follow(user.userId)"
+      >
+        {{ followLoadingIds.has(user.userId) ? 'Following...' : 'Follow' }}
+      </button>
+    </div>
+
+    <div class="text-muted small px-2" *ngIf="!loading && !displayedUsers.length">
+      No suggestions.
+    </div>
+    <div class="text-muted small px-2" *ngIf="loadingMore">Loading more...</div>
+    <div class="text-muted small px-2" *ngIf="endReached && displayedUsers.length">
+      You’re all caught up.
+    </div>
+  </div>
+</div>

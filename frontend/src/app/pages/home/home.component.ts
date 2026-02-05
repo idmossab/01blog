@@ -7,11 +7,12 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Blog, Media, UserResponse } from '../../core/models';
+import { RightSidebarComponent } from '../../components/right-sidebar/right-sidebar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RightSidebarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
