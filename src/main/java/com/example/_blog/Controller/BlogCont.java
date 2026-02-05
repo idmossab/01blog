@@ -3,6 +3,7 @@ package com.example._blog.Controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.enums.BlogStatus;
@@ -29,6 +31,15 @@ public class BlogCont {
     @PostMapping
     public ResponseEntity<Blog> create(@RequestParam Long userId, @RequestBody Blog blog) {
         return ResponseEntity.ok(service.create(blog, userId));
+    }
+
+    @PostMapping(value = "/with-media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Blog> createWithMedia(@RequestParam Long userId,
+                                                @RequestParam String title,
+                                                @RequestParam String content,
+                                                @RequestParam(required = false) BlogStatus status,
+                                                @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+        return ResponseEntity.ok(service.createWithMedia(userId, title, content, status, files));
     }
 
     @PutMapping("/{blogId}")

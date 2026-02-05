@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalExp {
@@ -43,5 +44,11 @@ public class GlobalExp {
         System.err.println(ex.getClass().getName());
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(Instant.now(), 400, "you have provided invalid input. Please check and try again.", req.getRequestURI()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex, HttpServletRequest req) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(Instant.now(), 400, "Total media size exceeds 10MB", req.getRequestURI()));
     }
 }

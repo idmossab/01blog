@@ -49,6 +49,18 @@ export class ApiService {
     return this.http.post<Blog>(`${this.baseUrl}/blogs?userId=${userId}`, payload);
   }
 
+  createBlogWithMedia(userId: number, payload: Blog, files: File[]) {
+    const form = new FormData();
+    form.append('userId', String(userId));
+    form.append('title', payload.title || '');
+    form.append('content', payload.content || '');
+    if (payload.status) {
+      form.append('status', payload.status);
+    }
+    files.forEach((file) => form.append('files', file));
+    return this.http.post<Blog>(`${this.baseUrl}/blogs/with-media`, form);
+  }
+
   updateBlog(blogId: number, payload: Partial<Blog>) {
     return this.http.put<Blog>(`${this.baseUrl}/blogs/${blogId}`, payload);
   }

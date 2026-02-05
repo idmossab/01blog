@@ -58,22 +58,12 @@ export class HomeComponent implements OnInit {
   createBlog(): void {
     if (!this.user) return;
     this.error = '';
-    this.api.createBlog(this.user.userId, this.newBlog).subscribe({
+    const files = [...this.mediaFiles];
+    this.api.createBlogWithMedia(this.user.userId, this.newBlog, files).subscribe({
       next: (blog) => {
         this.blogs = [blog, ...this.blogs];
         this.newBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
-        if (blog.idBlog && this.mediaFiles.length) {
-          const files = [...this.mediaFiles];
-          this.mediaFiles = [];
-          this.api.uploadMedia(blog.idBlog, files).subscribe({
-            next: (media) => {
-              this.mediaByBlog[blog.idBlog!] = media;
-            },
-            error: (err) => {
-              this.error = err?.error?.message || err?.error || 'Failed to upload media';
-            }
-          });
-        }
+        this.mediaFiles = [];
       },
       error: (err) => {
         this.error = err?.error?.message || err?.error || 'Failed to create blog';
@@ -86,6 +76,13 @@ export class HomeComponent implements OnInit {
     const files = Array.from(input.files || []);
     if (files.length > 10) {
       this.error = 'Maximum 10 files allowed';
+      this.mediaFiles = [];
+      input.value = '';
+      return;
+    }
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 10 * 1024 * 1024) {
+      this.error = 'Total media size exceeds 10MB';
       this.mediaFiles = [];
       input.value = '';
       return;
