@@ -55,4 +55,12 @@ public class FollowService {
     public List<Long> getFollowingIds(Long currentUserId) {
         return followRepo.findFollowingIdsByFollowerId(currentUserId);
     }
+
+    public FollowCounts getFollowCounts(Long currentUserId) {
+        long following = followRepo.countByFollowerUserId(currentUserId);
+        long followers = followRepo.countByFollowingUserId(currentUserId);
+        return new FollowCounts(following, followers);
+    }
+
+    public record FollowCounts(long following, long followers) {}
 }

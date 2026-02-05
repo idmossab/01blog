@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/co
 import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -13,7 +13,7 @@ import { FeedRefreshService } from '../../core/feed-refresh.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RightSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RightSidebarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

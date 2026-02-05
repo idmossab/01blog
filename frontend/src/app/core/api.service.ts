@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { AuthResponse, Blog, Comment, Like, LikeStatus, Media, UserResponse } from './models';
+import { AuthResponse, Blog, Comment, FollowCounts, Like, LikeStatus, Media, UserResponse } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -25,6 +25,10 @@ export class ApiService {
 
   getUsers() {
     return this.http.get<UserResponse[]>(`${this.baseUrl}/users`);
+  }
+
+  getMe() {
+    return this.http.get<UserResponse>(`${this.baseUrl}/api/users/me`);
   }
 
   getUserById(userId: number) {
@@ -79,6 +83,14 @@ export class ApiService {
 
   getFeedBlogs(page = 0, size = 20) {
     return this.http.get<any>(`${this.baseUrl}/api/blogs/feed?page=${page}&size=${size}`);
+  }
+
+  getMyBlogs(page = 0, size = 10) {
+    return this.http.get<any>(`${this.baseUrl}/api/blogs/me?page=${page}&size=${size}`);
+  }
+
+  getMyBlogCount() {
+    return this.http.get<{ count: number }>(`${this.baseUrl}/api/blogs/me/count`);
   }
 
   getBlogsByStatus(status: string) {
@@ -148,6 +160,10 @@ export class ApiService {
 
   getFollowingIds() {
     return this.http.get<number[]>(`${this.baseUrl}/api/follows/me/following`);
+  }
+
+  getMyFollowCounts() {
+    return this.http.get<FollowCounts>(`${this.baseUrl}/api/follows/me/counts`);
   }
 
   followUser(userId: number) {

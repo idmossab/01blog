@@ -52,3 +52,8 @@ export interface LikeStatus {
   liked: boolean;
   likeCount: number;
 }
+
+export interface FollowCounts {
+  following: number;
+  followers: number;
+}

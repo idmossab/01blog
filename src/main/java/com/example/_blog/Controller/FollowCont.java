@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.FollowService;
+import com.example._blog.Service.FollowService.FollowCounts;
 
 @RestController
 @RequestMapping("/api/follows")
@@ -43,6 +44,12 @@ public class FollowCont {
     public ResponseEntity<List<Long>> getFollowing(@AuthenticationPrincipal UserPrincipal principal) {
         Long currentUserId = principal.getUser().getUserId();
         return ResponseEntity.ok(service.getFollowingIds(currentUserId));
+    }
+
+    @GetMapping("/me/counts")
+    public ResponseEntity<FollowCounts> getCounts(@AuthenticationPrincipal UserPrincipal principal) {
+        Long currentUserId = principal.getUser().getUserId();
+        return ResponseEntity.ok(service.getFollowCounts(currentUserId));
     }
 
     public record FollowResponse(String message, Long followingUserId) {}

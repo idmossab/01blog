@@ -115,4 +115,13 @@ public class BlogService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return blogRepo.findFeedBlogs(authorIds, pageable);
     }
+
+    public Page<Blog> getMyBlogs(Long currentUserId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return blogRepo.findByUserUserIdOrderByCreatedAtDesc(currentUserId, pageable);
+    }
+
+    public long getMyBlogCount(Long currentUserId) {
+        return blogRepo.countByUserUserId(currentUserId);
+    }
 }

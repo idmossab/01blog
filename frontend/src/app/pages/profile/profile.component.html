@@ -1,0 +1,59 @@
+<div class="container py-4">
+  <nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3">
+    <span class="navbar-brand fw-bold">01Blog</span>
+    <div class="ms-auto d-flex align-items-center gap-2" *ngIf="user">
+      <button class="btn btn-outline-secondary btn-sm" routerLink="/home">Home</button>
+      <button class="btn btn-dark btn-sm" routerLink="/profile">Profile</button>
+    </div>
+  </nav>
+
+  <div class="profile-card shadow-sm" *ngIf="!loading; else loadingState">
+    <div class="profile-header">
+      <div class="avatar">{{ user?.firstName?.[0] }}{{ user?.lastName?.[0] }}</div>
+      <div>
+        <h3 class="mb-1">{{ user?.firstName }} {{ user?.lastName }}</h3>
+        <div class="text-muted">@{{ user?.userName }}</div>
+        <div class="text-muted small" *ngIf="user?.email">{{ user?.email }}</div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Blogs</div>
+        <div class="stat-value">{{ blogCount }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Following</div>
+        <div class="stat-value">{{ followCounts.following }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Followers</div>
+        <div class="stat-value">{{ followCounts.followers }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="card-title mb-0">My Blogs</h5>
+      </div>
+      <div class="list-group">
+        <a class="list-group-item blog-card" *ngFor="let blog of blogs" [routerLink]="['/blogs', blog.idBlog]">
+          <div class="blog-title">{{ blog.title }}</div>
+          <div class="blog-excerpt">{{ blog.content }}</div>
+          <div class="blog-meta">{{ formatRelative(blog.createdAt) }}</div>
+        </a>
+        <div class="text-muted" *ngIf="!blogs.length && !loading">No blogs yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+</div>
+
+<ng-template #loadingState>
+  <div class="profile-card shadow-sm">
+    <div class="loading">Loading profile...</div>
+  </div>
+</ng-template>

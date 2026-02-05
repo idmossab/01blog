@@ -21,4 +21,6 @@ public interface BlogRepo extends JpaRepository<Blog, Long> {
 
     @Query("select b from Blog b where b.user.userId in :authorIds")
     Page<Blog> findFeedBlogs(@Param("authorIds") List<Long> authorIds, Pageable pageable);
+
+    Page<Blog> findByUserUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 }

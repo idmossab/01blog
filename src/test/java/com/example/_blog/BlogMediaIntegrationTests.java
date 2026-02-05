@@ -18,10 +18,12 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.mock.web.MockMultipartFile;
 
 import com.example._blog.Entity.Media;
@@ -33,13 +35,14 @@ import com.example._blog.Repositories.MediaRepo;
 import com.example._blog.Repositories.UserRepo;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 class BlogMediaIntegrationTests {
     private static final Path UPLOAD_DIR = Paths.get("uploads");
 
-    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext context;
 
     @Autowired
     private UserRepo userRepo;
@@ -51,6 +54,11 @@ class BlogMediaIntegrationTests {
     private MediaRepo mediaRepo;
 
     private final List<Path> createdPaths = new ArrayList<>();
+
+    @BeforeEach
+    void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
 
     @AfterEach
     void cleanup() throws IOException {

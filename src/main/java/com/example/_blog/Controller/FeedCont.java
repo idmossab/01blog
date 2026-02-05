@@ -28,4 +28,20 @@ public class FeedCont {
         Long currentUserId = principal.getUser().getUserId();
         return ResponseEntity.ok(blogService.getFeed(currentUserId, page, size));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<Page<Blog>> getMyBlogs(@AuthenticationPrincipal UserPrincipal principal,
+                                                 @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size) {
+        Long currentUserId = principal.getUser().getUserId();
+        return ResponseEntity.ok(blogService.getMyBlogs(currentUserId, page, size));
+    }
+
+    @GetMapping("/me/count")
+    public ResponseEntity<CountResponse> getMyBlogCount(@AuthenticationPrincipal UserPrincipal principal) {
+        Long currentUserId = principal.getUser().getUserId();
+        return ResponseEntity.ok(new CountResponse(blogService.getMyBlogCount(currentUserId)));
+    }
+
+    public record CountResponse(long count) {}
 }
