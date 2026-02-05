@@ -1,21 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { Blog, FollowCounts, UserResponse } from '../../core/models';
+import { Blog, FollowCounts, Media, UserResponse } from '../../core/models';
+import { BlogCardComponent } from '../../components/blog-card/blog-card.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, BlogCardComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
   user: UserResponse | null = null;
   blogs: Blog[] = [];
+  thumbnailByBlog: Record<number, Media | null> = {};
   blogCount = 0;
   followCounts: FollowCounts = { following: 0, followers: 0 };
   loading = true;
@@ -68,6 +70,7 @@ export class ProfileComponent implements OnInit {
         if (!this.blogCount) {
           this.blogCount = data?.totalElements || this.blogs.length;
         }
+        this.preloadThumbnails();
         this.loading = false;
       },
       error: (err: any) => {
@@ -75,6 +78,24 @@ export class ProfileComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  private preloadThumbnails(): void {
+    this.blogs.forEach((blog) => {
+      if (!blog.idBlog) return;
+      const blogId = blog.idBlog;
+      if (!this.thumbnailByBlog[blogId]) {
+        this.api.getFirstMediaByBlog(blogId).subscribe({
+          next: (media) => (this.thumbnailByBlog[blogId] = media),
+          error: () => (this.thumbnailByBlog[blogId] = null)
+        });
+      }
+    });
+  }
+
+  openDetails(blogId: number | undefined): void {
+    if (!blogId) return;
+    this.router.navigateByUrl(`/blogs/${blogId}`);
   }
 
   formatRelative(dateValue?: string): string {

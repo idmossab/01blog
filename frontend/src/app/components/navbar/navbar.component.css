@@ -1,0 +1,9 @@
+.navbar {
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+}
+
+.navbar .btn {
+  border-radius: 999px;
+}

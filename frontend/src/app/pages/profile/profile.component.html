@@ -1,12 +1,4 @@
 <div class="container py-4">
-  <nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3">
-    <span class="navbar-brand fw-bold">01Blog</span>
-    <div class="ms-auto d-flex align-items-center gap-2" *ngIf="user">
-      <button class="btn btn-outline-secondary btn-sm" routerLink="/home">Home</button>
-      <button class="btn btn-dark btn-sm" routerLink="/profile">Profile</button>
-    </div>
-  </nav>
-
   <div class="profile-card shadow-sm" *ngIf="!loading; else loadingState">
     <div class="profile-header">
       <div class="avatar">{{ user?.firstName?.[0] }}{{ user?.lastName?.[0] }}</div>
@@ -39,12 +31,20 @@
         <h5 class="card-title mb-0">My Blogs</h5>
       </div>
       <div class="list-group">
-        <a class="list-group-item blog-card" *ngFor="let blog of blogs" [routerLink]="['/blogs', blog.idBlog]">
-          <div class="blog-title">{{ blog.title }}</div>
-          <div class="blog-excerpt">{{ blog.content }}</div>
-          <div class="blog-meta">{{ formatRelative(blog.createdAt) }}</div>
-        </a>
-        <div class="text-muted" *ngIf="!blogs.length && !loading">No blogs yet.</div>
+        <app-blog-card
+          *ngFor="let blog of blogs"
+          [blog]="blog"
+          [authorName]="(user?.firstName || '') + ' ' + (user?.lastName || '')"
+          [thumbnail]="thumbnailByBlog[blog.idBlog || 0] || null"
+          [liked]="false"
+          [likeCount]="blog.likeCount || 0"
+          [commentCount]="blog.commentCount || 0"
+          [dateLabel]="formatRelative(blog.createdAt)"
+          (open)="openDetails(blog.idBlog)"
+          (like)="openDetails(blog.idBlog)"
+          (comment)="openDetails(blog.idBlog)"
+        ></app-blog-card>
+        <div class="text-muted" *ngIf="!blogs.length && !loading">You haven’t posted any blogs yet.</div>
       </div>
     </div>
   </div>

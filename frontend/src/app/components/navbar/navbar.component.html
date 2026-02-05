@@ -1,0 +1,14 @@
+<nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3">
+  <div class="d-flex align-items-center gap-2">
+    <button class="btn btn-outline-secondary btn-sm" *ngIf="showBack" (click)="goBack()">←</button>
+    <span class="navbar-brand fw-bold">01Blog</span>
+  </div>
+  <div class="ms-auto d-flex align-items-center gap-3 flex-wrap" *ngIf="user">
+    <div class="text-end">
+      <div class="fw-semibold">{{ user?.firstName }} {{ user?.lastName }}</div>
+      <small class="text-muted">@{{ user?.userName }}</small>
+    </div>
+    <button class="btn btn-outline-secondary btn-sm" routerLink="/profile">Profile</button>
+    <button class="btn btn-outline-secondary btn-sm" (click)="logout()">Logout</button>
+  </div>
+</nav>

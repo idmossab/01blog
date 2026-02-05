@@ -2,18 +2,19 @@ import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/co
 import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Blog, Media, UserResponse } from '../../core/models';
 import { RightSidebarComponent } from '../../components/right-sidebar/right-sidebar.component';
 import { FeedRefreshService } from '../../core/feed-refresh.service';
+import { BlogCardComponent } from '../../components/blog-card/blog-card.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RightSidebarComponent],
+  imports: [CommonModule, FormsModule, RightSidebarComponent, BlogCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

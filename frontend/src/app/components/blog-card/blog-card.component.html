@@ -1,0 +1,28 @@
+<div class="list-group-item blog-card" (click)="onOpen()">
+  <div class="blog-main">
+    <div class="blog-text">
+      <div class="blog-title">{{ blog.title }}</div>
+      <div class="blog-excerpt">{{ blog.content }}</div>
+      <div class="blog-meta-row">
+        <span class="blog-author">{{ authorName }}</span>
+        <span class="dot">•</span>
+        <span>{{ dateLabel }}</span>
+      </div>
+      <div class="blog-actions">
+        <button class="action-btn" type="button" (click)="onLike($event)" [class.liked]="liked">
+          Like ({{ likeCount }})
+        </button>
+        <button class="action-btn" type="button" (click)="onComment($event)">
+          Comments ({{ commentCount }})
+        </button>
+      </div>
+    </div>
+    <div class="blog-thumb" *ngIf="thumbnail">
+      <img *ngIf="thumbnail.mediaType?.startsWith('image')" [src]="thumbnail.url" alt="thumbnail" />
+      <div class="video-thumb" *ngIf="thumbnail.mediaType?.startsWith('video')">
+        <video [src]="thumbnail.url" muted playsinline></video>
+        <div class="play-badge">▶</div>
+      </div>
+    </div>
+  </div>
+</div>
