@@ -2,9 +2,14 @@ package com.example._blog.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -20,11 +25,13 @@ public class BlogService {
     private final BlogRepo blogRepo;
     private final UserRepo userRepo;
     private final MediaService mediaService;
+    private final FollowService followService;
 
-    public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService) {
+    public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService) {
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
         this.mediaService = mediaService;
+        this.followService = followService;
     }
 
     public Blog create(Blog blog, Long userId) {
@@ -100,5 +107,12 @@ public class BlogService {
 
     public List<Blog> getByStatus(BlogStatus status) {
         return blogRepo.findByStatus(status);
+    }
+
+    public Page<Blog> getFeed(Long currentUserId, int page, int size) {
+        List<Long> authorIds = new ArrayList<>(followService.getFollowingIds(currentUserId));
+        authorIds.add(currentUserId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return blogRepo.findFeedBlogs(authorIds, pageable);
     }
 }

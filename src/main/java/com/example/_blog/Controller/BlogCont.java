@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.data.domain.Page;
 
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.enums.BlogStatus;
 import com.example._blog.Service.BlogService;
+import com.example._blog.Security.UserPrincipal;
 
 @RestController
 @RequestMapping("/blogs")
@@ -66,5 +69,13 @@ public class BlogCont {
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Blog>> getByStatus(@PathVariable BlogStatus status) {
         return ResponseEntity.ok(service.getByStatus(status));
+    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<Page<Blog>> getFeed(@AuthenticationPrincipal UserPrincipal principal,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "20") int size) {
+        Long currentUserId = principal.getUser().getUserId();
+        return ResponseEntity.ok(service.getFeed(currentUserId, page, size));
     }
 }
