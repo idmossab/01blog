@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { AuthResponse, Blog, Comment, Like, Media, UserResponse } from './models';
+import { AuthResponse, Blog, Comment, Like, LikeStatus, Media, UserResponse } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -130,7 +130,15 @@ export class ApiService {
     return this.http.post<Media[]>(`${this.baseUrl}/media/upload/${blogId}`, form);
   }
 
+  getFirstMediaByBlog(blogId: number) {
+    return this.http.get<Media | null>(`${this.baseUrl}/media/first/${blogId}`);
+  }
+
   getMediaByBlog(blogId: number) {
     return this.http.get<Media[]>(`${this.baseUrl}/media/by-blog/${blogId}`);
+  }
+
+  getLikeStatus(blogId: number, userId: number) {
+    return this.http.get<LikeStatus>(`${this.baseUrl}/likes/status?blogId=${blogId}&userId=${userId}`);
   }
 }

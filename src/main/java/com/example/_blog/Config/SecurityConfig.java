@@ -31,7 +31,8 @@ public class SecurityConfig {
                     "/users/register",
                     "/users/login",
                     "/uploads/**",
-                    "/media/by-blog/**"
+                    "/media/by-blog/**",
+                    "/media/first/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

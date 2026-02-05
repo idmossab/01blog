@@ -24,7 +24,7 @@
             <textarea class="form-control" rows="4" [(ngModel)]="newBlog.content"></textarea>
           </div>
           <div class="mb-2">
-            <label class="form-label">Upload images or video (max 10)</label>
+            <label class="form-label">Upload images or video (max 5)</label>
             <input
               class="d-none"
               type="file"
@@ -66,24 +66,41 @@
           </div>
 
           <div class="list-group">
-            <div class="list-group-item" *ngFor="let blog of blogs">
-              <div class="fw-semibold">{{ blog.title }}</div>
-              <small class="text-muted">{{ blog.content }}</small>
-              <div class="mt-2 d-flex flex-wrap gap-2">
-                <ng-container *ngFor="let media of getMedia(blog.idBlog)">
+            <div class="list-group-item blog-card" *ngFor="let blog of blogs" (click)="openDetails(blog.idBlog)">
+              <div class="blog-main">
+                <div class="blog-text">
+                  <div class="blog-title">{{ blog.title }}</div>
+                  <div class="blog-excerpt">{{ blog.content }}</div>
+                  <div class="blog-meta-row">
+                    <span class="blog-author">{{ user?.firstName }} {{ user?.lastName }}</span>
+                    <span class="dot">•</span>
+                    <span>{{ formatRelative(blog.createdAt) }}</span>
+                  </div>
+                  <div class="blog-actions">
+                    <button
+                      class="action-btn"
+                      type="button"
+                      (click)="toggleLike(blog, $event)"
+                      [class.liked]="likedByBlog[blog.idBlog || 0]"
+                    >
+                      Like ({{ likeCountByBlog[blog.idBlog || 0] ?? blog.likeCount ?? 0 }})
+                    </button>
+                    <button class="action-btn" type="button" (click)="$event.stopPropagation(); openDetails(blog.idBlog)">
+                      Comments ({{ blog.commentCount || 0 }})
+                    </button>
+                  </div>
+                </div>
+                <div class="blog-thumb" *ngIf="thumbnailByBlog[blog.idBlog || 0] as thumb">
                   <img
-                    *ngIf="media.mediaType?.startsWith('image')"
-                    [src]="media.url"
-                    alt="media"
-                    style="height: 64px; width: 64px; object-fit: cover; border-radius: 6px;"
+                    *ngIf="thumb.mediaType?.startsWith('image')"
+                    [src]="thumb.url"
+                    alt="thumbnail"
                   />
-                  <video
-                    *ngIf="media.mediaType?.startsWith('video')"
-                    [src]="media.url"
-                    style="height: 64px; width: 96px; object-fit: cover; border-radius: 6px;"
-                    muted
-                  ></video>
-                </ng-container>
+                  <div class="video-thumb" *ngIf="thumb.mediaType?.startsWith('video')">
+                    <video [src]="thumb.url" muted playsinline></video>
+                    <div class="play-badge">▶</div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="text-muted" *ngIf="!blogs.length && !loading">No blogs yet.</div>

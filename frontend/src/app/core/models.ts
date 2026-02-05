@@ -24,6 +24,7 @@ export interface Blog {
   likeCount?: number;
   createdAt?: string;
   updatedAt?: string | null;
+  user?: UserResponse;
 }
 
 export interface Media {
@@ -38,10 +39,16 @@ export interface Comment {
   content: string;
   createdAt?: string;
   updatedAt?: string | null;
+  user?: UserResponse;
 }
 
 export interface Like {
   id?: number;
   createdAt?: string;
   updatedAt?: string | null;
+}
+
+export interface LikeStatus {
+  liked: boolean;
+  likeCount: number;
 }

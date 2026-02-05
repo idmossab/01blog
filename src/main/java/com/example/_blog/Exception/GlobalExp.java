@@ -9,6 +9,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalExp {
@@ -50,5 +51,11 @@ public class GlobalExp {
     public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex, HttpServletRequest req) {
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(Instant.now(), 400, "Total media size exceeds 10MB", req.getRequestURI()));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ErrorResponse> handleMultipartException(MultipartException ex, HttpServletRequest req) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(Instant.now(), 400, "Maximum 5 files allowed", req.getRequestURI()));
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.example._blog.Entity.Blog;
@@ -30,6 +31,9 @@ public class CommentService {
 
     @Transactional
     public Comment add(Long blogId, Long userId, Comment comment) {
+        if (comment == null || comment.getContent() == null || comment.getContent().trim().isEmpty()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Comment cannot be empty");
+        }
         Blog blog = blogRepo.findById(blogId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog not found"));
         User user = userRepo.findById(userId)

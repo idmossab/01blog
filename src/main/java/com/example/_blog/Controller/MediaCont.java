@@ -33,4 +33,9 @@ public class MediaCont {
     public ResponseEntity<List<Media>> getByBlog(@PathVariable Long blogId) {
         return ResponseEntity.ok(service.getByBlog(blogId));
     }
+
+    @GetMapping("/first/{blogId}")
+    public ResponseEntity<Media> getFirstByBlog(@PathVariable Long blogId) {
+        return ResponseEntity.ok(service.getFirstByBlog(blogId));
+    }
 }

@@ -72,4 +72,12 @@ public class LikeService {
     public List<Like> getByUser(Long userId) {
         return likeRepo.findByUserUserId(userId);
     }
+
+    public LikeStatus getStatus(Long blogId, Long userId) {
+        boolean liked = likeRepo.existsByBlogIdBlogAndUserUserId(blogId, userId);
+        long count = likeRepo.countByBlogIdBlog(blogId);
+        return new LikeStatus(liked, count);
+    }
+
+    public record LikeStatus(boolean liked, long likeCount) {}
 }

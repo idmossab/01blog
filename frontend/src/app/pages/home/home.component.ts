@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -23,6 +24,9 @@ export class HomeComponent implements OnInit {
   mediaPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
   totalMediaSize = 0;
   mediaByBlog: Record<number, Media[]> = {};
+  thumbnailByBlog: Record<number, Media | null> = {};
+  likedByBlog: Record<number, boolean | undefined> = {};
+  likeCountByBlog: Record<number, number | undefined> = {};
 
   error = '';
   loading = false;
@@ -49,9 +53,10 @@ export class HomeComponent implements OnInit {
     this.api.getBlogsByUser(this.user.userId).subscribe({
       next: (data) => {
         this.blogs = data;
+        this.preloadFeedMeta();
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to load blogs';
         this.loading = false;
       }
@@ -72,7 +77,7 @@ export class HomeComponent implements OnInit {
         this.newBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
         this.clearMediaSelection();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to create blog';
       }
     });
@@ -81,8 +86,8 @@ export class HomeComponent implements OnInit {
   onMediaChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
-    if (files.length > 10) {
-      this.error = 'Maximum 10 files allowed';
+    if (files.length > 5) {
+      this.error = 'Maximum 5 files allowed';
       this.clearMediaSelection();
       input.value = '';
       return;
@@ -143,6 +148,81 @@ export class HomeComponent implements OnInit {
       });
     }
     return this.mediaByBlog[blogId] || [];
+  }
+
+  preloadFeedMeta(): void {
+    if (!this.user) return;
+    const userId = this.user.userId;
+    this.blogs.forEach((blog) => {
+      if (!blog.idBlog) return;
+      const blogId = blog.idBlog;
+      if (!this.thumbnailByBlog[blogId]) {
+        this.api.getFirstMediaByBlog(blogId).subscribe({
+          next: (media) => (this.thumbnailByBlog[blogId] = media),
+          error: () => (this.thumbnailByBlog[blogId] = null)
+        });
+      }
+      this.api.getLikeStatus(blogId, userId).subscribe({
+        next: (status) => {
+          this.likedByBlog[blogId] = status.liked;
+          this.likeCountByBlog[blogId] = status.likeCount;
+        },
+        error: () => {
+          this.likedByBlog[blogId] = false;
+          this.likeCountByBlog[blogId] = blog.likeCount || 0;
+        }
+      });
+    });
+  }
+
+  toggleLike(blog: Blog, event: Event): void {
+    event.stopPropagation();
+    if (!this.user || !blog.idBlog) return;
+    const blogId = blog.idBlog;
+    const currentLiked = !!this.likedByBlog[blogId];
+    const currentCount = this.likeCountByBlog[blogId] ?? blog.likeCount ?? 0;
+
+    this.likedByBlog[blogId] = !currentLiked;
+    this.likeCountByBlog[blogId] = currentLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+
+    const request$ = (currentLiked
+      ? this.api.unlike(blogId, this.user.userId)
+      : this.api.like(blogId, this.user.userId)) as Observable<unknown>;
+
+    request$.subscribe({
+      next: () => {},
+      error: (err: any) => {
+        this.likedByBlog[blogId] = currentLiked;
+        this.likeCountByBlog[blogId] = currentCount;
+        this.error = err?.error?.message || err?.error || 'Failed to update like';
+      }
+    });
+  }
+
+  openDetails(blogId: number | undefined): void {
+    if (!blogId) return;
+    this.router.navigateByUrl(`/blogs/${blogId}`);
+  }
+
+  formatRelative(dateValue?: string): string {
+    if (!dateValue) return '';
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return '';
+    const now = Date.now();
+    const diffMs = Math.max(0, now - date.getTime());
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`;
+    const years = Math.floor(days / 365);
+    return `${years} year${years === 1 ? '' : 's'} ago`;
   }
 
   logout(): void {

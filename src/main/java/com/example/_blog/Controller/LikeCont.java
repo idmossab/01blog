@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example._blog.Entity.Like;
 import com.example._blog.Service.LikeService;
+import com.example._blog.Service.LikeService.LikeStatus;
 
 @RestController
 @RequestMapping("/likes")
@@ -41,5 +42,10 @@ public class LikeCont {
     @GetMapping("/by-user")
     public ResponseEntity<List<Like>> getByUser(@RequestParam Long userId) {
         return ResponseEntity.ok(service.getByUser(userId));
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<LikeStatus> getStatus(@RequestParam Long blogId, @RequestParam Long userId) {
+        return ResponseEntity.ok(service.getStatus(blogId, userId));
     }
 }

@@ -1,0 +1,88 @@
+<div class="container py-4" *ngIf="blog; else loadingState">
+  <div class="details-card shadow-sm">
+    <div class="details-header">
+      <div>
+        <h2 class="details-title">{{ blog.title }}</h2>
+        <div class="details-meta">
+          <span class="author">{{ blog.user?.firstName || user?.firstName }} {{ blog.user?.lastName || user?.lastName }}</span>
+          <span class="dot">•</span>
+          <span>{{ formatRelative(blog.createdAt) }}</span>
+        </div>
+      </div>
+      <button class="like-btn" type="button" (click)="toggleLike()" [class.liked]="liked">
+        Like ({{ likeCount }})
+      </button>
+    </div>
+
+    <div class="details-content">{{ blog.content }}</div>
+
+    <div class="media-gallery" *ngIf="media.length">
+      <div class="media-main">
+        <img
+          *ngIf="media[selectedMediaIndex]?.mediaType?.startsWith('image')"
+          [src]="media[selectedMediaIndex]?.url"
+          alt="media"
+          loading="lazy"
+        />
+        <video
+          *ngIf="media[selectedMediaIndex]?.mediaType?.startsWith('video')"
+          [src]="media[selectedMediaIndex]?.url"
+          controls
+          muted
+        ></video>
+      </div>
+      <div class="media-thumbs">
+        <button
+          class="thumb"
+          type="button"
+          *ngFor="let item of media; let i = index"
+          (click)="selectMedia(i)"
+          [class.active]="i === selectedMediaIndex"
+        >
+          <img *ngIf="item.mediaType?.startsWith('image')" [src]="item.url" alt="thumb" loading="lazy" />
+          <div class="video-thumb" *ngIf="item.mediaType?.startsWith('video')">
+            <video [src]="item.url" muted playsinline></video>
+            <div class="play-badge">▶</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="comments-card shadow-sm">
+    <div class="comments-header">
+      <h5>Comments ({{ blog.commentCount || 0 }})</h5>
+    </div>
+    <div class="comment-form">
+      <textarea
+        class="form-control"
+        rows="3"
+        [(ngModel)]="newComment"
+        placeholder="Write a comment..."
+      ></textarea>
+      <button class="btn btn-dark" type="button" (click)="submitComment()">Post Comment</button>
+    </div>
+    <div class="comment-list">
+      <div class="comment-item" *ngFor="let comment of comments">
+        <div class="comment-meta">
+          <span class="comment-author">
+            {{ comment.user?.firstName }} {{ comment.user?.lastName }}
+          </span>
+          <span class="dot">•</span>
+          <span>{{ formatRelative(comment.createdAt) }}</span>
+        </div>
+        <div class="comment-text">{{ comment.content }}</div>
+      </div>
+      <div class="text-muted" *ngIf="!comments.length">No comments yet.</div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+</div>
+
+<ng-template #loadingState>
+  <div class="container py-4">
+    <div class="text-muted">Loading blog...</div>
+    <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+  </div>
+</ng-template>

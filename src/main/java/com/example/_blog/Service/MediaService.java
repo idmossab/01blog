@@ -23,7 +23,7 @@ import com.example._blog.Repositories.MediaRepo;
 
 @Service
 public class MediaService {
-    private static final int MAX_FILES = 10;
+    private static final int MAX_FILES = 5;
     private static final long MAX_TOTAL_BYTES = 10L * 1024 * 1024;
     private static final Path UPLOAD_DIR = Paths.get("uploads");
     private static final String[] ALLOWED_PREFIXES = {"image/", "video/"};
@@ -90,6 +90,10 @@ public class MediaService {
         return mediaRepo.findByBlogIdBlog(blogId);
     }
 
+    public Media getFirstByBlog(Long blogId) {
+        return mediaRepo.findFirstByBlogIdBlogOrderByIdAsc(blogId);
+    }
+
     public List<MultipartFile> normalizeOptional(List<MultipartFile> files) {
         return normalizeFiles(files, false);
     }
@@ -117,7 +121,7 @@ public class MediaService {
         }
 
         if (nonEmpty.size() > MAX_FILES) {
-            throw new ResponseStatusException(BAD_REQUEST, "Maximum 10 files allowed");
+            throw new ResponseStatusException(BAD_REQUEST, "Maximum 5 files allowed");
         }
 
         long totalSize = 0L;

@@ -5,6 +5,7 @@ import { guestGuard } from './core/guest.guard';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
+import { BlogDetailsComponent } from './pages/blog-details/blog-details.component';
 
 export const routes: Routes = [
   {
@@ -25,6 +26,11 @@ export const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
+    canMatch: [authGuard]
+  },
+  {
+    path: 'blogs/:id',
+    component: BlogDetailsComponent,
     canMatch: [authGuard]
   },
   {
