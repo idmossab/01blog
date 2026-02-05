@@ -7,6 +7,7 @@ import { fromEvent, Subscription } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { UserResponse } from '../../core/models';
+import { FeedRefreshService } from '../../core/feed-refresh.service';
 
 @Component({
   selector: 'app-right-sidebar',
@@ -37,7 +38,11 @@ export class RightSidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly incrementCount = 3;
   private displayCount = this.initialCount;
 
-  constructor(private api: ApiService, private auth: AuthService) {}
+  constructor(
+    private api: ApiService,
+    private auth: AuthService,
+    private feedRefresh: FeedRefreshService
+  ) {}
 
   ngOnInit(): void {
     const user = this.auth.getCurrentUser();
@@ -138,6 +143,7 @@ export class RightSidebarComponent implements OnInit, AfterViewInit, OnDestroy {
         this.followedIds.add(userId);
         this.followLoadingIds.delete(userId);
         this.applyFilters();
+        this.feedRefresh.trigger();
       },
       error: () => {
         this.followLoadingIds.delete(userId);

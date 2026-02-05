@@ -77,6 +77,10 @@ export class ApiService {
     return this.http.get<Blog[]>(`${this.baseUrl}/blogs/by-user/${userId}`);
   }
 
+  getFeedBlogs(page = 0, size = 20) {
+    return this.http.get<any>(`${this.baseUrl}/api/blogs/feed?page=${page}&size=${size}`);
+  }
+
   getBlogsByStatus(status: string) {
     return this.http.get<Blog[]>(`${this.baseUrl}/blogs/status/${status}`);
   }

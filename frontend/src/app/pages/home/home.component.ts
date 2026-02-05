@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Blog, Media, UserResponse } from '../../core/models';
 import { RightSidebarComponent } from '../../components/right-sidebar/right-sidebar.component';
+import { FeedRefreshService } from '../../core/feed-refresh.service';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,7 @@ import { RightSidebarComponent } from '../../components/right-sidebar/right-side
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   user: UserResponse | null = null;
   blogs: Blog[] = [];
 
@@ -31,12 +32,14 @@ export class HomeComponent implements OnInit {
 
   error = '';
   loading = false;
+  private refreshSub?: Subscription;
   @ViewChild('mediaInput') mediaInput?: ElementRef<HTMLInputElement>;
 
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private feedRefresh: FeedRefreshService
   ) {}
 
   ngOnInit(): void {
@@ -45,15 +48,16 @@ export class HomeComponent implements OnInit {
       this.router.navigateByUrl('/login');
       return;
     }
-    this.loadMyBlogs();
+    this.loadFeed();
+    this.refreshSub = this.feedRefresh.refresh$.subscribe(() => this.loadFeed());
   }
 
-  loadMyBlogs(): void {
+  loadFeed(): void {
     if (!this.user) return;
     this.loading = true;
-    this.api.getBlogsByUser(this.user.userId).subscribe({
+    this.api.getFeedBlogs(0, 20).subscribe({
       next: (data) => {
-        this.blogs = data;
+        this.blogs = data?.content || data || [];
         this.preloadFeedMeta();
         this.loading = false;
       },
@@ -224,6 +228,10 @@ export class HomeComponent implements OnInit {
     if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`;
     const years = Math.floor(days / 365);
     return `${years} year${years === 1 ? '' : 's'} ago`;
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSub?.unsubscribe();
   }
 
   logout(): void {
