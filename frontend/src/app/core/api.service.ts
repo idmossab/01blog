@@ -154,6 +154,10 @@ export class ApiService {
     return this.http.get<Media[]>(`${this.baseUrl}/media/by-blog/${blogId}`);
   }
 
+  deleteMedia(mediaId: number) {
+    return this.http.delete<void>(`${this.baseUrl}/media/${mediaId}`);
+  }
+
   getLikeStatus(blogId: number, userId: number) {
     return this.http.get<LikeStatus>(`${this.baseUrl}/likes/status?blogId=${blogId}&userId=${userId}`);
   }

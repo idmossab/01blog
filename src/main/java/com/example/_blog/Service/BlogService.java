@@ -18,6 +18,8 @@ import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.User;
 import com.example._blog.Entity.enums.BlogStatus;
 import com.example._blog.Repositories.BlogRepo;
+import com.example._blog.Repositories.CommentRepo;
+import com.example._blog.Repositories.LikeRepo;
 import com.example._blog.Repositories.UserRepo;
 
 @Service
@@ -26,12 +28,17 @@ public class BlogService {
     private final UserRepo userRepo;
     private final MediaService mediaService;
     private final FollowService followService;
+    private final CommentRepo commentRepo;
+    private final LikeRepo likeRepo;
 
-    public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService) {
+    public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService,
+                       CommentRepo commentRepo, LikeRepo likeRepo) {
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
         this.mediaService = mediaService;
         this.followService = followService;
+        this.commentRepo = commentRepo;
+        this.likeRepo = likeRepo;
     }
 
     public Blog create(Blog blog, Long userId) {
@@ -91,8 +98,12 @@ public class BlogService {
         return blogRepo.save(existing);
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void delete(Long blogId) {
         Blog existing = getById(blogId);
+        likeRepo.deleteByBlogIdBlog(blogId);
+        commentRepo.deleteByBlogIdBlog(blogId);
+        mediaService.deleteByBlog(blogId);
         blogRepo.delete(existing);
     }
 

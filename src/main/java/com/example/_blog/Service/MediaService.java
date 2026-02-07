@@ -1,6 +1,8 @@
 package com.example._blog.Service;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -94,6 +96,24 @@ public class MediaService {
         return mediaRepo.findFirstByBlogIdBlogOrderByIdAsc(blogId);
     }
 
+    public void deleteByBlog(Long blogId) {
+        List<Media> mediaList = mediaRepo.findByBlogIdBlog(blogId);
+        if (mediaList.isEmpty()) {
+            return;
+        }
+        mediaRepo.deleteAll(mediaList);
+        for (Media media : mediaList) {
+            deleteStoredFile(media.getUrl());
+        }
+    }
+
+    public void deleteMedia(Long mediaId) {
+        Media media = mediaRepo.findById(mediaId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Media not found"));
+        mediaRepo.delete(media);
+        deleteStoredFile(media.getUrl());
+    }
+
     public List<MultipartFile> normalizeOptional(List<MultipartFile> files) {
         return normalizeFiles(files, false);
     }
@@ -158,6 +178,42 @@ public class MediaService {
             } catch (IOException ignored) {
                 // Best-effort cleanup.
             }
+        }
+    }
+
+    private void deleteStoredFile(String url) {
+        if (url == null || url.isBlank()) {
+            return;
+        }
+        String filename = extractFilename(url);
+        if (filename == null || filename.isBlank()) {
+            return;
+        }
+        Path uploadRoot = UPLOAD_DIR.toAbsolutePath().normalize();
+        Path target = uploadRoot.resolve(filename).normalize();
+        if (!target.startsWith(uploadRoot)) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(target);
+        } catch (IOException ignored) {
+            // Best-effort cleanup.
+        }
+    }
+
+    private String extractFilename(String url) {
+        try {
+            String path = new URI(url).getPath();
+            if (path == null) {
+                return null;
+            }
+            return Paths.get(path).getFileName().toString();
+        } catch (URISyntaxException ignored) {
+            int slash = url.lastIndexOf('/');
+            if (slash < 0 || slash == url.length() - 1) {
+                return null;
+            }
+            return url.substring(slash + 1);
         }
     }
 }

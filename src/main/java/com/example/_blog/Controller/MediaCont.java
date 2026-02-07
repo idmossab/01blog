@@ -3,6 +3,7 @@ package com.example._blog.Controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,5 +38,11 @@ public class MediaCont {
     @GetMapping("/first/{blogId}")
     public ResponseEntity<Media> getFirstByBlog(@PathVariable Long blogId) {
         return ResponseEntity.ok(service.getFirstByBlog(blogId));
+    }
+
+    @DeleteMapping("/{mediaId}")
+    public ResponseEntity<Void> deleteMedia(@PathVariable Long mediaId) {
+        service.deleteMedia(mediaId);
+        return ResponseEntity.noContent().build();
     }
 }

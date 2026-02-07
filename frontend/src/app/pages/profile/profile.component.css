@@ -76,6 +76,7 @@
 }
 
 .media-item {
+  position: relative;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -123,6 +124,10 @@
   font-size: 12px;
   border-radius: 999px;
   padding: 4px 8px;
+}
+
+.remove-btn:disabled {
+  opacity: 0.75;
 }
 
 .edit-actions {

@@ -53,6 +53,14 @@
             <div class="media-item" *ngFor="let media of editExistingMedia">
               <img *ngIf="media.mediaType?.startsWith('image')" [src]="media.url" alt="uploaded media" />
               <video *ngIf="media.mediaType?.startsWith('video')" [src]="media.url" muted controls></video>
+              <button
+                class="remove-btn"
+                type="button"
+                (click)="removeExistingMedia(media)"
+                [disabled]="deletingExistingMediaId === media.id"
+              >
+                {{ deletingExistingMediaId === media.id ? 'Removing...' : 'Remove' }}
+              </button>
             </div>
           </div>
           <ng-template #noExistingMedia>

@@ -28,6 +28,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   editingBlogId: number | null = null;
   editBlog: Blog = { title: '', content: '', status: 'ACTIVE', media: '' };
   editExistingMedia: Media[] = [];
+  deletingExistingMediaId: number | null = null;
   editMediaPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
   editTotalMediaSize = 0;
   updateLoading = false;
@@ -159,8 +160,32 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.editingBlogId = null;
     this.editBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
     this.editExistingMedia = [];
+    this.deletingExistingMediaId = null;
     this.clearEditMediaSelection();
     this.updateLoading = false;
+  }
+
+  removeExistingMedia(media: Media): void {
+    if (!media.id || this.deletingExistingMediaId !== null) return;
+    this.error = '';
+    this.deletingExistingMediaId = media.id;
+    this.api.deleteMedia(media.id).subscribe({
+      next: () => {
+        this.editExistingMedia = this.editExistingMedia.filter((item) => item.id !== media.id);
+        const blogId = this.editingBlogId;
+        if (blogId) {
+          this.api.getFirstMediaByBlog(blogId).subscribe({
+            next: (firstMedia) => (this.thumbnailByBlog[blogId] = firstMedia),
+            error: () => (this.thumbnailByBlog[blogId] = null)
+          });
+        }
+        this.deletingExistingMediaId = null;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to delete media';
+        this.deletingExistingMediaId = null;
+      }
+    });
   }
 
   hasRequiredEditText(): boolean {
