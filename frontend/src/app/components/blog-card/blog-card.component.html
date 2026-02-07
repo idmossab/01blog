@@ -15,6 +15,12 @@
         <button class="action-btn" type="button" (click)="onComment($event)">
           Comments ({{ commentCount }})
         </button>
+        <button class="action-btn owner-edit-btn" *ngIf="showOwnerActions" type="button" (click)="onEdit($event)">
+          Edit
+        </button>
+        <button class="action-btn owner-delete-btn" *ngIf="showOwnerActions" type="button" (click)="onDelete($event)">
+          Delete
+        </button>
       </div>
     </div>
     <div class="blog-thumb" *ngIf="thumbnail">

@@ -30,6 +30,72 @@
       <div class="d-flex align-items-center justify-content-between mb-2">
         <h5 class="card-title mb-0">My Blogs</h5>
       </div>
+
+      <div class="edit-blog-card" *ngIf="editingBlogId">
+        <div class="edit-header">
+          <h6 class="mb-0">Update blog</h6>
+          <button class="btn btn-sm btn-outline-secondary" type="button" (click)="cancelEditBlog()" [disabled]="updateLoading">
+            Close
+          </button>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Title</label>
+          <input class="form-control" type="text" [(ngModel)]="editBlog.title" />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Content</label>
+          <textarea class="form-control" rows="4" [(ngModel)]="editBlog.content"></textarea>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Already uploaded media</label>
+          <div class="existing-media" *ngIf="editExistingMedia.length; else noExistingMedia">
+            <div class="media-item" *ngFor="let media of editExistingMedia">
+              <img *ngIf="media.mediaType?.startsWith('image')" [src]="media.url" alt="uploaded media" />
+              <video *ngIf="media.mediaType?.startsWith('video')" [src]="media.url" muted controls></video>
+            </div>
+          </div>
+          <ng-template #noExistingMedia>
+            <div class="text-muted small">No media uploaded for this blog.</div>
+          </ng-template>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Add more images or video (max 5)</label>
+          <input
+            class="d-none"
+            type="file"
+            multiple
+            accept="image/*,video/*"
+            #editMediaInput
+            (change)="onEditMediaChange($event)"
+          />
+          <button class="btn btn-outline-dark btn-sm" type="button" (click)="editMediaInput.click()">
+            Choose files
+          </button>
+        </div>
+
+        <div class="media-grid mb-2" *ngIf="editMediaPreviews.length">
+          <div class="preview-tile" *ngFor="let media of editMediaPreviews; let i = index">
+            <img *ngIf="media.kind === 'image'" [src]="media.url" alt="new media preview" />
+            <video *ngIf="media.kind === 'video'" [src]="media.url" muted controls></video>
+            <button class="remove-btn" type="button" (click)="removeEditMedia(i)">Remove</button>
+          </div>
+        </div>
+        <div class="text-muted small mb-3" *ngIf="editMediaPreviews.length">
+          New media size: {{ editTotalMediaSize | number }} bytes
+        </div>
+
+        <div class="edit-actions">
+          <button class="btn btn-dark" type="button" (click)="saveEditedBlog()" [disabled]="!hasRequiredEditText() || updateLoading">
+            {{ updateLoading ? 'Saving...' : 'Save changes' }}
+          </button>
+          <button class="btn btn-outline-secondary" type="button" (click)="cancelEditBlog()" [disabled]="updateLoading">
+            Cancel
+          </button>
+        </div>
+      </div>
+
       <div class="list-group">
         <app-blog-card
           *ngFor="let blog of blogs"
@@ -40,9 +106,12 @@
           [likeCount]="blog.likeCount || 0"
           [commentCount]="blog.commentCount || 0"
           [dateLabel]="formatRelative(blog.createdAt)"
+          [showOwnerActions]="true"
           (open)="openDetails(blog.idBlog)"
           (like)="openDetails(blog.idBlog)"
           (comment)="openDetails(blog.idBlog)"
+          (edit)="startEditBlog(blog)"
+          (delete)="openDeleteConfirmation(blog)"
         ></app-blog-card>
         <div class="text-muted" *ngIf="!blogs.length && !loading">You haven’t posted any blogs yet.</div>
       </div>
@@ -50,6 +119,24 @@
   </div>
 
   <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+</div>
+
+<div class="confirm-overlay" *ngIf="pendingDeleteBlog">
+  <div class="confirm-card shadow-sm">
+    <h6 class="mb-2">Delete this blog?</h6>
+    <p class="text-muted mb-3">
+      This action will permanently remove
+      <strong>{{ pendingDeleteBlog.title }}</strong>.
+    </p>
+    <div class="confirm-actions">
+      <button class="btn btn-danger" type="button" (click)="confirmDeleteBlog()" [disabled]="deleteLoading">
+        {{ deleteLoading ? 'Deleting...' : 'Yes, delete' }}
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="closeDeleteConfirmation()" [disabled]="deleteLoading">
+        Cancel
+      </button>
+    </div>
+  </div>
 </div>
 
 <ng-template #loadingState>

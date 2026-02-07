@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
@@ -10,11 +11,11 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card.componen
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, BlogCardComponent],
+  imports: [CommonModule, FormsModule, BlogCardComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   user: UserResponse | null = null;
   blogs: Blog[] = [];
   thumbnailByBlog: Record<number, Media | null> = {};
@@ -22,6 +23,14 @@ export class ProfileComponent implements OnInit {
   followCounts: FollowCounts = { following: 0, followers: 0 };
   loading = true;
   error = '';
+  pendingDeleteBlog: Blog | null = null;
+  deleteLoading = false;
+  editingBlogId: number | null = null;
+  editBlog: Blog = { title: '', content: '', status: 'ACTIVE', media: '' };
+  editExistingMedia: Media[] = [];
+  editMediaPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
+  editTotalMediaSize = 0;
+  updateLoading = false;
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
 
@@ -96,6 +105,158 @@ export class ProfileComponent implements OnInit {
   openDetails(blogId: number | undefined): void {
     if (!blogId) return;
     this.router.navigateByUrl(`/blogs/${blogId}`);
+  }
+
+  openDeleteConfirmation(blog: Blog): void {
+    this.pendingDeleteBlog = blog;
+  }
+
+  closeDeleteConfirmation(): void {
+    this.pendingDeleteBlog = null;
+  }
+
+  confirmDeleteBlog(): void {
+    if (!this.pendingDeleteBlog?.idBlog || this.deleteLoading) return;
+    this.deleteLoading = true;
+    this.error = '';
+    const blogId = this.pendingDeleteBlog.idBlog;
+    this.api.deleteBlog(blogId).subscribe({
+      next: () => {
+        this.blogs = this.blogs.filter((item) => item.idBlog !== blogId);
+        this.blogCount = Math.max(0, this.blogCount - 1);
+        delete this.thumbnailByBlog[blogId];
+        if (this.editingBlogId === blogId) {
+          this.cancelEditBlog();
+        }
+        this.pendingDeleteBlog = null;
+        this.deleteLoading = false;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to delete blog';
+        this.deleteLoading = false;
+      }
+    });
+  }
+
+  startEditBlog(blog: Blog): void {
+    if (!blog.idBlog) return;
+    this.error = '';
+    this.editingBlogId = blog.idBlog;
+    this.editBlog = {
+      title: blog.title || '',
+      content: blog.content || '',
+      status: blog.status || 'ACTIVE',
+      media: blog.media || ''
+    };
+    this.clearEditMediaSelection();
+    this.api.getMediaByBlog(blog.idBlog).subscribe({
+      next: (media) => (this.editExistingMedia = media || []),
+      error: () => (this.editExistingMedia = [])
+    });
+  }
+
+  cancelEditBlog(): void {
+    this.editingBlogId = null;
+    this.editBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
+    this.editExistingMedia = [];
+    this.clearEditMediaSelection();
+    this.updateLoading = false;
+  }
+
+  hasRequiredEditText(): boolean {
+    const title = this.editBlog.title?.trim() || '';
+    const content = this.editBlog.content?.trim() || '';
+    return title.length > 0 && content.length > 0;
+  }
+
+  onEditMediaChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    if (files.length > 5) {
+      this.error = 'Maximum 5 files allowed';
+      this.clearEditMediaSelection();
+      input.value = '';
+      return;
+    }
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 10 * 1024 * 1024) {
+      this.error = 'Total media size exceeds 10MB';
+      this.clearEditMediaSelection();
+      input.value = '';
+      return;
+    }
+    this.error = '';
+    this.clearEditMediaSelection();
+    this.editMediaPreviews = files.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+      kind: file.type.startsWith('video') ? 'video' : 'image'
+    }));
+    this.editTotalMediaSize = totalSize;
+  }
+
+  removeEditMedia(index: number): void {
+    const item = this.editMediaPreviews[index];
+    if (item) {
+      URL.revokeObjectURL(item.url);
+    }
+    this.editMediaPreviews.splice(index, 1);
+    this.editTotalMediaSize = this.editMediaPreviews.reduce((sum, media) => sum + media.file.size, 0);
+  }
+
+  clearEditMediaSelection(): void {
+    this.editMediaPreviews.forEach((item) => URL.revokeObjectURL(item.url));
+    this.editMediaPreviews = [];
+    this.editTotalMediaSize = 0;
+  }
+
+  saveEditedBlog(): void {
+    if (!this.editingBlogId || this.updateLoading) return;
+    const title = this.editBlog.title?.trim() || '';
+    const content = this.editBlog.content?.trim() || '';
+    if (!title || !content) {
+      this.error = 'Title and content cannot be empty';
+      return;
+    }
+
+    this.updateLoading = true;
+    this.error = '';
+    const blogId = this.editingBlogId;
+
+    this.api.updateBlog(blogId, { title, content, status: this.editBlog.status }).subscribe({
+      next: (updated) => {
+        const newFiles = this.editMediaPreviews.map((item) => item.file);
+        const finishUpdate = () => {
+          this.blogs = this.blogs.map((item) => (item.idBlog === blogId ? { ...item, ...updated } : item));
+          this.api.getFirstMediaByBlog(blogId).subscribe({
+            next: (media) => (this.thumbnailByBlog[blogId] = media),
+            error: () => (this.thumbnailByBlog[blogId] = null)
+          });
+          this.cancelEditBlog();
+        };
+
+        if (!newFiles.length) {
+          finishUpdate();
+          return;
+        }
+
+        this.api.uploadMedia(blogId, newFiles).subscribe({
+          next: () => finishUpdate(),
+          error: (err: any) => {
+            this.error = err?.error?.message || err?.error || 'Blog updated, but media upload failed';
+            this.updateLoading = false;
+          }
+        });
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to update blog';
+        this.updateLoading = false;
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.clearEditMediaSelection();
   }
 
   formatRelative(dateValue?: string): string {
