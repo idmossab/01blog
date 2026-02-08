@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3">
+<nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3" (click)="closeNotifications()">
   <div class="d-flex align-items-center gap-2">
     <button class="btn btn-outline-secondary btn-sm" *ngIf="showBack" (click)="goBack()">←</button>
     <span class="navbar-brand fw-bold">01Blog</span>
@@ -8,7 +8,36 @@
       <div class="fw-semibold">{{ user?.firstName }} {{ user?.lastName }}</div>
       <small class="text-muted">@{{ user?.userName }}</small>
     </div>
-    <button class="btn btn-outline-secondary btn-sm" type="button">Notifications</button>
+    <div class="notif-wrap" (click)="$event.stopPropagation()">
+      <button class="btn btn-outline-secondary btn-sm notif-btn" type="button" (click)="toggleNotifications($event)">
+        Notifications
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+      </button>
+
+      <div class="notif-panel shadow-sm" *ngIf="notificationsOpen">
+        <div class="notif-head">
+          <strong>Notifications</strong>
+          <button class="btn btn-link btn-sm p-0" type="button" (click)="markAllRead($event)">Mark all read</button>
+        </div>
+
+        <div class="notif-state" *ngIf="notificationsLoading">Loading...</div>
+        <div class="notif-state text-danger" *ngIf="!notificationsLoading && notificationsError">{{ notificationsError }}</div>
+
+        <div class="notif-list" *ngIf="!notificationsLoading && !notificationsError">
+          <button
+            class="notif-item"
+            type="button"
+            *ngFor="let item of notifications"
+            [class.unread]="!item.read"
+            (click)="openNotification(item, $event)"
+          >
+            <div class="notif-message">{{ item.message }}</div>
+            <small class="text-muted">{{ relativeTime(item.createdAt) }}</small>
+          </button>
+          <div class="notif-state" *ngIf="!notifications.length">No notifications yet.</div>
+        </div>
+      </div>
+    </div>
     <button class="btn btn-outline-secondary btn-sm" routerLink="/profile">Profile</button>
     <button class="btn btn-outline-secondary btn-sm" (click)="logout()">Logout</button>
   </div>

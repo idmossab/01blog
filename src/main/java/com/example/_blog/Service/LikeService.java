@@ -22,11 +22,14 @@ public class LikeService {
     private final LikeRepo likeRepo;
     private final BlogRepo blogRepo;
     private final UserRepo userRepo;
+    private final NotificationService notificationService;
 
-    public LikeService(LikeRepo likeRepo, BlogRepo blogRepo, UserRepo userRepo) {
+    public LikeService(LikeRepo likeRepo, BlogRepo blogRepo, UserRepo userRepo,
+                       NotificationService notificationService) {
         this.likeRepo = likeRepo;
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -48,6 +51,7 @@ public class LikeService {
         Like saved = likeRepo.save(like);
         blog.setLikeCount(blog.getLikeCount() + 1);
         blogRepo.save(blog);
+        notificationService.notifyLike(blog, user);
         return saved;
     }
 

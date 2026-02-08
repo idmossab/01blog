@@ -22,11 +22,14 @@ public class CommentService {
     private final CommentRepo commentRepo;
     private final BlogRepo blogRepo;
     private final UserRepo userRepo;
+    private final NotificationService notificationService;
 
-    public CommentService(CommentRepo commentRepo, BlogRepo blogRepo, UserRepo userRepo) {
+    public CommentService(CommentRepo commentRepo, BlogRepo blogRepo, UserRepo userRepo,
+                          NotificationService notificationService) {
         this.commentRepo = commentRepo;
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -47,6 +50,7 @@ public class CommentService {
         Comment saved = commentRepo.save(comment);
         blog.setCommentCount(blog.getCommentCount() + 1);
         blogRepo.save(blog);
+        notificationService.notifyComment(blog, user);
         return saved;
     }
 

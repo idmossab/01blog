@@ -20,10 +20,13 @@ import com.example._blog.Repositories.UserRepo;
 public class FollowService {
     private final FollowRepo followRepo;
     private final UserRepo userRepo;
+    private final NotificationService notificationService;
 
-    public FollowService(FollowRepo followRepo, UserRepo userRepo) {
+    public FollowService(FollowRepo followRepo, UserRepo userRepo,
+                         NotificationService notificationService) {
         this.followRepo = followRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -45,6 +48,7 @@ public class FollowService {
                 .createdAt(Instant.now())
                 .build();
         followRepo.save(follow);
+        notificationService.notifyFollow(follower, following);
     }
 
     @Transactional

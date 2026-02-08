@@ -77,3 +77,16 @@ export interface ReportResponse {
   reportId: number;
   message: string;
 }
+
+export type NotificationType = 'LIKE' | 'COMMENT' | 'FOLLOW';
+
+export interface AppNotification {
+  id: number;
+  type: NotificationType;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  actorUserId?: number | null;
+  actorUserName?: string | null;
+  blogId?: number | null;
+}

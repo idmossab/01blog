@@ -20,6 +20,7 @@ import com.example._blog.Entity.enums.BlogStatus;
 import com.example._blog.Repositories.BlogRepo;
 import com.example._blog.Repositories.CommentRepo;
 import com.example._blog.Repositories.LikeRepo;
+import com.example._blog.Repositories.NotificationRepo;
 import com.example._blog.Repositories.UserRepo;
 
 @Service
@@ -30,15 +31,17 @@ public class BlogService {
     private final FollowService followService;
     private final CommentRepo commentRepo;
     private final LikeRepo likeRepo;
+    private final NotificationRepo notificationRepo;
 
     public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService,
-                       CommentRepo commentRepo, LikeRepo likeRepo) {
+                       CommentRepo commentRepo, LikeRepo likeRepo, NotificationRepo notificationRepo) {
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
         this.mediaService = mediaService;
         this.followService = followService;
         this.commentRepo = commentRepo;
         this.likeRepo = likeRepo;
+        this.notificationRepo = notificationRepo;
     }
 
     public Blog create(Blog blog, Long userId) {
@@ -103,6 +106,7 @@ public class BlogService {
         Blog existing = getById(blogId);
         likeRepo.deleteByBlogIdBlog(blogId);
         commentRepo.deleteByBlogIdBlog(blogId);
+        notificationRepo.deleteByBlogIdBlog(blogId);
         mediaService.deleteByBlog(blogId);
         blogRepo.delete(existing);
     }

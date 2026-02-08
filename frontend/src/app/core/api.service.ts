@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 import {
   AuthResponse,
+  AppNotification,
   Blog,
   Comment,
   CreateReportRequest,
@@ -190,5 +191,21 @@ export class ApiService {
 
   reportBlog(payload: CreateReportRequest) {
     return this.http.post<ReportResponse>(`${this.baseUrl}/api/reports`, payload);
+  }
+
+  getMyNotifications(limit = 20) {
+    return this.http.get<AppNotification[]>(`${this.baseUrl}/api/notifications/me?limit=${limit}`);
+  }
+
+  getUnreadNotificationsCount() {
+    return this.http.get<{ count: number }>(`${this.baseUrl}/api/notifications/me/unread-count`);
+  }
+
+  markNotificationRead(notificationId: number) {
+    return this.http.put<void>(`${this.baseUrl}/api/notifications/${notificationId}/read`, {});
+  }
+
+  markAllNotificationsRead() {
+    return this.http.put<void>(`${this.baseUrl}/api/notifications/me/read-all`, {});
   }
 }
