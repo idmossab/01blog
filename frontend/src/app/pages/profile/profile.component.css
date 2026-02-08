@@ -39,6 +39,15 @@
   text-align: center;
 }
 
+.clickable-stat {
+  width: 100%;
+  cursor: pointer;
+}
+
+.clickable-stat:hover {
+  border-color: #d8dde4;
+}
+
 .stat-label {
   font-size: 12px;
   color: #6b7280;
@@ -157,4 +166,49 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.following-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.following-modal {
+  width: min(440px, 100%);
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 14px;
+}
+
+.following-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.following-list {
+  max-height: 360px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.following-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.following-state {
+  padding: 10px 4px;
+  color: #6b7280;
+  text-align: center;
 }

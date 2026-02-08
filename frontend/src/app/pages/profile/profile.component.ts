@@ -19,11 +19,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
   readonly maxBlogContentLength = 1000;
   user: UserResponse | null = null;
   blogs: Blog[] = [];
+  followedUsers: UserResponse[] = [];
   thumbnailByBlog: Record<number, Media | null> = {};
   blogCount = 0;
   followCounts: FollowCounts = { following: 0, followers: 0 };
   loading = true;
   error = '';
+  followingModalOpen = false;
+  followingLoading = false;
+  followingError = '';
   pendingDeleteBlog: Blog | null = null;
   deleteLoading = false;
   editingBlogId: number | null = null;
@@ -105,6 +109,41 @@ export class ProfileComponent implements OnInit, OnDestroy {
   openDetails(blogId: number | undefined): void {
     if (!blogId) return;
     this.router.navigateByUrl(`/blogs/${blogId}`);
+  }
+
+  openFollowingModal(): void {
+    this.followingModalOpen = true;
+    this.followingLoading = true;
+    this.followingError = '';
+    this.followedUsers = [];
+
+    this.api.getFollowingIds().subscribe({
+      next: (ids) => {
+        const followingIds = new Set(ids || []);
+        if (!followingIds.size) {
+          this.followingLoading = false;
+          return;
+        }
+        this.api.getUsers().subscribe({
+          next: (users) => {
+            this.followedUsers = (users || []).filter((user) => followingIds.has(user.userId));
+            this.followingLoading = false;
+          },
+          error: (err: any) => {
+            this.followingError = err?.error?.message || err?.error || 'Failed to load following users';
+            this.followingLoading = false;
+          }
+        });
+      },
+      error: (err: any) => {
+        this.followingError = err?.error?.message || err?.error || 'Failed to load following users';
+        this.followingLoading = false;
+      }
+    });
+  }
+
+  closeFollowingModal(): void {
+    this.followingModalOpen = false;
   }
 
   openDeleteConfirmation(blog: Blog): void {
