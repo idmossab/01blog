@@ -9,9 +9,14 @@
           <span>{{ formatRelative(blog.createdAt) }}</span>
         </div>
       </div>
-      <button class="like-btn" type="button" (click)="toggleLike()" [class.liked]="liked">
-        Like ({{ likeCount }})
-      </button>
+      <div class="details-actions">
+        <button class="like-btn" type="button" (click)="toggleLike()" [class.liked]="liked">
+          Like ({{ likeCount }})
+        </button>
+        <button class="report-btn" type="button" *ngIf="canReport()" (click)="openReportModal()">
+          Report
+        </button>
+      </div>
     </div>
 
     <div class="details-content">{{ blog.content }}</div>
@@ -78,6 +83,44 @@
   </div>
 
   <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+  <div class="alert alert-success mt-3" *ngIf="reportSuccess">{{ reportSuccess }}</div>
+</div>
+
+<div class="report-overlay" *ngIf="reportModalOpen">
+  <div class="report-modal shadow-sm">
+    <h5 class="mb-3">Report Post</h5>
+
+    <div class="mb-2">
+      <label class="form-label">Report reason</label>
+      <select class="form-select" [(ngModel)]="selectedReportReason">
+        <option [ngValue]="''">Select a reason</option>
+        <option *ngFor="let reason of reportReasons" [ngValue]="reason.value">{{ reason.label }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Additional details</label>
+      <textarea
+        class="form-control"
+        rows="4"
+        maxlength="500"
+        [(ngModel)]="reportDetails"
+        placeholder="Optional details (max 500 chars)"
+      ></textarea>
+      <div class="text-muted small mt-1">{{ reportDetails.length }}/500</div>
+    </div>
+
+    <div class="alert alert-danger py-2" *ngIf="reportError">{{ reportError }}</div>
+
+    <div class="report-actions">
+      <button class="btn btn-dark" type="button" (click)="submitReport()" [disabled]="reportSubmitting">
+        {{ reportSubmitting ? 'Submitting...' : 'Submit' }}
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="closeReportModal()" [disabled]="reportSubmitting">
+        Cancel
+      </button>
+    </div>
+  </div>
 </div>
 
 <ng-template #loadingState>

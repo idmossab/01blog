@@ -56,6 +56,21 @@
   border-color: #111827;
 }
 
+.details-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.report-btn {
+  border: 1px solid #fecaca;
+  background: #fff;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #b91c1c;
+}
+
 .media-gallery {
   margin-top: 18px;
 }
@@ -170,6 +185,30 @@
 .comment-text {
   font-size: 14px;
   color: #1f2937;
+}
+
+.report-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.report-modal {
+  width: min(480px, 100%);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 @media (max-width: 768px) {

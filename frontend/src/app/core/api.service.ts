@@ -1,7 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { AuthResponse, Blog, Comment, FollowCounts, Like, LikeStatus, Media, UserResponse } from './models';
+import {
+  AuthResponse,
+  Blog,
+  Comment,
+  CreateReportRequest,
+  FollowCounts,
+  Like,
+  LikeStatus,
+  Media,
+  ReportResponse,
+  UserResponse
+} from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -175,5 +186,9 @@ export class ApiService {
       `${this.baseUrl}/api/follows/${userId}`,
       {}
     );
+  }
+
+  reportBlog(payload: CreateReportRequest) {
+    return this.http.post<ReportResponse>(`${this.baseUrl}/api/reports`, payload);
   }
 }

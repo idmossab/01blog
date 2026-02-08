@@ -57,3 +57,23 @@ export interface FollowCounts {
   following: number;
   followers: number;
 }
+
+export type ReportReason =
+  | 'HARASSMENT_BULLYING'
+  | 'SPAM_SCAM'
+  | 'HATE_SPEECH'
+  | 'VIOLENCE_THREATS'
+  | 'SEXUAL_CONTENT'
+  | 'COPYRIGHT_IP'
+  | 'OTHER';
+
+export interface CreateReportRequest {
+  blogId: number;
+  reason: ReportReason;
+  details?: string | null;
+}
+
+export interface ReportResponse {
+  reportId: number;
+  message: string;
+}

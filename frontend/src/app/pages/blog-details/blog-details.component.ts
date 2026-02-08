@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
-import { Blog, Comment, LikeStatus, Media, UserResponse } from '../../core/models';
+import { Blog, Comment, LikeStatus, Media, ReportReason, UserResponse } from '../../core/models';
 
 @Component({
   selector: 'app-blog-details',
@@ -16,6 +16,16 @@ import { Blog, Comment, LikeStatus, Media, UserResponse } from '../../core/model
   styleUrl: './blog-details.component.css'
 })
 export class BlogDetailsComponent implements OnInit {
+  readonly reportReasons: Array<{ value: ReportReason; label: string }> = [
+    { value: 'HARASSMENT_BULLYING', label: 'Harassment / Bullying' },
+    { value: 'SPAM_SCAM', label: 'Spam / Scam' },
+    { value: 'HATE_SPEECH', label: 'Hate speech' },
+    { value: 'VIOLENCE_THREATS', label: 'Violence / Threats' },
+    { value: 'SEXUAL_CONTENT', label: 'Sexual content' },
+    { value: 'COPYRIGHT_IP', label: 'Copyright / IP' },
+    { value: 'OTHER', label: 'Other' }
+  ];
+
   user: UserResponse | null = null;
   blog: Blog | null = null;
   media: Media[] = [];
@@ -23,8 +33,14 @@ export class BlogDetailsComponent implements OnInit {
   comments: Comment[] = [];
   newComment = '';
   error = '';
+  reportSuccess = '';
   liked = false;
   likeCount = 0;
+  reportModalOpen = false;
+  selectedReportReason: ReportReason | '' = '';
+  reportDetails = '';
+  reportError = '';
+  reportSubmitting = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -159,6 +175,59 @@ export class BlogDetailsComponent implements OnInit {
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to add comment';
+      }
+    });
+  }
+
+  canReport(): boolean {
+    if (!this.user || !this.blog) return false;
+    if (!this.blog.user?.userId) return true;
+    return this.blog.user.userId !== this.user.userId;
+  }
+
+  openReportModal(): void {
+    this.reportModalOpen = true;
+    this.reportError = '';
+    this.reportSuccess = '';
+    this.selectedReportReason = '';
+    this.reportDetails = '';
+  }
+
+  closeReportModal(): void {
+    this.reportModalOpen = false;
+    this.reportError = '';
+    this.reportSubmitting = false;
+  }
+
+  submitReport(): void {
+    if (!this.blog?.idBlog || !this.selectedReportReason || this.reportSubmitting) {
+      if (!this.selectedReportReason) {
+        this.reportError = 'Report reason is required';
+      }
+      return;
+    }
+
+    const details = this.reportDetails.trim();
+    if (details.length > 500) {
+      this.reportError = 'Additional details cannot exceed 500 characters';
+      return;
+    }
+
+    this.reportSubmitting = true;
+    this.reportError = '';
+    this.api.reportBlog({
+      blogId: this.blog.idBlog,
+      reason: this.selectedReportReason,
+      details: details || null
+    }).subscribe({
+      next: (res) => {
+        this.reportSuccess = res?.message || 'Report submitted. Thank you.';
+        this.reportSubmitting = false;
+        this.reportModalOpen = false;
+      },
+      error: (err: any) => {
+        this.reportSubmitting = false;
+        this.reportError = err?.error?.message || err?.error || 'Failed to submit report';
       }
     });
   }
