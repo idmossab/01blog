@@ -19,6 +19,7 @@ export class BlogCardComponent {
   @Input() likeCount = 0;
   @Input() commentCount = 0;
   @Input() showOwnerActions = false;
+  @Input() showEngagementActions = true;
 
   @Output() open = new EventEmitter<void>();
   @Output() like = new EventEmitter<Event>();

@@ -8,11 +8,11 @@
         <span class="dot">•</span>
         <span>{{ dateLabel }}</span>
       </div>
-      <div class="blog-actions">
-        <button class="action-btn" type="button" (click)="onLike($event)" [class.liked]="liked">
+      <div class="blog-actions" *ngIf="showEngagementActions || showOwnerActions">
+        <button class="action-btn" *ngIf="showEngagementActions" type="button" (click)="onLike($event)" [class.liked]="liked">
           Like ({{ likeCount }})
         </button>
-        <button class="action-btn" type="button" (click)="onComment($event)">
+        <button class="action-btn" *ngIf="showEngagementActions" type="button" (click)="onComment($event)">
           Comments ({{ commentCount }})
         </button>
         <button class="action-btn owner-edit-btn" *ngIf="showOwnerActions" type="button" (click)="onEdit($event)">

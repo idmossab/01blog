@@ -65,7 +65,7 @@
               [commentCount]="blog.commentCount || 0"
               [dateLabel]="formatRelative(blog.createdAt)"
               (open)="openDetails(blog.idBlog)"
-              (like)="toggleLike(blog, $event)"
+              (like)="openDetails(blog.idBlog)"
               (comment)="openDetails(blog.idBlog)"
             ></app-blog-card>
             <div class="text-muted" *ngIf="!blogs.length && !loading">No blogs yet.</div>
