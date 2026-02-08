@@ -1,13 +1,13 @@
 <div class="list-group-item blog-card" (click)="onOpen()">
   <div class="blog-main">
     <div class="blog-text">
-      <div class="blog-title">{{ blog.title }}</div>
-      <div class="blog-excerpt">{{ blog.content }}</div>
       <div class="blog-meta-row">
         <span class="blog-author">{{ authorName }}</span>
         <span class="dot">•</span>
         <span>{{ dateLabel }}</span>
       </div>
+      <div class="blog-title">{{ blog.title }}</div>
+      <div class="blog-excerpt">{{ blog.content }}</div>
       <div class="blog-actions" *ngIf="showEngagementActions || showOwnerActions">
         <button class="action-btn" *ngIf="showEngagementActions" type="button" (click)="onLike($event)" [class.liked]="liked">
           Like ({{ likeCount }})
