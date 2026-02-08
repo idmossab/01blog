@@ -4,7 +4,7 @@
       <div>
         <h2 class="details-title">{{ blog.title }}</h2>
         <div class="details-meta">
-          <span class="author">{{ blog.user?.firstName || user?.firstName }} {{ blog.user?.lastName || user?.lastName }}</span>
+          <span class="author">{{ blog.user?.firstName || 'Unknown' }} {{ blog.user?.lastName || 'User' }}</span>
           <span class="dot">•</span>
           <span>{{ formatRelative(blog.createdAt) }}</span>
         </div>
@@ -71,7 +71,7 @@
       <div class="comment-item" *ngFor="let comment of comments">
         <div class="comment-meta">
           <span class="comment-author">
-            {{ comment.user?.firstName }} {{ comment.user?.lastName }}
+            {{ comment.user?.firstName || 'Unknown' }} {{ comment.user?.lastName || 'User' }}
           </span>
           <span class="dot">•</span>
           <span>{{ formatRelative(comment.createdAt) }}</span>

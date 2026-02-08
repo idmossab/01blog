@@ -58,7 +58,7 @@
             <app-blog-card
               *ngFor="let blog of blogs"
               [blog]="blog"
-              [authorName]="(user?.firstName || '') + ' ' + (user?.lastName || '')"
+              [authorName]="(blog.user?.firstName || '') + ' ' + (blog.user?.lastName || '')"
               [thumbnail]="thumbnailByBlog[blog.idBlog || 0] || null"
               [liked]="!!likedByBlog[blog.idBlog || 0]"
               [likeCount]="likeCountByBlog[blog.idBlog || 0] ?? blog.likeCount ?? 0"
