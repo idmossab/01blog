@@ -111,7 +111,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   openNotification(item: AppNotification, event: Event): void {
     event.stopPropagation();
     const finalize = () => {
-      this.notifications = this.notifications.map((n) => (n.id === item.id ? { ...n, read: true } : n));
+      this.notifications = this.notifications.filter((n) => n.id !== item.id);
       this.refreshUnreadCount();
       this.notificationsOpen = false;
       if (item.blogId) {
@@ -121,12 +121,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     };
 
-    if (item.read) {
-      finalize();
-      return;
-    }
-
-    this.api.markNotificationRead(item.id).subscribe({
+    this.api.deleteNotification(item.id).subscribe({
       next: () => finalize(),
       error: () => finalize()
     });

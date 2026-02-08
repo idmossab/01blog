@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,6 +49,14 @@ public class NotificationCont {
                                          @PathVariable Long notificationId) {
         Long currentUserId = principal.getUser().getUserId();
         notificationService.markRead(currentUserId, notificationId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal UserPrincipal principal,
+                                       @PathVariable Long notificationId) {
+        Long currentUserId = principal.getUser().getUserId();
+        notificationService.deleteForUser(currentUserId, notificationId);
         return ResponseEntity.noContent().build();
     }
 
