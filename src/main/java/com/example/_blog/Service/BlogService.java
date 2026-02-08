@@ -25,6 +25,8 @@ import com.example._blog.Repositories.UserRepo;
 
 @Service
 public class BlogService {
+    private static final int MAX_CONTENT_LENGTH = 1000;
+
     private final BlogRepo blogRepo;
     private final UserRepo userRepo;
     private final MediaService mediaService;
@@ -48,6 +50,7 @@ public class BlogService {
         if (!hasText(blog.getTitle()) || !hasText(blog.getContent())) {
             throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
         }
+        validateContentLength(blog.getContent());
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
         blog.setUser(user);
@@ -62,6 +65,7 @@ public class BlogService {
         if (!hasText(title) || !hasText(content)) {
             throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
         }
+        validateContentLength(content);
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
 
@@ -83,12 +87,19 @@ public class BlogService {
         return value != null && !value.trim().isEmpty();
     }
 
+    private void validateContentLength(String content) {
+        if (content != null && content.length() > MAX_CONTENT_LENGTH) {
+            throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot exceed 1000 characters");
+        }
+    }
+
     public Blog update(Long blogId, Blog changes) {
         Blog existing = getById(blogId);
         if (changes.getTitle() != null) {
             existing.setTitle(changes.getTitle());
         }
         if (changes.getContent() != null) {
+            validateContentLength(changes.getContent());
             existing.setContent(changes.getContent());
         }
         if (changes.getMedia() != null) {

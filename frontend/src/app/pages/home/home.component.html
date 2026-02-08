@@ -10,7 +10,8 @@
           </div>
           <div class="mb-2">
             <label class="form-label">Content</label>
-            <textarea class="form-control" rows="4" [(ngModel)]="newBlog.content"></textarea>
+            <textarea class="form-control" rows="4" maxlength="1000" [(ngModel)]="newBlog.content"></textarea>
+            <div class="text-muted small mt-1">{{ (newBlog.content || '').length }}/{{ maxBlogContentLength }}</div>
           </div>
           <div class="mb-2">
             <label class="form-label">Upload images or video (max 5)</label>

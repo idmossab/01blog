@@ -44,7 +44,8 @@
         </div>
         <div class="mb-2">
           <label class="form-label">Content</label>
-          <textarea class="form-control" rows="4" [(ngModel)]="editBlog.content"></textarea>
+          <textarea class="form-control" rows="4" maxlength="1000" [(ngModel)]="editBlog.content"></textarea>
+          <div class="text-muted small mt-1">{{ (editBlog.content || '').length }}/{{ maxBlogContentLength }}</div>
         </div>
 
         <div class="mb-2">

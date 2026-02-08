@@ -19,6 +19,7 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card.componen
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  readonly maxBlogContentLength = 1000;
   user: UserResponse | null = null;
   blogs: Blog[] = [];
 
@@ -82,6 +83,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.error = '';
     if (!this.hasRequiredText()) {
       this.error = 'Blog content cannot be empty';
+      return;
+    }
+    if ((this.newBlog.content || '').length > this.maxBlogContentLength) {
+      this.error = `Blog content cannot exceed ${this.maxBlogContentLength} characters`;
       return;
     }
     const files = this.mediaPreviews.map((item) => item.file);

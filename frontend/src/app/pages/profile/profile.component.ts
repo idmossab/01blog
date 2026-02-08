@@ -16,6 +16,7 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card.componen
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+  readonly maxBlogContentLength = 1000;
   user: UserResponse | null = null;
   blogs: Blog[] = [];
   thumbnailByBlog: Record<number, Media | null> = {};
@@ -239,6 +240,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const content = this.editBlog.content?.trim() || '';
     if (!title || !content) {
       this.error = 'Title and content cannot be empty';
+      return;
+    }
+    if (content.length > this.maxBlogContentLength) {
+      this.error = `Blog content cannot exceed ${this.maxBlogContentLength} characters`;
       return;
     }
 
