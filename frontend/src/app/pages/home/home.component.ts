@@ -44,13 +44,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.user = this.auth.getCurrentUser();
-    if (!this.user) {
+    if (!this.auth.getToken()) {
       this.router.navigateByUrl('/login');
       return;
     }
-    this.loadFeed();
-    this.refreshSub = this.feedRefresh.refresh$.subscribe(() => this.loadFeed());
+    this.api.getMe().subscribe({
+      next: (me) => {
+        this.user = me;
+        this.auth.setCurrentUser(me);
+        this.loadFeed();
+        this.refreshSub = this.feedRefresh.refresh$.subscribe(() => this.loadFeed());
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to load session';
+      }
+    });
   }
 
   loadFeed(): void {

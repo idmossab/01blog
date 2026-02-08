@@ -36,9 +36,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    const cached = this.auth.getCurrentUser();
-    this.user = cached;
-    if (!cached) {
+    if (!this.auth.getToken()) {
       this.router.navigateByUrl('/login');
       return;
     }

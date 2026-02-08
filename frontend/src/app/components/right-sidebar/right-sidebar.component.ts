@@ -45,11 +45,22 @@ export class RightSidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const user = this.auth.getCurrentUser();
-    this.currentUserId = user?.userId ?? null;
+    if (!this.auth.getToken()) {
+      this.loading = false;
+      return;
+    }
     this.loading = true;
-    this.loadFollowedIds();
     this.setupSearch();
+    this.api.getMe().subscribe({
+      next: (me) => {
+        this.currentUserId = me.userId;
+        this.auth.setCurrentUser(me);
+        this.loadFollowedIds();
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 
   ngAfterViewInit(): void {

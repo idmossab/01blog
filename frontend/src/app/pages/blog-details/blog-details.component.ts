@@ -50,8 +50,7 @@ export class BlogDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.user = this.auth.getCurrentUser();
-    if (!this.user) {
+    if (!this.auth.getToken()) {
       this.router.navigateByUrl('/login');
       return;
     }
@@ -60,10 +59,19 @@ export class BlogDetailsComponent implements OnInit {
       this.router.navigateByUrl('/home');
       return;
     }
-    this.loadBlog(id);
-    this.loadMedia(id);
-    this.loadComments(id);
-    this.loadLikeStatus(id);
+    this.api.getMe().subscribe({
+      next: (me) => {
+        this.user = me;
+        this.auth.setCurrentUser(me);
+        this.loadBlog(id);
+        this.loadMedia(id);
+        this.loadComments(id);
+        this.loadLikeStatus(id);
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to load session';
+      }
+    });
   }
 
   loadBlog(blogId: number): void {

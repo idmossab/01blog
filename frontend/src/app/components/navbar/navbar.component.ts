@@ -25,6 +25,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notificationsError = '';
   private navSub?: Subscription;
   private pollSub?: Subscription;
+  private loadingUser = false;
 
   constructor(
     private auth: AuthService,
@@ -51,11 +52,25 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.user = this.auth.getCurrentUser();
     const url = this.router.url;
     this.showBack = url !== '/home';
-    if (!this.user) {
+    if (!this.auth.getToken()) {
+      this.user = null;
       this.notifications = [];
       this.unreadCount = 0;
       this.notificationsOpen = false;
       return;
+    }
+    if (!this.user && !this.loadingUser) {
+      this.loadingUser = true;
+      this.api.getMe().subscribe({
+        next: (me) => {
+          this.user = me;
+          this.auth.setCurrentUser(me);
+          this.loadingUser = false;
+        },
+        error: () => {
+          this.loadingUser = false;
+        }
+      });
     }
     this.refreshUnreadCount();
   }
