@@ -39,6 +39,8 @@
   font-size: 16px;
   line-height: 1.7;
   color: #1f2937;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .like-btn {
@@ -185,6 +187,8 @@
 .comment-text {
   font-size: 14px;
   color: #1f2937;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .report-overlay {
