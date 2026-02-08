@@ -20,6 +20,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   user: UserResponse | null = null;
   blogs: Blog[] = [];
   followedUsers: UserResponse[] = [];
+  followerUsers: UserResponse[] = [];
   thumbnailByBlog: Record<number, Media | null> = {};
   blogCount = 0;
   followCounts: FollowCounts = { following: 0, followers: 0 };
@@ -28,6 +29,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   followingModalOpen = false;
   followingLoading = false;
   followingError = '';
+  followersModalOpen = false;
+  followersLoading = false;
+  followersError = '';
   pendingDeleteBlog: Blog | null = null;
   deleteLoading = false;
   editingBlogId: number | null = null;
@@ -144,6 +148,41 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   closeFollowingModal(): void {
     this.followingModalOpen = false;
+  }
+
+  openFollowersModal(): void {
+    this.followersModalOpen = true;
+    this.followersLoading = true;
+    this.followersError = '';
+    this.followerUsers = [];
+
+    this.api.getFollowerIds().subscribe({
+      next: (ids) => {
+        const followerIds = new Set(ids || []);
+        if (!followerIds.size) {
+          this.followersLoading = false;
+          return;
+        }
+        this.api.getUsers().subscribe({
+          next: (users) => {
+            this.followerUsers = (users || []).filter((user) => followerIds.has(user.userId));
+            this.followersLoading = false;
+          },
+          error: (err: any) => {
+            this.followersError = err?.error?.message || err?.error || 'Failed to load followers';
+            this.followersLoading = false;
+          }
+        });
+      },
+      error: (err: any) => {
+        this.followersError = err?.error?.message || err?.error || 'Failed to load followers';
+        this.followersLoading = false;
+      }
+    });
+  }
+
+  closeFollowersModal(): void {
+    this.followersModalOpen = false;
   }
 
   openDeleteConfirmation(blog: Blog): void {

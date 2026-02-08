@@ -18,10 +18,10 @@
         <div class="stat-label">Following</div>
         <div class="stat-value">{{ followCounts.following }}</div>
       </button>
-      <div class="stat-card">
+      <button class="stat-card clickable-stat" type="button" (click)="openFollowersModal()">
         <div class="stat-label">Followers</div>
         <div class="stat-value">{{ followCounts.followers }}</div>
-      </div>
+      </button>
     </div>
   </div>
 
@@ -148,6 +148,28 @@
         <small class="text-muted">@{{ user.userName }}</small>
       </div>
       <div class="following-state" *ngIf="!followedUsers.length">You are not following anyone yet.</div>
+    </div>
+  </div>
+</div>
+
+<div class="following-overlay" *ngIf="followersModalOpen">
+  <div class="following-modal shadow-sm">
+    <div class="following-head">
+      <h6 class="mb-0">Followers</h6>
+      <button class="btn btn-sm btn-outline-secondary" type="button" (click)="closeFollowersModal()">
+        Close
+      </button>
+    </div>
+
+    <div class="following-state" *ngIf="followersLoading">Loading...</div>
+    <div class="following-state text-danger" *ngIf="!followersLoading && followersError">{{ followersError }}</div>
+
+    <div class="following-list" *ngIf="!followersLoading && !followersError">
+      <div class="following-item" *ngFor="let user of followerUsers">
+        <div class="fw-semibold">{{ user.firstName }} {{ user.lastName }}</div>
+        <small class="text-muted">@{{ user.userName }}</small>
+      </div>
+      <div class="following-state" *ngIf="!followerUsers.length">You have no followers yet.</div>
     </div>
   </div>
 </div>

@@ -46,6 +46,12 @@ public class FollowCont {
         return ResponseEntity.ok(service.getFollowingIds(currentUserId));
     }
 
+    @GetMapping("/me/followers")
+    public ResponseEntity<List<Long>> getFollowers(@AuthenticationPrincipal UserPrincipal principal) {
+        Long currentUserId = principal.getUser().getUserId();
+        return ResponseEntity.ok(service.getFollowerIds(currentUserId));
+    }
+
     @GetMapping("/me/counts")
     public ResponseEntity<FollowCounts> getCounts(@AuthenticationPrincipal UserPrincipal principal) {
         Long currentUserId = principal.getUser().getUserId();

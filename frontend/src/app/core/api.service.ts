@@ -178,6 +178,10 @@ export class ApiService {
     return this.http.get<number[]>(`${this.baseUrl}/api/follows/me/following`);
   }
 
+  getFollowerIds() {
+    return this.http.get<number[]>(`${this.baseUrl}/api/follows/me/followers`);
+  }
+
   getMyFollowCounts() {
     return this.http.get<FollowCounts>(`${this.baseUrl}/api/follows/me/counts`);
   }

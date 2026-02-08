@@ -60,6 +60,10 @@ public class FollowService {
         return followRepo.findFollowingIdsByFollowerId(currentUserId);
     }
 
+    public List<Long> getFollowerIds(Long currentUserId) {
+        return followRepo.findFollowerIdsByFollowingId(currentUserId);
+    }
+
     public FollowCounts getFollowCounts(Long currentUserId) {
         long following = followRepo.countByFollowerUserId(currentUserId);
         long followers = followRepo.countByFollowingUserId(currentUserId);
