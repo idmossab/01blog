@@ -1,6 +1,7 @@
 package com.example._blog.Controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import com.example._blog.Dto.UserResponse;
 import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;
 import com.example._blog.Service.BlogService;
+import com.example._blog.Service.FollowService;
 import com.example._blog.Service.ReportService;
 import com.example._blog.Service.UserService;
 
@@ -22,11 +24,13 @@ import com.example._blog.Service.UserService;
 public class AdminDashboardCont {
     private final UserService userService;
     private final BlogService blogService;
+    private final FollowService followService;
     private final ReportService reportService;
 
-    public AdminDashboardCont(UserService userService, BlogService blogService, ReportService reportService) {
+    public AdminDashboardCont(UserService userService, BlogService blogService, FollowService followService, ReportService reportService) {
         this.userService = userService;
         this.blogService = blogService;
+        this.followService = followService;
         this.reportService = reportService;
     }
 
@@ -50,10 +54,22 @@ public class AdminDashboardCont {
         return ResponseEntity.ok(blogService.getAllResponses());
     }
 
+    @GetMapping("/followers-counts")
+    public ResponseEntity<List<FollowerCountResponse>> getFollowersCounts() {
+        List<UserResponse> users = userService.getAll();
+        List<Long> userIds = users.stream().map(UserResponse::userId).toList();
+        Map<Long, Long> counts = followService.getFollowerCounts(userIds);
+        List<FollowerCountResponse> response = userIds.stream()
+                .map(userId -> new FollowerCountResponse(userId, counts.getOrDefault(userId, 0L)))
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/reports/count")
     public ResponseEntity<CountResponse> getReportsCount() {
         return ResponseEntity.ok(new CountResponse(reportService.countAll()));
     }
 
+    public record FollowerCountResponse(Long userId, long count) {}
     public record CountResponse(long count) {}
 }

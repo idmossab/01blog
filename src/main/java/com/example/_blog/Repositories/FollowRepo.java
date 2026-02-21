@@ -22,4 +22,7 @@ public interface FollowRepo extends JpaRepository<Follow, Long> {
 
     long countByFollowerUserId(Long followerId);
     long countByFollowingUserId(Long followingId);
+
+    @Query("select f.following.userId, count(f) from Follow f where f.following.userId in :userIds group by f.following.userId")
+    List<Object[]> countFollowersByFollowingIds(@Param("userIds") List<Long> userIds);
 }

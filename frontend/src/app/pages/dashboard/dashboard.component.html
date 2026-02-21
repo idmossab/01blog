@@ -46,7 +46,7 @@
             </td>
             <td>{{ item.email }}</td>
             <td>{{ userPostsCount[item.userId] || 0 }}</td>
-            <td>0</td>
+            <td>{{ followerCountByUser[item.userId] || 0 }}</td>
             <td>
               <button
                 class="badge role-action"

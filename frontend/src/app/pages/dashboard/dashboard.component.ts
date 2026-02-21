@@ -20,6 +20,7 @@ export class DashboardComponent implements OnInit {
   posts: Blog[] = [];
   reportsCount = 0;
   userPostsCount: Record<number, number> = {};
+  followerCountByUser: Record<number, number> = {};
 
   tab: 'users' | 'posts' | 'reports' = 'users';
   search = '';
@@ -70,10 +71,24 @@ export class DashboardComponent implements OnInit {
       next: (posts) => {
         this.posts = posts || [];
         this.recomputeUserPostCounts();
-        this.loading = false;
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to load posts';
+        this.loading = false;
+      }
+    });
+
+    this.api.getAdminFollowersCounts().subscribe({
+      next: (items) => {
+        const map: Record<number, number> = {};
+        for (const item of items || []) {
+          map[item.userId] = item.count;
+        }
+        this.followerCountByUser = map;
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to load followers counts';
         this.loading = false;
       }
     });
@@ -161,6 +176,7 @@ export class DashboardComponent implements OnInit {
       next: () => {
         this.users = this.users.filter((u) => u.userId !== target.userId);
         delete this.userPostsCount[target.userId];
+        delete this.followerCountByUser[target.userId];
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to delete user';

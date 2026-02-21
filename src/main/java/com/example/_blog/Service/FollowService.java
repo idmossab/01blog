@@ -1,7 +1,9 @@
 package com.example._blog.Service;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +70,22 @@ public class FollowService {
         long following = followRepo.countByFollowerUserId(currentUserId);
         long followers = followRepo.countByFollowingUserId(currentUserId);
         return new FollowCounts(following, followers);
+    }
+
+    public Map<Long, Long> getFollowerCounts(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Map.of();
+        }
+        Map<Long, Long> counts = new HashMap<>();
+        for (Object[] row : followRepo.countFollowersByFollowingIds(userIds)) {
+            if (row == null || row.length < 2) {
+                continue;
+            }
+            Long userId = (Long) row[0];
+            Long count = (Long) row[1];
+            counts.put(userId, count);
+        }
+        return counts;
     }
 
     public record FollowCounts(long following, long followers) {}
