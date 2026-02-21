@@ -121,9 +121,4 @@ export class DashboardComponent implements OnInit {
         this.error = err?.error?.message || err?.error || 'Failed to update user status';
       }
     });
-  }
-
-  goBack(): void {
-    this.router.navigateByUrl('/home');
-  }
-}
+  }}

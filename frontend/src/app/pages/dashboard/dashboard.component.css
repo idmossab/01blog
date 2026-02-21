@@ -1,13 +1,5 @@
 .dashboard-wrap {
-  padding: 0 6px 20px;
-}
-
-.back-btn {
-  border: 0;
-  background: transparent;
-  color: #374151;
-  font-weight: 600;
-  padding: 8px 0;
+  padding: 28px 32px 36px;
 }
 
 .dashboard-card {
