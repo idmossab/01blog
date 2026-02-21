@@ -140,16 +140,23 @@ public class BlogService {
     }
 
     public BlogResponse getByIdResponse(Long blogId) {
-        return toResponse(getById(blogId));
+        Blog blog = getById(blogId);
+        if (blog.getStatus() == BlogStatus.HIDDEN) {
+            throw new ResponseStatusException(NOT_FOUND, "Blog not found");
+        }
+        return toResponse(blog);
     }
 
     public List<BlogResponse> getByUser(Long userId) {
-        return blogRepo.findByUserUserId(userId).stream()
+        return blogRepo.findByUserUserIdAndStatus(userId, BlogStatus.ACTIVE).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     public List<BlogResponse> getByStatus(BlogStatus status) {
+        if (status == BlogStatus.HIDDEN) {
+            return List.of();
+        }
         return blogRepo.findByStatus(status).stream()
                 .map(this::toResponse)
                 .toList();
@@ -159,22 +166,29 @@ public class BlogService {
         List<Long> authorIds = new ArrayList<>(followService.getFollowingIds(currentUserId));
         authorIds.add(currentUserId);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return blogRepo.findFeedBlogs(authorIds, pageable);
+        return blogRepo.findFeedBlogs(authorIds, BlogStatus.ACTIVE, pageable);
     }
 
     public Page<Blog> getMyBlogs(Long currentUserId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return blogRepo.findByUserUserIdOrderByCreatedAtDesc(currentUserId, pageable);
+        return blogRepo.findByUserUserIdAndStatusOrderByCreatedAtDesc(currentUserId, BlogStatus.ACTIVE, pageable);
     }
 
     public long getMyBlogCount(Long currentUserId) {
-        return blogRepo.countByUserUserId(currentUserId);
+        return blogRepo.countByUserUserIdAndStatus(currentUserId, BlogStatus.ACTIVE);
     }
 
     public List<BlogResponse> getAllResponses() {
         return blogRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public BlogResponse updateStatus(Long blogId, BlogStatus status) {
+        Blog existing = getById(blogId);
+        existing.setStatus(status);
+        existing.setUpdatedAt(Instant.now());
+        return toResponse(blogRepo.save(existing));
     }
 
     private BlogResponse toResponse(Blog blog) {

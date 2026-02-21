@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example._blog.Dto.BlogResponse;
 import com.example._blog.Dto.AdminReportItemResponse;
 import com.example._blog.Dto.UserResponse;
+import com.example._blog.Entity.enums.BlogStatus;
 import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;
 import com.example._blog.Service.BlogService;
@@ -53,6 +54,11 @@ public class AdminDashboardCont {
     @GetMapping("/posts")
     public ResponseEntity<List<BlogResponse>> getPosts() {
         return ResponseEntity.ok(blogService.getAllResponses());
+    }
+
+    @PutMapping("/posts/{blogId}/status/{status}")
+    public ResponseEntity<BlogResponse> updatePostStatus(@PathVariable Long blogId, @PathVariable BlogStatus status) {
+        return ResponseEntity.ok(blogService.updateStatus(blogId, status));
     }
 
     @GetMapping("/followers-counts")

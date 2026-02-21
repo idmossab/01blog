@@ -291,4 +291,20 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  togglePostStatus(post: Blog): void {
+    if (!post?.idBlog) return;
+    const currentStatus = post.status === 'HIDDEN' ? 'HIDDEN' : 'ACTIVE';
+    const nextStatus: 'ACTIVE' | 'HIDDEN' = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
+
+    this.api.updateAdminPostStatus(post.idBlog, nextStatus).subscribe({
+      next: (updated) => {
+        this.posts = this.posts.map((p) => (p.idBlog === updated.idBlog ? updated : p));
+        this.recomputeUserPostCounts();
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to update post status';
+      }
+    });
+  }
 }

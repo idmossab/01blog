@@ -116,6 +116,11 @@
   color: #b91c1c;
 }
 
+.badge.hidden-status {
+  background: #f3f4f6;
+  color: #374151;
+}
+
 .action {
   border: 1px solid #d1d5db;
   border-radius: 8px;

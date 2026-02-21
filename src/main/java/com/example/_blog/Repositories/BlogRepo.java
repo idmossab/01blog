@@ -17,10 +17,14 @@ public interface BlogRepo extends JpaRepository<Blog, Long> {
     List<Blog> findByUserUserId(Long userId);
     List<Blog> findByStatus(BlogStatus status);
     List<Blog> findByUserUserIdAndStatus(Long userId, BlogStatus status);
+    Page<Blog> findByUserUserIdAndStatusOrderByCreatedAtDesc(Long userId, BlogStatus status, Pageable pageable);
     long countByUserUserId(Long userId);
+    long countByUserUserIdAndStatus(Long userId, BlogStatus status);
 
-    @Query("select b from Blog b where b.user.userId in :authorIds")
-    Page<Blog> findFeedBlogs(@Param("authorIds") List<Long> authorIds, Pageable pageable);
+    @Query("select b from Blog b where b.user.userId in :authorIds and b.status = :status")
+    Page<Blog> findFeedBlogs(@Param("authorIds") List<Long> authorIds,
+                             @Param("status") BlogStatus status,
+                             Pageable pageable);
 
     Page<Blog> findByUserUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 }

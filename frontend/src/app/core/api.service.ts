@@ -238,6 +238,10 @@ export class ApiService {
     return this.http.get<Blog[]>(`${this.baseUrl}/api/admin/dashboard/posts`);
   }
 
+  updateAdminPostStatus(blogId: number, status: 'ACTIVE' | 'HIDDEN') {
+    return this.http.put<Blog>(`${this.baseUrl}/api/admin/dashboard/posts/${blogId}/status/${status}`, {});
+  }
+
   getAdminFollowersCounts() {
     return this.http.get<Array<{ userId: number; count: number }>>(`${this.baseUrl}/api/admin/dashboard/followers-counts`);
   }
