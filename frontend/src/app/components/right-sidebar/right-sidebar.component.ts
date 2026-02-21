@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, throttleTime } from 'rxjs/operators';
 import { fromEvent, Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -41,7 +42,8 @@ export class RightSidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private api: ApiService,
     private auth: AuthService,
-    private feedRefresh: FeedRefreshService
+    private feedRefresh: FeedRefreshService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -160,5 +162,9 @@ export class RightSidebarComponent implements OnInit, AfterViewInit, OnDestroy {
         this.followLoadingIds.delete(userId);
       }
     });
+  }
+
+  openUserProfile(userId: number): void {
+    this.router.navigateByUrl(`/profile/${userId}`);
   }
 }

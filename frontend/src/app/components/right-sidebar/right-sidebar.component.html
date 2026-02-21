@@ -13,13 +13,13 @@
     <div class="text-muted small px-2" *ngIf="loading">Loading...</div>
 
     <div class="user-row" *ngFor="let user of displayedUsers">
-      <div class="user-info">
+      <button class="user-info user-link" type="button" (click)="openUserProfile(user.userId)">
         <div class="avatar">{{ user.firstName[0] }}{{ user.lastName[0] }}</div>
         <div>
           <div class="name">{{ user.firstName }} {{ user.lastName }}</div>
           <div class="handle">@{{ user.userName }}</div>
         </div>
-      </div>
+      </button>
       <button
         class="btn btn-sm btn-outline-dark"
         type="button"

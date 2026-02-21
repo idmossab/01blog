@@ -14,11 +14,11 @@
         <div class="stat-label">Blogs</div>
         <div class="stat-value">{{ blogCount }}</div>
       </div>
-      <button class="stat-card clickable-stat" type="button" (click)="openFollowingModal()">
+      <button class="stat-card clickable-stat" type="button" (click)="openFollowingModal()" *ngIf="isOwnProfile">
         <div class="stat-label">Following</div>
         <div class="stat-value">{{ followCounts.following }}</div>
       </button>
-      <button class="stat-card clickable-stat" type="button" (click)="openFollowersModal()">
+      <button class="stat-card clickable-stat" type="button" (click)="openFollowersModal()" *ngIf="isOwnProfile">
         <div class="stat-label">Followers</div>
         <div class="stat-value">{{ followCounts.followers }}</div>
       </button>
@@ -28,10 +28,10 @@
   <div class="card shadow-sm mt-4">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between mb-2">
-        <h5 class="card-title mb-0">My Blogs</h5>
+        <h5 class="card-title mb-0">{{ isOwnProfile ? 'My Blogs' : 'User Blogs' }}</h5>
       </div>
 
-      <div class="edit-blog-card" *ngIf="editingBlogId">
+      <div class="edit-blog-card" *ngIf="isOwnProfile && editingBlogId">
         <div class="edit-header">
           <h6 class="mb-0">Update blog</h6>
           <button class="btn btn-sm btn-outline-secondary" type="button" (click)="cancelEditBlog()" [disabled]="updateLoading">
@@ -115,7 +115,7 @@
           [likeCount]="blog.likeCount || 0"
           [commentCount]="blog.commentCount || 0"
           [dateLabel]="formatRelative(blog.createdAt)"
-          [showOwnerActions]="true"
+          [showOwnerActions]="isOwnProfile"
           (open)="openDetails(blog.idBlog)"
           (like)="openDetails(blog.idBlog)"
           (comment)="openDetails(blog.idBlog)"

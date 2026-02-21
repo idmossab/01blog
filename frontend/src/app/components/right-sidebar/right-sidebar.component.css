@@ -45,6 +45,18 @@
   gap: 8px;
 }
 
+.user-link {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-link:hover .name {
+  text-decoration: underline;
+}
+
 .avatar {
   width: 34px;
   height: 34px;

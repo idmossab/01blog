@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -41,25 +42,64 @@ export class ProfileComponent implements OnInit, OnDestroy {
   editMediaPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
   editTotalMediaSize = 0;
   updateLoading = false;
+  isOwnProfile = true;
+  private routeSub?: Subscription;
 
-  constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
+  constructor(
+    private api: ApiService,
+    private auth: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     if (!this.auth.getToken()) {
       this.router.navigateByUrl('/login');
       return;
     }
-    this.loadProfile();
+    this.routeSub = this.route.paramMap.subscribe((params) => {
+      const rawUserId = params.get('userId');
+      const routeUserId = rawUserId ? Number(rawUserId) : null;
+      this.loadProfile(routeUserId);
+    });
   }
 
-  private loadProfile(): void {
+  private loadProfile(routeUserId: number | null): void {
     this.loading = true;
+    this.error = '';
+    this.cancelEditBlog();
+    this.pendingDeleteBlog = null;
+    this.followingModalOpen = false;
+    this.followersModalOpen = false;
+
     this.api.getMe().subscribe({
       next: (me) => {
-        this.user = me;
         this.auth.setCurrentUser(me);
+        const validRouteUserId = routeUserId !== null && Number.isFinite(routeUserId) ? routeUserId : null;
+        if (validRouteUserId !== null && validRouteUserId !== me.userId) {
+          this.isOwnProfile = false;
+          this.loadOtherUserProfile(validRouteUserId);
+          return;
+        }
+
+        this.isOwnProfile = true;
+        this.user = me;
         this.loadCounts();
-        this.loadBlogs();
+        this.loadMyBlogs();
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to load profile';
+        this.loading = false;
+      }
+    });
+  }
+
+  private loadOtherUserProfile(userId: number): void {
+    this.followCounts = { following: 0, followers: 0 };
+    this.api.getUserById(userId).subscribe({
+      next: (user) => {
+        this.user = user;
+        this.loadBlogsByUser(user.userId);
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to load profile';
@@ -80,13 +120,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadBlogs(): void {
+  private loadMyBlogs(): void {
     this.api.getMyBlogs(0, 10).subscribe({
       next: (data) => {
         this.blogs = data?.content || data || [];
         if (!this.blogCount) {
           this.blogCount = data?.totalElements || this.blogs.length;
         }
+        this.preloadThumbnails();
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to load blogs';
+        this.loading = false;
+      }
+    });
+  }
+
+  private loadBlogsByUser(userId: number): void {
+    this.api.getBlogsByUser(userId).subscribe({
+      next: (blogs) => {
+        this.blogs = blogs || [];
+        this.blogCount = this.blogs.length;
         this.preloadThumbnails();
         this.loading = false;
       },
@@ -362,6 +417,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
     this.clearEditMediaSelection();
   }
 

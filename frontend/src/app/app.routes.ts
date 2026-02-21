@@ -42,6 +42,11 @@ export const routes: Routes = [
     canMatch: [authGuard]
   },
   {
+    path: 'profile/:userId',
+    component: ProfileComponent,
+    canMatch: [authGuard]
+  },
+  {
     path: 'server-error',
     component: ServerErrorComponent
   },
