@@ -2,6 +2,7 @@ package com.example._blog.Service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
@@ -18,6 +19,12 @@ import com.example._blog.Dto.UserResponse;
 import com.example._blog.Entity.User;
 import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;
+import com.example._blog.Repositories.BlogRepo;
+import com.example._blog.Repositories.CommentRepo;
+import com.example._blog.Repositories.FollowRepo;
+import com.example._blog.Repositories.LikeRepo;
+import com.example._blog.Repositories.NotificationRepo;
+import com.example._blog.Repositories.ReportRepo;
 import com.example._blog.Repositories.UserRepo;
 import com.example._blog.Security.JwtService;
 
@@ -26,10 +33,27 @@ public class UserService {
     private final UserRepo repo;
     private final PasswordEncoder encoder;
     private final JwtService jwtService;
-    public UserService(UserRepo repo, PasswordEncoder encoder, JwtService jwtService) {
+    private final BlogRepo blogRepo;
+    private final CommentRepo commentRepo;
+    private final LikeRepo likeRepo;
+    private final FollowRepo followRepo;
+    private final NotificationRepo notificationRepo;
+    private final ReportRepo reportRepo;
+    private final MediaService mediaService;
+
+    public UserService(UserRepo repo, PasswordEncoder encoder, JwtService jwtService, BlogRepo blogRepo,
+                       CommentRepo commentRepo, LikeRepo likeRepo, FollowRepo followRepo,
+                       NotificationRepo notificationRepo, ReportRepo reportRepo, MediaService mediaService) {
         this.repo = repo;
         this.encoder = encoder;
         this.jwtService = jwtService;
+        this.blogRepo = blogRepo;
+        this.commentRepo = commentRepo;
+        this.likeRepo = likeRepo;
+        this.followRepo = followRepo;
+        this.notificationRepo = notificationRepo;
+        this.reportRepo = reportRepo;
+        this.mediaService = mediaService;
     }
 
     // REGISTER
@@ -108,9 +132,32 @@ public class UserService {
         return toResponse(repo.save(existing));
     }
 
+    @Transactional
     public void delete(Long userId) {
         User existing = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+
+        List<Long> userBlogIds = blogRepo.findByUserUserId(userId).stream()
+                .map((blog) -> blog.getIdBlog())
+                .toList();
+
+        for (Long blogId : userBlogIds) {
+            reportRepo.deleteByBlogIdBlog(blogId);
+            notificationRepo.deleteByBlogIdBlog(blogId);
+            likeRepo.deleteByBlogIdBlog(blogId);
+            commentRepo.deleteByBlogIdBlog(blogId);
+            mediaService.deleteByBlog(blogId);
+        }
+
+        likeRepo.deleteByUserUserId(userId);
+        commentRepo.deleteByUserUserId(userId);
+        followRepo.deleteByFollowerUserIdOrFollowingUserId(userId, userId);
+        notificationRepo.deleteByRecipientUserIdOrActorUserId(userId, userId);
+        reportRepo.deleteByReporterUserIdOrReportedUserUserId(userId, userId);
+
+        if (!userBlogIds.isEmpty()) {
+            blogRepo.deleteAllById(userBlogIds);
+        }
         repo.delete(existing);
     }
 

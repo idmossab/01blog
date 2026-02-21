@@ -28,6 +28,8 @@ export class DashboardComponent implements OnInit {
   reportReasonFilter: 'ALL' | ReportReason = 'ALL';
   loading = true;
   error = '';
+  pendingDeleteUser: UserResponse | null = null;
+  deleteUserLoading = false;
 
   readonly reportReasonOptions: Array<{ value: ReportReason; label: string }> = [
     { value: 'HARASSMENT_BULLYING', label: 'Harassment / Bullying' },
@@ -189,19 +191,40 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  deleteUser(target: UserResponse): void {
+  openDeleteUserModal(target: UserResponse): void {
     if (!this.user || target.role === 'ADMIN' || target.userId === this.user.userId) return;
-    const confirmed = window.confirm(`Delete user "${target.userName}"? This action cannot be undone.`);
-    if (!confirmed) return;
+    this.pendingDeleteUser = target;
+  }
+
+  closeDeleteUserModal(): void {
+    if (this.deleteUserLoading) return;
+    this.pendingDeleteUser = null;
+  }
+
+  confirmDeleteUser(): void {
+    const target = this.pendingDeleteUser;
+    if (!target || this.deleteUserLoading) return;
+    this.deleteUserLoading = true;
 
     this.api.deleteUser(target.userId).subscribe({
       next: () => {
         this.users = this.users.filter((u) => u.userId !== target.userId);
         delete this.userPostsCount[target.userId];
         delete this.followerCountByUser[target.userId];
+        this.posts = this.posts.filter((p) => p.userId !== target.userId);
+        this.recomputeUserPostCounts();
+        this.reports = this.reports.filter((r) =>
+          r.reporterUserId !== target.userId &&
+          r.reportedUserId !== target.userId &&
+          r.blogAuthorUserId !== target.userId
+        );
+        this.reportsCount = this.reports.length;
+        this.pendingDeleteUser = null;
+        this.deleteUserLoading = false;
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to delete user';
+        this.deleteUserLoading = false;
       }
     });
   }

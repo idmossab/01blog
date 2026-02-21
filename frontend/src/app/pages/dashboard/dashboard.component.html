@@ -75,7 +75,7 @@
               <button
                 class="action delete-action"
                 type="button"
-                (click)="deleteUser(item)"
+                (click)="openDeleteUserModal(item)"
                 [disabled]="item.role === 'ADMIN' || item.userId === user?.userId"
               >
                 Delete
@@ -161,3 +161,22 @@
     <div class="loading">Loading dashboard...</div>
   </div>
 </ng-template>
+
+<div class="confirm-overlay" *ngIf="pendingDeleteUser">
+  <div class="confirm-card">
+    <h5>Delete User</h5>
+    <p>
+      Are you sure you want to delete
+      <strong>{{ pendingDeleteUser.userName }}</strong>?
+      This action cannot be undone.
+    </p>
+    <div class="confirm-actions">
+      <button class="action delete-action" type="button" (click)="confirmDeleteUser()" [disabled]="deleteUserLoading">
+        {{ deleteUserLoading ? 'Deleting...' : 'Yes, Delete' }}
+      </button>
+      <button class="action" type="button" (click)="closeDeleteUserModal()" [disabled]="deleteUserLoading">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

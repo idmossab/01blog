@@ -13,6 +13,7 @@ import com.example._blog.Entity.Follow;
 public interface FollowRepo extends JpaRepository<Follow, Long> {
     boolean existsByFollowerUserIdAndFollowingUserId(Long followerId, Long followingId);
     void deleteByFollowerUserIdAndFollowingUserId(Long followerId, Long followingId);
+    void deleteByFollowerUserIdOrFollowingUserId(Long followerId, Long followingId);
 
     @Query("select f.following.userId from Follow f where f.follower.userId = :followerId")
     List<Long> findFollowingIdsByFollowerId(@Param("followerId") Long followerId);
