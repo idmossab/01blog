@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example._blog.Entity.Blog;
+import jakarta.validation.Valid;
+
+import com.example._blog.Dto.BlogCreateRequest;
+import com.example._blog.Dto.BlogResponse;
+import com.example._blog.Dto.BlogUpdateRequest;
 import com.example._blog.Entity.enums.BlogStatus;
 import com.example._blog.Service.BlogService;
 
@@ -29,12 +33,12 @@ public class BlogCont {
     }
 
     @PostMapping
-    public ResponseEntity<Blog> create(@RequestParam Long userId, @RequestBody Blog blog) {
-        return ResponseEntity.ok(service.create(blog, userId));
+    public ResponseEntity<BlogResponse> create(@RequestParam Long userId, @RequestBody @Valid BlogCreateRequest request) {
+        return ResponseEntity.ok(service.create(request, userId));
     }
 
     @PostMapping(value = "/with-media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Blog> createWithMedia(@RequestParam Long userId,
+    public ResponseEntity<BlogResponse> createWithMedia(@RequestParam Long userId,
                                                 @RequestParam String title,
                                                 @RequestParam String content,
                                                 @RequestParam(required = false) BlogStatus status,
@@ -43,7 +47,7 @@ public class BlogCont {
     }
 
     @PutMapping("/{blogId}")
-    public ResponseEntity<Blog> update(@PathVariable Long blogId, @RequestBody Blog changes) {
+    public ResponseEntity<BlogResponse> update(@PathVariable Long blogId, @RequestBody @Valid BlogUpdateRequest changes) {
         return ResponseEntity.ok(service.update(blogId, changes));
     }
 
@@ -54,17 +58,17 @@ public class BlogCont {
     }
 
     @GetMapping("/{blogId}")
-    public ResponseEntity<Blog> getById(@PathVariable Long blogId) {
-        return ResponseEntity.ok(service.getById(blogId));
+    public ResponseEntity<BlogResponse> getById(@PathVariable Long blogId) {
+        return ResponseEntity.ok(service.getByIdResponse(blogId));
     }
 
     @GetMapping("/by-user/{userId}")
-    public ResponseEntity<List<Blog>> getByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<BlogResponse>> getByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(service.getByUser(userId));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Blog>> getByStatus(@PathVariable BlogStatus status) {
+    public ResponseEntity<List<BlogResponse>> getByStatus(@PathVariable BlogStatus status) {
         return ResponseEntity.ok(service.getByStatus(status));
     }
 

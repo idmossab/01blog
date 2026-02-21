@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.example._blog.Dto.MediaResponse;
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.Media;
 import com.example._blog.Repositories.BlogRepo;
@@ -41,10 +42,12 @@ public class MediaService {
         this.blogRepo = blogRepo;
     }
 
-    public List<Media> upload(Long blogId, List<MultipartFile> files) {
+    public List<MediaResponse> upload(Long blogId, List<MultipartFile> files) {
         Blog blog = blogRepo.findById(blogId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog not found"));
-        return uploadToBlog(blog, files, true);
+        return uploadToBlog(blog, files, true).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public List<Media> uploadToBlog(Blog blog, List<MultipartFile> files) {
@@ -91,12 +94,18 @@ public class MediaService {
         }
     }
 
-    public List<Media> getByBlog(Long blogId) {
-        return mediaRepo.findByBlogIdBlog(blogId);
+    public List<MediaResponse> getByBlog(Long blogId) {
+        return mediaRepo.findByBlogIdBlog(blogId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Media getFirstByBlog(Long blogId) {
-        return mediaRepo.findFirstByBlogIdBlogOrderByIdAsc(blogId);
+    public MediaResponse getFirstByBlog(Long blogId) {
+        Media media = mediaRepo.findFirstByBlogIdBlogOrderByIdAsc(blogId);
+        if (media == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Media not found");
+        }
+        return toResponse(media);
     }
 
     public void deleteByBlog(Long blogId) {
@@ -233,5 +242,15 @@ public class MediaService {
             }
             return url.substring(slash + 1);
         }
+    }
+
+    private MediaResponse toResponse(Media media) {
+        return new MediaResponse(
+                media.getId(),
+                media.getBlog() == null ? null : media.getBlog().getIdBlog(),
+                media.getUrl(),
+                media.getMediaType(),
+                media.getCreatedAt()
+        );
     }
 }

@@ -3,6 +3,7 @@ package com.example._blog.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +15,10 @@ import org.springframework.data.domain.Sort;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.example._blog.Dto.BlogCreateRequest;
+import com.example._blog.Dto.BlogResponse;
+import com.example._blog.Dto.BlogUpdateRequest;
+import com.example._blog.Dto.MediaResponse;
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.User;
 import com.example._blog.Entity.enums.BlogStatus;
@@ -46,21 +51,28 @@ public class BlogService {
         this.notificationRepo = notificationRepo;
     }
 
-    public Blog create(Blog blog, Long userId) {
-        if (!hasText(blog.getTitle()) || !hasText(blog.getContent())) {
+    public BlogResponse create(BlogCreateRequest request, Long userId) {
+        if (!hasText(request.title()) || !hasText(request.content())) {
             throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
         }
-        validateContentLength(blog.getContent());
+        validateContentLength(request.content());
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
-        blog.setUser(user);
-        blog.setCreatedAt(Instant.now());
-        blog.setUpdatedAt(null);
-        return blogRepo.save(blog);
+
+        Blog blog = Blog.builder()
+                .title(request.title())
+                .content(request.content())
+                .status(request.status() == null ? BlogStatus.ACTIVE : request.status())
+                .user(user)
+                .createdAt(Instant.now())
+                .updatedAt(null)
+                .build();
+
+        return toResponse(blogRepo.save(blog));
     }
 
     @org.springframework.transaction.annotation.Transactional
-    public Blog createWithMedia(Long userId, String title, String content, BlogStatus status,
+    public BlogResponse createWithMedia(Long userId, String title, String content, BlogStatus status,
                                 java.util.List<org.springframework.web.multipart.MultipartFile> files) {
         if (!hasText(title) || !hasText(content)) {
             throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
@@ -80,7 +92,7 @@ public class BlogService {
 
         Blog saved = blogRepo.save(blog);
         mediaService.uploadToBlog(saved, files, false);
-        return saved;
+        return toResponse(saved);
     }
 
     private boolean hasText(String value) {
@@ -93,23 +105,23 @@ public class BlogService {
         }
     }
 
-    public Blog update(Long blogId, Blog changes) {
+    public BlogResponse update(Long blogId, BlogUpdateRequest changes) {
         Blog existing = getById(blogId);
-        if (changes.getTitle() != null) {
-            existing.setTitle(changes.getTitle());
+        if (changes.title() != null) {
+            existing.setTitle(changes.title());
         }
-        if (changes.getContent() != null) {
-            validateContentLength(changes.getContent());
-            existing.setContent(changes.getContent());
+        if (changes.content() != null) {
+            validateContentLength(changes.content());
+            existing.setContent(changes.content());
         }
-        if (changes.getMedia() != null) {
-            existing.setMedia(changes.getMedia());
+        if (changes.media() != null) {
+            existing.setMedia(changes.media());
         }
-        if (changes.getStatus() != null) {
-            existing.setStatus(changes.getStatus());
+        if (changes.status() != null) {
+            existing.setStatus(changes.status());
         }
         existing.setUpdatedAt(Instant.now());
-        return blogRepo.save(existing);
+        return toResponse(blogRepo.save(existing));
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -127,12 +139,20 @@ public class BlogService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog not found"));
     }
 
-    public List<Blog> getByUser(Long userId) {
-        return blogRepo.findByUserUserId(userId);
+    public BlogResponse getByIdResponse(Long blogId) {
+        return toResponse(getById(blogId));
     }
 
-    public List<Blog> getByStatus(BlogStatus status) {
-        return blogRepo.findByStatus(status);
+    public List<BlogResponse> getByUser(Long userId) {
+        return blogRepo.findByUserUserId(userId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<BlogResponse> getByStatus(BlogStatus status) {
+        return blogRepo.findByStatus(status).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public Page<Blog> getFeed(Long currentUserId, int page, int size) {
@@ -149,5 +169,29 @@ public class BlogService {
 
     public long getMyBlogCount(Long currentUserId) {
         return blogRepo.countByUserUserId(currentUserId);
+    }
+
+    private BlogResponse toResponse(Blog blog) {
+        List<MediaResponse> mediaFiles;
+        if (blog.getIdBlog() == null) {
+            mediaFiles = Collections.emptyList();
+        } else {
+            mediaFiles = mediaService.getByBlog(blog.getIdBlog());
+        }
+
+        return new BlogResponse(
+                blog.getIdBlog(),
+                blog.getTitle(),
+                blog.getContent(),
+                blog.getStatus(),
+                blog.getUser() == null ? null : blog.getUser().getUserId(),
+                blog.getUser() == null ? null : blog.getUser().getUserName(),
+                blog.getMedia(),
+                blog.getCommentCount(),
+                blog.getLikeCount(),
+                blog.getCreatedAt(),
+                blog.getUpdatedAt(),
+                mediaFiles
+        );
     }
 }

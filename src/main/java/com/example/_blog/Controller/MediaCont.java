@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example._blog.Entity.Media;
+import com.example._blog.Dto.MediaResponse;
 import com.example._blog.Service.MediaService;
 
 @RestController
@@ -25,18 +25,18 @@ public class MediaCont {
     }
 
     @PostMapping("/upload/{blogId}")
-    public ResponseEntity<List<Media>> upload(@PathVariable Long blogId,
+    public ResponseEntity<List<MediaResponse>> upload(@PathVariable Long blogId,
                                               @RequestParam("files") List<MultipartFile> files) {
         return ResponseEntity.ok(service.upload(blogId, files));
     }
 
     @GetMapping("/by-blog/{blogId}")
-    public ResponseEntity<List<Media>> getByBlog(@PathVariable Long blogId) {
+    public ResponseEntity<List<MediaResponse>> getByBlog(@PathVariable Long blogId) {
         return ResponseEntity.ok(service.getByBlog(blogId));
     }
 
     @GetMapping("/first/{blogId}")
-    public ResponseEntity<Media> getFirstByBlog(@PathVariable Long blogId) {
+    public ResponseEntity<MediaResponse> getFirstByBlog(@PathVariable Long blogId) {
         return ResponseEntity.ok(service.getFirstByBlog(blogId));
     }
 
