@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example._blog.Dto.BlogResponse;
+import com.example._blog.Dto.AdminReportItemResponse;
 import com.example._blog.Dto.UserResponse;
 import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;
@@ -68,6 +69,11 @@ public class AdminDashboardCont {
     @GetMapping("/reports/count")
     public ResponseEntity<CountResponse> getReportsCount() {
         return ResponseEntity.ok(new CountResponse(reportService.countAll()));
+    }
+
+    @GetMapping("/reports")
+    public ResponseEntity<List<AdminReportItemResponse>> getReports() {
+        return ResponseEntity.ok(reportService.getAllForAdmin());
     }
 
     public record FollowerCountResponse(Long userId, long count) {}

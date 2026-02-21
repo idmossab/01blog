@@ -81,6 +81,22 @@ export interface ReportResponse {
   message: string;
 }
 
+export interface AdminReportItem {
+  reportId: number;
+  reason: ReportReason;
+  details?: string | null;
+  createdAt?: string;
+  reporterUserId?: number | null;
+  reporterUserName?: string | null;
+  blogId?: number | null;
+  blogTitle?: string | null;
+  blogContent?: string | null;
+  blogAuthorUserId?: number | null;
+  blogAuthorUserName?: string | null;
+  reportedUserId?: number | null;
+  reportedUserName?: string | null;
+}
+
 export type NotificationType = 'LIKE' | 'COMMENT' | 'FOLLOW';
 
 export interface AppNotification {

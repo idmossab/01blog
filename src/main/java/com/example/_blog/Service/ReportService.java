@@ -4,11 +4,14 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.time.Instant;
+import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example._blog.Dto.AdminReportItemResponse;
 import com.example._blog.Dto.CreateReportRequest;
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.Report;
@@ -81,5 +84,34 @@ public class ReportService {
 
     public long countAll() {
         return reportRepo.count();
+    }
+
+    public List<AdminReportItemResponse> getAllForAdmin() {
+        return reportRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
+                .map(this::toAdminItem)
+                .toList();
+    }
+
+    private AdminReportItemResponse toAdminItem(Report report) {
+        Blog blog = report.getBlog();
+        User reporter = report.getReporter();
+        User reportedUser = report.getReportedUser();
+        User blogAuthor = blog == null ? null : blog.getUser();
+
+        return new AdminReportItemResponse(
+                report.getId(),
+                report.getReason(),
+                report.getDetails(),
+                report.getCreatedAt(),
+                reporter == null ? null : reporter.getUserId(),
+                reporter == null ? null : reporter.getUserName(),
+                blog == null ? null : blog.getIdBlog(),
+                blog == null ? null : blog.getTitle(),
+                blog == null ? null : blog.getContent(),
+                blogAuthor == null ? null : blogAuthor.getUserId(),
+                blogAuthor == null ? null : blogAuthor.getUserName(),
+                reportedUser == null ? null : reportedUser.getUserId(),
+                reportedUser == null ? null : reportedUser.getUserName()
+        );
     }
 }

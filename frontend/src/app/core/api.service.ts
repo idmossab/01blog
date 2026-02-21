@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import {
   AuthResponse,
   AppNotification,
+  AdminReportItem,
   Blog,
   Comment,
   CreateReportRequest,
@@ -243,5 +244,9 @@ export class ApiService {
 
   getAdminReportsCount() {
     return this.http.get<{ count: number }>(`${this.baseUrl}/api/admin/dashboard/reports/count`);
+  }
+
+  getAdminReports() {
+    return this.http.get<AdminReportItem[]>(`${this.baseUrl}/api/admin/dashboard/reports`);
   }
 }

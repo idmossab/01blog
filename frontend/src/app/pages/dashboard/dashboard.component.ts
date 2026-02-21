@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { Blog, UserResponse } from '../../core/models';
+import { AdminReportItem, Blog, ReportReason, UserResponse } from '../../core/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,14 +18,26 @@ export class DashboardComponent implements OnInit {
   user: UserResponse | null = null;
   users: UserResponse[] = [];
   posts: Blog[] = [];
+  reports: AdminReportItem[] = [];
   reportsCount = 0;
   userPostsCount: Record<number, number> = {};
   followerCountByUser: Record<number, number> = {};
 
   tab: 'users' | 'posts' | 'reports' = 'users';
   search = '';
+  reportReasonFilter: 'ALL' | ReportReason = 'ALL';
   loading = true;
   error = '';
+
+  readonly reportReasonOptions: Array<{ value: ReportReason; label: string }> = [
+    { value: 'HARASSMENT_BULLYING', label: 'Harassment / Bullying' },
+    { value: 'SPAM_SCAM', label: 'Spam / Scam' },
+    { value: 'HATE_SPEECH', label: 'Hate speech' },
+    { value: 'VIOLENCE_THREATS', label: 'Violence / Threats' },
+    { value: 'SEXUAL_CONTENT', label: 'Sexual content' },
+    { value: 'COPYRIGHT_IP', label: 'Copyright / IP' },
+    { value: 'OTHER', label: 'Other' }
+  ];
 
   constructor(
     private api: ApiService,
@@ -96,6 +108,16 @@ export class DashboardComponent implements OnInit {
     this.api.getAdminReportsCount().subscribe({
       next: (res) => (this.reportsCount = res?.count || 0),
       error: () => (this.reportsCount = 0)
+    });
+
+    this.api.getAdminReports().subscribe({
+      next: (reports) => {
+        this.reports = reports || [];
+        this.reportsCount = this.reports.length;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to load reports';
+      }
     });
   }
 
@@ -180,6 +202,36 @@ export class DashboardComponent implements OnInit {
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to delete user';
+      }
+    });
+  }
+
+  get filteredReports(): AdminReportItem[] {
+    if (this.reportReasonFilter === 'ALL') {
+        return this.reports;
+    }
+    return this.reports.filter((r) => r.reason === this.reportReasonFilter);
+  }
+
+  formatReason(reason?: ReportReason): string {
+    if (!reason) return 'unknown';
+    return reason.toLowerCase().replace(/_/g, ' ');
+  }
+
+  deleteReportedPost(report: AdminReportItem): void {
+    if (!report.blogId) return;
+    const confirmed = window.confirm('Delete this reported post?');
+    if (!confirmed) return;
+
+    this.api.deleteBlog(report.blogId).subscribe({
+      next: () => {
+        this.posts = this.posts.filter((p) => p.idBlog !== report.blogId);
+        this.recomputeUserPostCounts();
+        this.reports = this.reports.filter((r) => r.blogId !== report.blogId);
+        this.reportsCount = this.reports.length;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to delete reported post';
       }
     });
   }

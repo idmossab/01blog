@@ -110,10 +110,45 @@
       </table>
     </section>
 
-    <section *ngIf="tab === 'reports'" class="panel reports">
-      <div class="report-card">
-        <div class="label">Total Reports</div>
-        <div class="value">{{ reportsCount }}</div>
+    <section *ngIf="tab === 'reports'" class="panel">
+      <div class="report-filter-row">
+        <select class="report-filter" [(ngModel)]="reportReasonFilter">
+          <option value="ALL">All reasons</option>
+          <option *ngFor="let reason of reportReasonOptions" [value]="reason.value">{{ reason.label }}</option>
+        </select>
+      </div>
+
+      <div class="report-list">
+        <article class="report-item" *ngFor="let report of filteredReports">
+          <div class="report-top">
+            <span class="reason-pill">{{ formatReason(report.reason) }}</span>
+            <button
+              class="action delete-action"
+              type="button"
+              *ngIf="report.blogId"
+              (click)="deleteReportedPost(report)"
+            >
+              Delete Post
+            </button>
+          </div>
+
+          <div class="report-meta">
+            Reported by {{ report.reporterUserName || 'unknown' }}
+            <span *ngIf="report.createdAt"> • {{ report.createdAt | date:'medium' }}</span>
+          </div>
+
+          <div class="report-content-card" *ngIf="report.blogId; else userReportContent">
+            <div class="report-author">{{ report.blogAuthorUserName || 'unknown user' }}</div>
+            <div class="report-content">{{ report.blogContent || report.details || '-' }}</div>
+          </div>
+          <ng-template #userReportContent>
+            <div class="report-content-card">
+              <div class="report-author">User report: {{ report.reportedUserName || 'unknown user' }}</div>
+              <div class="report-content">{{ report.details || '-' }}</div>
+            </div>
+          </ng-template>
+        </article>
+        <div class="text-muted" *ngIf="!filteredReports.length">No reports found.</div>
       </div>
     </section>
 
