@@ -64,6 +64,14 @@
               >
                 {{ item.status === 'BANNED' ? 'Unban' : 'Ban' }}
               </button>
+              <button
+                class="action delete-action"
+                type="button"
+                (click)="deleteUser(item)"
+                [disabled]="item.role === 'ADMIN' || item.userId === user?.userId"
+              >
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>

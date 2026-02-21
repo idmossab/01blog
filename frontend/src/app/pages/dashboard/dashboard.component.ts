@@ -121,4 +121,21 @@ export class DashboardComponent implements OnInit {
         this.error = err?.error?.message || err?.error || 'Failed to update user status';
       }
     });
-  }}
+  }
+
+  deleteUser(target: UserResponse): void {
+    if (!this.user || target.role === 'ADMIN' || target.userId === this.user.userId) return;
+    const confirmed = window.confirm(`Delete user "${target.userName}"? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    this.api.deleteUser(target.userId).subscribe({
+      next: () => {
+        this.users = this.users.filter((u) => u.userId !== target.userId);
+        delete this.userPostsCount[target.userId];
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to delete user';
+      }
+    });
+  }
+}

@@ -111,10 +111,16 @@
   border-radius: 8px;
   background: #fff;
   padding: 6px 10px;
+  margin-right: 8px;
 }
 
 .action:disabled {
   opacity: 0.45;
+}
+
+.delete-action {
+  border-color: #ef4444;
+  color: #b91c1c;
 }
 
 .reports {
