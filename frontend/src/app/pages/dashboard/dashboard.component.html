@@ -93,7 +93,7 @@
             <th>Title</th>
             <th>Author</th>
             <th>Status</th>
-            <th>Created</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -101,7 +101,11 @@
             <td>{{ post.title }}</td>
             <td>{{ post.userName || 'Unknown' }}</td>
             <td>{{ post.status }}</td>
-            <td>{{ post.createdAt ? (post.createdAt | date:'medium') : '-' }}</td>
+            <td>
+              <button class="action delete-action" type="button" (click)="deletePost(post)">
+                Delete
+              </button>
+            </td>
           </tr>
           <tr *ngIf="!posts.length">
             <td colspan="4">No posts found.</td>

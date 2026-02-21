@@ -258,4 +258,22 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  deletePost(post: Blog): void {
+    if (!post?.idBlog) return;
+    const confirmed = window.confirm('Delete this post?');
+    if (!confirmed) return;
+
+    this.api.deleteBlog(post.idBlog).subscribe({
+      next: () => {
+        this.posts = this.posts.filter((p) => p.idBlog !== post.idBlog);
+        this.recomputeUserPostCounts();
+        this.reports = this.reports.filter((r) => r.blogId !== post.idBlog);
+        this.reportsCount = this.reports.length;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to delete post';
+      }
+    });
+  }
 }
