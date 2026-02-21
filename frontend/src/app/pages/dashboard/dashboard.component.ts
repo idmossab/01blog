@@ -41,6 +41,7 @@ export class DashboardComponent implements OnInit {
 
   tab: 'users' | 'posts' | 'reports' = 'users';
   search = '';
+  postAuthorFilter = 'ALL';
   reportReasonFilter: 'ALL' | ReportReason = 'ALL';
   loading = true;
   error = '';
@@ -229,6 +230,24 @@ export class DashboardComponent implements OnInit {
         return this.reports;
     }
     return this.reports.filter((r) => r.reason === this.reportReasonFilter);
+  }
+
+  get postAuthorFilters(): Array<{ value: string; label: string }> {
+    const byUserId = new Map<number, string>();
+    for (const post of this.posts) {
+      if (!post.userId) continue;
+      if (!byUserId.has(post.userId)) {
+        byUserId.set(post.userId, post.userName || `User ${post.userId}`);
+      }
+    }
+    return Array.from(byUserId.entries())
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([userId, userName]) => ({ value: String(userId), label: userName }));
+  }
+
+  get filteredPosts(): Blog[] {
+    if (this.postAuthorFilter === 'ALL') return this.posts;
+    return this.posts.filter((post) => String(post.userId || '') === this.postAuthorFilter);
   }
 
   formatReason(reason?: ReportReason): string {

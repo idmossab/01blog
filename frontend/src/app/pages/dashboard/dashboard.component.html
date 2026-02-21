@@ -87,6 +87,15 @@
     </section>
 
     <section *ngIf="tab === 'posts'" class="panel">
+      <div class="post-filter-row">
+        <select class="post-filter" [(ngModel)]="postAuthorFilter">
+          <option value="ALL">All users</option>
+          <option *ngFor="let option of postAuthorFilters" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
       <table class="table">
         <thead>
           <tr>
@@ -97,7 +106,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let post of posts">
+          <tr *ngFor="let post of filteredPosts">
             <td>{{ post.title }}</td>
             <td>{{ post.userName || 'Unknown' }}</td>
             <td>
@@ -117,7 +126,7 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="!posts.length">
+          <tr *ngIf="!filteredPosts.length">
             <td colspan="4">No posts found.</td>
           </tr>
         </tbody>

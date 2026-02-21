@@ -142,7 +142,19 @@
   margin-bottom: 18px;
 }
 
+.post-filter-row {
+  margin-bottom: 18px;
+}
+
 .report-filter {
+  min-width: 180px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #fff;
+}
+
+.post-filter {
   min-width: 180px;
   border: 1px solid #d1d5db;
   border-radius: 10px;
