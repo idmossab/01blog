@@ -30,6 +30,9 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/users/register",
                     "/users/login",
+                    "/uploads/**",
+                    "/media/by-blog/**",
+                    "/media/first/**",
                     "/error",
                     "/error/**"
                 ).permitAll()
