@@ -15,6 +15,8 @@ import com.example._blog.Dto.UserLoginRequest;
 import com.example._blog.Dto.UserRegisterRequest;
 import com.example._blog.Dto.UserResponse;
 import com.example._blog.Entity.User;
+import com.example._blog.Entity.enums.UserRole;
+import com.example._blog.Entity.enums.UserStatus;
 import com.example._blog.Repositories.UserRepo;
 import com.example._blog.Security.JwtService;
 
@@ -37,6 +39,7 @@ public class UserService {
         if (repo.existsByUserName(req.userName())) {
             throw new ResponseStatusException(CONFLICT, "Username already used");
         }
+        boolean isFirstUser = repo.count() == 0;
 
         User user = User.builder()
                 .firstName(req.firstName())
@@ -44,6 +47,7 @@ public class UserService {
                 .userName(req.userName())
                 .email(req.email())
                 .password(encoder.encode(req.password()))
+                .role(isFirstUser ? UserRole.ADMIN : UserRole.USER)
                 .build();
 
         // INSERT
@@ -101,6 +105,13 @@ public class UserService {
         User existing = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
         repo.delete(existing);
+    }
+
+    public UserResponse updateStatus(Long userId, UserStatus status) {
+        User existing = repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+        existing.setStatus(status);
+        return toResponse(repo.save(existing));
     }
 
     private UserResponse toResponse(User user) {

@@ -1,0 +1,155 @@
+.dashboard-wrap {
+  padding: 0 6px 20px;
+}
+
+.back-btn {
+  border: 0;
+  background: transparent;
+  color: #374151;
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+.dashboard-card {
+  border: 1px solid #d8dde6;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.dashboard-head {
+  padding: 20px 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-head h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+.dashboard-head p {
+  margin: 6px 0 0;
+  color: #4b5563;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 18px;
+}
+
+.tabs button {
+  border: 0;
+  background: transparent;
+  padding: 14px 10px;
+  font-weight: 600;
+  color: #4b5563;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+.panel {
+  padding: 16px 22px 22px;
+}
+
+.search {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.user-link {
+  border: 0;
+  background: transparent;
+  font-weight: 700;
+  padding: 0;
+  color: #111827;
+}
+
+.user-link:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #eef2f7;
+  color: #374151;
+}
+
+.badge.admin {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.badge.active-status {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge.banned {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.action {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px 10px;
+}
+
+.action:disabled {
+  opacity: 0.45;
+}
+
+.reports {
+  display: flex;
+}
+
+.report-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px;
+  min-width: 200px;
+}
+
+.report-card .label {
+  color: #6b7280;
+}
+
+.report-card .value {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.loading,
+.error {
+  padding: 18px;
+}
+
+.error {
+  color: #b91c1c;
+}

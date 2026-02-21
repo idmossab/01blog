@@ -171,6 +171,12 @@ public class BlogService {
         return blogRepo.countByUserUserId(currentUserId);
     }
 
+    public List<BlogResponse> getAllResponses() {
+        return blogRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private BlogResponse toResponse(Blog blog) {
         List<MediaResponse> mediaFiles;
         if (blog.getIdBlog() == null) {

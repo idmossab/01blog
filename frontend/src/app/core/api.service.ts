@@ -220,4 +220,20 @@ export class ApiService {
   markAllNotificationsRead() {
     return this.http.put<void>(`${this.baseUrl}/api/notifications/me/read-all`, {});
   }
+
+  getAdminUsers() {
+    return this.http.get<UserResponse[]>(`${this.baseUrl}/api/admin/dashboard/users`);
+  }
+
+  updateAdminUserStatus(userId: number, status: 'ACTIVE' | 'BANNED' | 'DELETED') {
+    return this.http.put<UserResponse>(`${this.baseUrl}/api/admin/dashboard/users/${userId}/status/${status}`, {});
+  }
+
+  getAdminPosts() {
+    return this.http.get<Blog[]>(`${this.baseUrl}/api/admin/dashboard/posts`);
+  }
+
+  getAdminReportsCount() {
+    return this.http.get<{ count: number }>(`${this.baseUrl}/api/admin/dashboard/reports/count`);
+  }
 }

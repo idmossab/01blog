@@ -38,6 +38,9 @@
         </div>
       </div>
     </div>
+    <button class="btn btn-outline-secondary btn-sm" *ngIf="user?.role === 'ADMIN'" routerLink="/dashboard">
+      Daschboard
+    </button>
     <button class="btn btn-outline-secondary btn-sm" routerLink="/profile">Profile</button>
     <button class="btn btn-outline-secondary btn-sm" (click)="logout()">Logout</button>
   </div>

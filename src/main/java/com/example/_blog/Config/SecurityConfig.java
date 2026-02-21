@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(securityExceptionHandler)
             )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers(
                     "/users/register",
                     "/users/login",

@@ -78,4 +78,8 @@ public class ReportService {
 
         return reportRepo.save(reportBuilder.build()).getId();
     }
+
+    public long countAll() {
+        return reportRepo.count();
+    }
 }
