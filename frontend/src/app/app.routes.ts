@@ -8,6 +8,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { BlogDetailsComponent } from './pages/blog-details/blog-details.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { ServerErrorComponent } from './pages/server-error/server-error.component';
 
 export const routes: Routes = [
   {
@@ -39,6 +40,10 @@ export const routes: Routes = [
     path: 'profile',
     component: ProfileComponent,
     canMatch: [authGuard]
+  },
+  {
+    path: 'server-error',
+    component: ServerErrorComponent
   },
   {
     path: '**',
