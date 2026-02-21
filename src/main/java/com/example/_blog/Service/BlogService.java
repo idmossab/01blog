@@ -26,6 +26,7 @@ import com.example._blog.Repositories.BlogRepo;
 import com.example._blog.Repositories.CommentRepo;
 import com.example._blog.Repositories.LikeRepo;
 import com.example._blog.Repositories.NotificationRepo;
+import com.example._blog.Repositories.ReportRepo;
 import com.example._blog.Repositories.UserRepo;
 
 @Service
@@ -39,9 +40,10 @@ public class BlogService {
     private final CommentRepo commentRepo;
     private final LikeRepo likeRepo;
     private final NotificationRepo notificationRepo;
+    private final ReportRepo reportRepo;
 
     public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService,
-                       CommentRepo commentRepo, LikeRepo likeRepo, NotificationRepo notificationRepo) {
+                       CommentRepo commentRepo, LikeRepo likeRepo, NotificationRepo notificationRepo, ReportRepo reportRepo) {
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
         this.mediaService = mediaService;
@@ -49,6 +51,7 @@ public class BlogService {
         this.commentRepo = commentRepo;
         this.likeRepo = likeRepo;
         this.notificationRepo = notificationRepo;
+        this.reportRepo = reportRepo;
     }
 
     public BlogResponse create(BlogCreateRequest request, Long userId) {
@@ -127,6 +130,7 @@ public class BlogService {
     @org.springframework.transaction.annotation.Transactional
     public void delete(Long blogId) {
         Blog existing = getById(blogId);
+        reportRepo.deleteByBlogIdBlog(blogId);
         likeRepo.deleteByBlogIdBlog(blogId);
         commentRepo.deleteByBlogIdBlog(blogId);
         notificationRepo.deleteByBlogIdBlog(blogId);
