@@ -32,7 +32,9 @@ public class SecurityConfig {
                     "/users/login",
                     "/uploads/**",
                     "/media/by-blog/**",
-                    "/media/first/**"
+                    "/media/first/**",
+                    "/error",
+                    "/error/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
