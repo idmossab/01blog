@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -63,6 +64,12 @@ public class UserService {
         }
         if (u == null) {
             throw new ResponseStatusException(NOT_FOUND, "User not found");
+        }
+        if (u.getStatus() == UserStatus.BANNED) {
+            throw new ResponseStatusException(FORBIDDEN, "Your account is banned");
+        }
+        if (u.getStatus() == UserStatus.DELETED) {
+            throw new ResponseStatusException(FORBIDDEN, "Your account is not active");
         }
 
         if (!encoder.matches(req.password(), u.getPassword())) {
