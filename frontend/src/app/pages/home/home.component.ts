@@ -93,6 +93,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.api.createBlogWithMedia(this.user.userId, this.newBlog, files).subscribe({
       next: (blog) => {
         this.blogs = [blog, ...this.blogs];
+        this.preloadMetaForBlog(blog);
         this.newBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
         this.clearMediaSelection();
       },
@@ -171,17 +172,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   preloadFeedMeta(): void {
     if (!this.user) return;
-    const userId = this.user.userId;
-    this.blogs.forEach((blog) => {
-      if (!blog.idBlog) return;
-      const blogId = blog.idBlog;
-      if (!this.thumbnailByBlog[blogId]) {
-        this.api.getFirstMediaByBlog(blogId).subscribe({
-          next: (media) => (this.thumbnailByBlog[blogId] = media),
-          error: () => (this.thumbnailByBlog[blogId] = null)
-        });
-      }
-      this.api.getLikeStatus(blogId, userId).subscribe({
+    this.blogs.forEach((blog) => this.preloadMetaForBlog(blog));
+  }
+
+  private preloadMetaForBlog(blog: Blog): void {
+    if (!this.user || !blog.idBlog) return;
+    const blogId = blog.idBlog;
+
+    if (!Object.prototype.hasOwnProperty.call(this.thumbnailByBlog, blogId)) {
+      this.api.getFirstMediaByBlog(blogId).subscribe({
+        next: (media) => (this.thumbnailByBlog[blogId] = media),
+        error: () => (this.thumbnailByBlog[blogId] = null)
+      });
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(this.likedByBlog, blogId) ||
+        !Object.prototype.hasOwnProperty.call(this.likeCountByBlog, blogId)) {
+      this.api.getLikeStatus(blogId, this.user.userId).subscribe({
         next: (status) => {
           this.likedByBlog[blogId] = status.liked;
           this.likeCountByBlog[blogId] = status.likeCount;
@@ -191,7 +198,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.likeCountByBlog[blogId] = blog.likeCount || 0;
         }
       });
-    });
+    }
   }
 
   toggleLike(blog: Blog, event: Event): void {
