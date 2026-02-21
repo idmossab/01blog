@@ -26,10 +26,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   blogs: Blog[] = [];
 
   newBlog: Blog = { title: '', content: '', status: 'ACTIVE', media: '' };
-  mediaFiles: File[] = [];
   mediaPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
   totalMediaSize = 0;
-  mediaByBlog: Record<number, Media[]> = {};
   thumbnailByBlog: Record<number, Media | null> = {};
   likedByBlog: Record<number, boolean | undefined> = {};
   likeCountByBlog: Record<number, number | undefined> = {};
@@ -157,7 +155,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     this.mediaPreviews.splice(index, 1);
     this.totalMediaSize = this.mediaPreviews.reduce((sum, media) => sum + media.file.size, 0);
-    this.mediaFiles = this.mediaPreviews.map((media) => media.file);
   }
 
   hasRequiredText(): boolean {
@@ -173,7 +170,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   clearMediaSelection(): void {
     this.mediaPreviews.forEach((item) => URL.revokeObjectURL(item.url));
     this.mediaPreviews = [];
-    this.mediaFiles = [];
     this.totalMediaSize = 0;
     if (this.mediaInput?.nativeElement) {
       this.mediaInput.nativeElement.value = '';
@@ -261,17 +257,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     }
     return fallback;
-  }
-
-  getMedia(blogId: number | undefined): Media[] {
-    if (!blogId) return [];
-    if (!this.mediaByBlog[blogId]) {
-      this.api.getMediaByBlog(blogId).subscribe({
-        next: (data) => (this.mediaByBlog[blogId] = data),
-        error: () => (this.mediaByBlog[blogId] = [])
-      });
-    }
-    return this.mediaByBlog[blogId] || [];
   }
 
   preloadFeedMeta(): void {
@@ -373,10 +358,5 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.refreshSub?.unsubscribe();
-  }
-
-  logout(): void {
-    this.auth.logout();
-    this.router.navigateByUrl('/login');
   }
 }
