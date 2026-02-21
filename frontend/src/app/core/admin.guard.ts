@@ -25,7 +25,7 @@ export const adminGuard: CanMatchFn = () => {
         auth.setCurrentUser(me);
         return true;
       }
-      return router.createUrlTree(['/home']);
+      return router.createUrlTree(['/forbidden']);
     })
-    .catch(() => router.createUrlTree(['/home']));
+    .catch(() => router.createUrlTree(['/forbidden']));
 };

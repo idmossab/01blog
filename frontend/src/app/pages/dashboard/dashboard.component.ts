@@ -77,14 +77,14 @@ export class DashboardComponent implements OnInit {
     this.api.getMe().subscribe({
       next: (me) => {
         if (me.role !== 'ADMIN') {
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl('/forbidden');
           return;
         }
         this.user = me;
         this.auth.setCurrentUser(me);
         this.loadDashboard();
       },
-      error: () => this.router.navigateByUrl('/home')
+      error: () => this.router.navigateByUrl('/forbidden')
     });
   }
 

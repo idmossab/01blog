@@ -11,6 +11,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { ServerErrorComponent } from './pages/server-error/server-error.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 
 export const routes: Routes = [
   {
@@ -52,6 +53,10 @@ export const routes: Routes = [
     path: 'dashboard',
     component: DashboardComponent,
     canMatch: [authGuard, adminGuard]
+  },
+  {
+    path: 'forbidden',
+    component: ForbiddenComponent
   },
   {
     path: 'server-error',
