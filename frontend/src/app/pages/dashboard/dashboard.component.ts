@@ -7,6 +7,22 @@ import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { AdminReportItem, Blog, ReportReason, UserResponse } from '../../core/models';
 
+type ConfirmActionType =
+  | 'TOGGLE_USER_ROLE'
+  | 'TOGGLE_USER_STATUS'
+  | 'DELETE_USER'
+  | 'TOGGLE_POST_STATUS'
+  | 'DELETE_POST';
+
+interface ConfirmPayload {
+  user?: UserResponse;
+  post?: Blog;
+  report?: AdminReportItem;
+  nextUserRole?: 'ADMIN' | 'USER';
+  nextUserStatus?: 'ACTIVE' | 'BANNED';
+  nextPostStatus?: 'ACTIVE' | 'HIDDEN';
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -28,10 +44,13 @@ export class DashboardComponent implements OnInit {
   reportReasonFilter: 'ALL' | ReportReason = 'ALL';
   loading = true;
   error = '';
-  pendingDeleteUser: UserResponse | null = null;
-  deleteUserLoading = false;
-  pendingDeletePost: Blog | null = null;
-  deletePostLoading = false;
+  confirmActionType: ConfirmActionType | null = null;
+  confirmPayload: ConfirmPayload | null = null;
+  confirmTitle = '';
+  confirmMessage = '';
+  confirmButtonText = 'Confirm';
+  confirmDanger = false;
+  confirmActionLoading = false;
 
   readonly reportReasonOptions: Array<{ value: ReportReason; label: string }> = [
     { value: 'HARASSMENT_BULLYING', label: 'Harassment / Bullying' },
@@ -169,13 +188,13 @@ export class DashboardComponent implements OnInit {
     if (!this.canChangeRole(target)) return;
 
     const nextRole = target.role === 'ADMIN' ? 'USER' : 'ADMIN';
-    this.api.updateAdminUserRole(target.userId, nextRole).subscribe({
-      next: (updated) => {
-        this.users = this.users.map((u) => (u.userId === updated.userId ? updated : u));
-      },
-      error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to update user role';
-      }
+    this.openConfirmModal({
+      type: 'TOGGLE_USER_ROLE',
+      title: 'Change User Role',
+      message: `Are you sure you want to change ${target.userName} role to ${nextRole}?`,
+      confirmButtonText: 'Yes, Change',
+      danger: false,
+      payload: { user: target, nextUserRole: nextRole }
     });
   }
 
@@ -183,51 +202,25 @@ export class DashboardComponent implements OnInit {
     if (!this.user || target.role === 'ADMIN' || target.userId === this.user.userId) return;
 
     const nextStatus = target.status === 'BANNED' ? 'ACTIVE' : 'BANNED';
-    this.api.updateAdminUserStatus(target.userId, nextStatus).subscribe({
-      next: (updated) => {
-        this.users = this.users.map((u) => (u.userId === updated.userId ? updated : u));
-      },
-      error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to update user status';
-      }
+    this.openConfirmModal({
+      type: 'TOGGLE_USER_STATUS',
+      title: nextStatus === 'BANNED' ? 'Ban User' : 'Unban User',
+      message: `Are you sure you want to ${nextStatus === 'BANNED' ? 'ban' : 'unban'} ${target.userName}?`,
+      confirmButtonText: nextStatus === 'BANNED' ? 'Yes, Ban' : 'Yes, Unban',
+      danger: nextStatus === 'BANNED',
+      payload: { user: target, nextUserStatus: nextStatus }
     });
   }
 
   openDeleteUserModal(target: UserResponse): void {
     if (!this.user || target.role === 'ADMIN' || target.userId === this.user.userId) return;
-    this.pendingDeleteUser = target;
-  }
-
-  closeDeleteUserModal(): void {
-    if (this.deleteUserLoading) return;
-    this.pendingDeleteUser = null;
-  }
-
-  confirmDeleteUser(): void {
-    const target = this.pendingDeleteUser;
-    if (!target || this.deleteUserLoading) return;
-    this.deleteUserLoading = true;
-
-    this.api.deleteUser(target.userId).subscribe({
-      next: () => {
-        this.users = this.users.filter((u) => u.userId !== target.userId);
-        delete this.userPostsCount[target.userId];
-        delete this.followerCountByUser[target.userId];
-        this.posts = this.posts.filter((p) => p.userId !== target.userId);
-        this.recomputeUserPostCounts();
-        this.reports = this.reports.filter((r) =>
-          r.reporterUserId !== target.userId &&
-          r.reportedUserId !== target.userId &&
-          r.blogAuthorUserId !== target.userId
-        );
-        this.reportsCount = this.reports.length;
-        this.pendingDeleteUser = null;
-        this.deleteUserLoading = false;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to delete user';
-        this.deleteUserLoading = false;
-      }
+    this.openConfirmModal({
+      type: 'DELETE_USER',
+      title: 'Delete User',
+      message: `Are you sure you want to delete ${target.userName}? This action cannot be undone.`,
+      confirmButtonText: 'Yes, Delete',
+      danger: true,
+      payload: { user: target }
     });
   }
 
@@ -245,50 +238,25 @@ export class DashboardComponent implements OnInit {
 
   deleteReportedPost(report: AdminReportItem): void {
     if (!report.blogId) return;
-    const confirmed = window.confirm('Delete this reported post?');
-    if (!confirmed) return;
-
-    this.api.deleteBlog(report.blogId).subscribe({
-      next: () => {
-        this.posts = this.posts.filter((p) => p.idBlog !== report.blogId);
-        this.recomputeUserPostCounts();
-        this.reports = this.reports.filter((r) => r.blogId !== report.blogId);
-        this.reportsCount = this.reports.length;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to delete reported post';
-      }
+    this.openConfirmModal({
+      type: 'DELETE_POST',
+      title: 'Delete Reported Post',
+      message: 'Are you sure you want to delete this reported post? This action cannot be undone.',
+      confirmButtonText: 'Yes, Delete',
+      danger: true,
+      payload: { report }
     });
   }
 
   openDeletePostModal(post: Blog): void {
     if (!post?.idBlog) return;
-    this.pendingDeletePost = post;
-  }
-
-  closeDeletePostModal(): void {
-    if (this.deletePostLoading) return;
-    this.pendingDeletePost = null;
-  }
-
-  confirmDeletePost(): void {
-    const post = this.pendingDeletePost;
-    if (!post?.idBlog || this.deletePostLoading) return;
-    this.deletePostLoading = true;
-
-    this.api.deleteBlog(post.idBlog).subscribe({
-      next: () => {
-        this.posts = this.posts.filter((p) => p.idBlog !== post.idBlog);
-        this.recomputeUserPostCounts();
-        this.reports = this.reports.filter((r) => r.blogId !== post.idBlog);
-        this.reportsCount = this.reports.length;
-        this.pendingDeletePost = null;
-        this.deletePostLoading = false;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to delete post';
-        this.deletePostLoading = false;
-      }
+    this.openConfirmModal({
+      type: 'DELETE_POST',
+      title: 'Delete Post',
+      message: `Are you sure you want to delete ${post.title}? This action cannot be undone.`,
+      confirmButtonText: 'Yes, Delete',
+      danger: true,
+      payload: { post }
     });
   }
 
@@ -296,15 +264,162 @@ export class DashboardComponent implements OnInit {
     if (!post?.idBlog) return;
     const currentStatus = post.status === 'HIDDEN' ? 'HIDDEN' : 'ACTIVE';
     const nextStatus: 'ACTIVE' | 'HIDDEN' = currentStatus === 'ACTIVE' ? 'HIDDEN' : 'ACTIVE';
-
-    this.api.updateAdminPostStatus(post.idBlog, nextStatus).subscribe({
-      next: (updated) => {
-        this.posts = this.posts.map((p) => (p.idBlog === updated.idBlog ? updated : p));
-        this.recomputeUserPostCounts();
-      },
-      error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to update post status';
-      }
+    this.openConfirmModal({
+      type: 'TOGGLE_POST_STATUS',
+      title: nextStatus === 'HIDDEN' ? 'Hide Post' : 'Activate Post',
+      message: `Are you sure you want to change post status to ${nextStatus}?`,
+      confirmButtonText: nextStatus === 'HIDDEN' ? 'Yes, Hide' : 'Yes, Activate',
+      danger: false,
+      payload: { post, nextPostStatus: nextStatus }
     });
+  }
+
+  closeConfirmModal(): void {
+    if (this.confirmActionLoading) return;
+    this.confirmActionType = null;
+    this.confirmPayload = null;
+    this.confirmTitle = '';
+    this.confirmMessage = '';
+    this.confirmButtonText = 'Confirm';
+    this.confirmDanger = false;
+  }
+
+  confirmAdminAction(): void {
+    if (!this.confirmActionType || this.confirmActionLoading) return;
+    this.confirmActionLoading = true;
+
+    if (this.confirmActionType === 'TOGGLE_USER_ROLE') {
+      const user = this.confirmPayload?.user;
+      const nextRole = this.confirmPayload?.nextUserRole;
+      if (!user || !nextRole) {
+        this.confirmActionLoading = false;
+        return;
+      }
+      this.api.updateAdminUserRole(user.userId, nextRole).subscribe({
+        next: (updated) => {
+          this.users = this.users.map((u) => (u.userId === updated.userId ? updated : u));
+          this.confirmActionLoading = false;
+          this.closeConfirmModal();
+        },
+        error: (err: any) => {
+          this.error = err?.error?.message || err?.error || 'Failed to update user role';
+          this.confirmActionLoading = false;
+        }
+      });
+      return;
+    }
+
+    if (this.confirmActionType === 'TOGGLE_USER_STATUS') {
+      const user = this.confirmPayload?.user;
+      const nextStatus = this.confirmPayload?.nextUserStatus;
+      if (!user || !nextStatus) {
+        this.confirmActionLoading = false;
+        return;
+      }
+      this.api.updateAdminUserStatus(user.userId, nextStatus).subscribe({
+        next: (updated) => {
+          this.users = this.users.map((u) => (u.userId === updated.userId ? updated : u));
+          this.confirmActionLoading = false;
+          this.closeConfirmModal();
+        },
+        error: (err: any) => {
+          this.error = err?.error?.message || err?.error || 'Failed to update user status';
+          this.confirmActionLoading = false;
+        }
+      });
+      return;
+    }
+
+    if (this.confirmActionType === 'DELETE_USER') {
+      const user = this.confirmPayload?.user;
+      if (!user) {
+        this.confirmActionLoading = false;
+        return;
+      }
+      this.api.deleteUser(user.userId).subscribe({
+        next: () => {
+          this.users = this.users.filter((u) => u.userId !== user.userId);
+          delete this.userPostsCount[user.userId];
+          delete this.followerCountByUser[user.userId];
+          this.posts = this.posts.filter((p) => p.userId !== user.userId);
+          this.recomputeUserPostCounts();
+          this.reports = this.reports.filter((r) =>
+            r.reporterUserId !== user.userId &&
+            r.reportedUserId !== user.userId &&
+            r.blogAuthorUserId !== user.userId
+          );
+          this.reportsCount = this.reports.length;
+          this.confirmActionLoading = false;
+          this.closeConfirmModal();
+        },
+        error: (err: any) => {
+          this.error = err?.error?.message || err?.error || 'Failed to delete user';
+          this.confirmActionLoading = false;
+        }
+      });
+      return;
+    }
+
+    if (this.confirmActionType === 'TOGGLE_POST_STATUS') {
+      const post = this.confirmPayload?.post;
+      const nextStatus = this.confirmPayload?.nextPostStatus;
+      if (!post?.idBlog || !nextStatus) {
+        this.confirmActionLoading = false;
+        return;
+      }
+      this.api.updateAdminPostStatus(post.idBlog, nextStatus).subscribe({
+        next: (updated) => {
+          this.posts = this.posts.map((p) => (p.idBlog === updated.idBlog ? updated : p));
+          this.confirmActionLoading = false;
+          this.closeConfirmModal();
+        },
+        error: (err: any) => {
+          this.error = err?.error?.message || err?.error || 'Failed to update post status';
+          this.confirmActionLoading = false;
+        }
+      });
+      return;
+    }
+
+    if (this.confirmActionType === 'DELETE_POST') {
+      const postId = this.confirmPayload?.post?.idBlog ?? this.confirmPayload?.report?.blogId;
+      if (!postId) {
+        this.confirmActionLoading = false;
+        return;
+      }
+      this.api.deleteBlog(postId).subscribe({
+        next: () => {
+          this.posts = this.posts.filter((p) => p.idBlog !== postId);
+          this.recomputeUserPostCounts();
+          this.reports = this.reports.filter((r) => r.blogId !== postId);
+          this.reportsCount = this.reports.length;
+          this.confirmActionLoading = false;
+          this.closeConfirmModal();
+        },
+        error: (err: any) => {
+          this.error = err?.error?.message || err?.error || 'Failed to delete post';
+          this.confirmActionLoading = false;
+        }
+      });
+      return;
+    }
+
+    this.confirmActionLoading = false;
+  }
+
+  private openConfirmModal(config: {
+    type: ConfirmActionType;
+    title: string;
+    message: string;
+    confirmButtonText: string;
+    danger: boolean;
+    payload: ConfirmPayload;
+  }): void {
+    this.confirmActionType = config.type;
+    this.confirmPayload = config.payload;
+    this.confirmTitle = config.title;
+    this.confirmMessage = config.message;
+    this.confirmButtonText = config.confirmButtonText;
+    this.confirmDanger = config.danger;
   }
 }
