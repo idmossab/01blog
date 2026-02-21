@@ -170,6 +170,11 @@ export class DashboardComponent implements OnInit {
     this.router.navigateByUrl(`/profile/${userId}`);
   }
 
+  openBlog(blogId?: number): void {
+    if (!blogId) return;
+    this.router.navigateByUrl(`/blogs/${blogId}`);
+  }
+
   private getSuperAdminId(): number | null {
     const adminIds = this.users
       .filter((u) => u.role === 'ADMIN')

@@ -2,7 +2,7 @@
   <section class="dashboard-card" *ngIf="!loading; else loadingState">
     <header class="dashboard-head">
       <h2>Admin Dashboard</h2>
-      <p>Manage users, posts, and reports</p>
+      <p>Manage users, blogs, and reports</p>
     </header>
 
     <nav class="tabs">
@@ -10,7 +10,7 @@
         Users ({{ users.length }})
       </button>
       <button type="button" [class.active]="tab === 'posts'" (click)="tab = 'posts'">
-        Posts ({{ posts.length }})
+        Blogs ({{ posts.length }})
       </button>
       <button type="button" [class.active]="tab === 'reports'" (click)="tab = 'reports'">
         Reports ({{ reportsCount }})
@@ -30,7 +30,7 @@
           <tr>
             <th>User</th>
             <th>Email</th>
-            <th>Posts</th>
+            <th>Blogs</th>
             <th>Followers</th>
             <th>Role</th>
             <th>Status</th>
@@ -99,7 +99,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Title</th>
+            <th>Blog Title</th>
             <th>Author</th>
             <th>Status</th>
             <th>Actions</th>
@@ -107,7 +107,11 @@
         </thead>
         <tbody>
           <tr *ngFor="let post of filteredPosts">
-            <td>{{ post.title }}</td>
+            <td>
+              <button class="blog-link" type="button" (click)="openBlog(post.idBlog)">
+                {{ post.title }}
+              </button>
+            </td>
             <td>{{ post.userName || 'Unknown' }}</td>
             <td>
               <button
@@ -127,7 +131,7 @@
             </td>
           </tr>
           <tr *ngIf="!filteredPosts.length">
-            <td colspan="4">No posts found.</td>
+            <td colspan="4">No blogs found.</td>
           </tr>
         </tbody>
       </table>
@@ -151,7 +155,7 @@
               *ngIf="report.blogId"
               (click)="deleteReportedPost(report)"
             >
-              Delete Post
+              Delete Blog
             </button>
           </div>
 
