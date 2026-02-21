@@ -70,8 +70,11 @@ public class MediaService {
         List<Media> saved = new ArrayList<>();
         try {
             for (MultipartFile file : normalized) {
-                String original = file.getOriginalFilename();
-                String safeName = UUID.randomUUID() + "_" + (original == null ? "file" : original);
+                String extension = getExtension(file.getOriginalFilename());
+                if (extension == null) {
+                    throw new ResponseStatusException(BAD_REQUEST, "Only .jpg, .png, and .mp4 files are allowed");
+                }
+                String safeName = UUID.randomUUID() + "." + extension;
                 Path target = UPLOAD_DIR.resolve(safeName);
                 Files.copy(file.getInputStream(), target);
                 storedPaths.add(target);
