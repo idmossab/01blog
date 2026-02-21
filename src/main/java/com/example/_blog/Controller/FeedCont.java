@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example._blog.Entity.Blog;
+import com.example._blog.Dto.BlogResponse;
 import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.BlogService;
 
@@ -22,19 +22,19 @@ public class FeedCont {
     }
 
     @GetMapping("/feed")
-    public ResponseEntity<Page<Blog>> getFeed(@AuthenticationPrincipal UserPrincipal principal,
-                                              @RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<Page<BlogResponse>> getFeed(@AuthenticationPrincipal UserPrincipal principal,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "20") int size) {
         Long currentUserId = principal.getUser().getUserId();
-        return ResponseEntity.ok(blogService.getFeed(currentUserId, page, size));
+        return ResponseEntity.ok(blogService.getFeedResponses(currentUserId, page, size));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Page<Blog>> getMyBlogs(@AuthenticationPrincipal UserPrincipal principal,
-                                                 @RequestParam(defaultValue = "0") int page,
-                                                 @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<BlogResponse>> getMyBlogs(@AuthenticationPrincipal UserPrincipal principal,
+                                                         @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size) {
         Long currentUserId = principal.getUser().getUserId();
-        return ResponseEntity.ok(blogService.getMyBlogs(currentUserId, page, size));
+        return ResponseEntity.ok(blogService.getMyBlogsResponses(currentUserId, page, size));
     }
 
     @GetMapping("/me/count")

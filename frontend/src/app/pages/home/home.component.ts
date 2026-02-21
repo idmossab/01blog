@@ -230,6 +230,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl(`/blogs/${blogId}`);
   }
 
+  getAuthorName(blog: Blog): string {
+    if (blog.userFirstName && blog.userLastName) {
+      return `${blog.userFirstName} ${blog.userLastName}`;
+    }
+    if (blog.user?.firstName && blog.user?.lastName) {
+      return `${blog.user.firstName} ${blog.user.lastName}`;
+    }
+    if (blog.userName) {
+      return `@${blog.userName}`;
+    }
+    if (blog.user?.userName) {
+      return `@${blog.user.userName}`;
+    }
+    return 'Unknown user';
+  }
+
   formatRelative(dateValue?: string): string {
     if (!dateValue) return '';
     const date = new Date(dateValue);

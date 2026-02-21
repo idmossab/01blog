@@ -12,6 +12,8 @@ public record BlogResponse(
         BlogStatus status,
         Long userId,
         String userName,
+        String userFirstName,
+        String userLastName,
         String media,
         Long commentCount,
         Long likeCount,

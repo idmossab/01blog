@@ -169,9 +169,17 @@ public class BlogService {
         return blogRepo.findFeedBlogs(authorIds, BlogStatus.ACTIVE, pageable);
     }
 
+    public Page<BlogResponse> getFeedResponses(Long currentUserId, int page, int size) {
+        return getFeed(currentUserId, page, size).map(this::toResponse);
+    }
+
     public Page<Blog> getMyBlogs(Long currentUserId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return blogRepo.findByUserUserIdAndStatusOrderByCreatedAtDesc(currentUserId, BlogStatus.ACTIVE, pageable);
+    }
+
+    public Page<BlogResponse> getMyBlogsResponses(Long currentUserId, int page, int size) {
+        return getMyBlogs(currentUserId, page, size).map(this::toResponse);
     }
 
     public long getMyBlogCount(Long currentUserId) {
@@ -206,6 +214,8 @@ public class BlogService {
                 blog.getStatus(),
                 blog.getUser() == null ? null : blog.getUser().getUserId(),
                 blog.getUser() == null ? null : blog.getUser().getUserName(),
+                blog.getUser() == null ? null : blog.getUser().getFirstName(),
+                blog.getUser() == null ? null : blog.getUser().getLastName(),
                 blog.getMedia(),
                 blog.getCommentCount(),
                 blog.getLikeCount(),
