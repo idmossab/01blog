@@ -50,4 +50,14 @@ export class BlogCardComponent {
     event.stopPropagation();
     this.delete.emit(event);
   }
+
+  getAuthorInitials(): string {
+    const raw = (this.authorName || '').trim().replace(/^@/, '');
+    if (!raw) return 'U';
+    const parts = raw.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return raw.slice(0, 2).toUpperCase();
+  }
 }
