@@ -229,6 +229,10 @@ export class ApiService {
     return this.http.put<UserResponse>(`${this.baseUrl}/api/admin/dashboard/users/${userId}/status/${status}`, {});
   }
 
+  updateAdminUserRole(userId: number, role: 'ADMIN' | 'USER') {
+    return this.http.put<UserResponse>(`${this.baseUrl}/api/admin/dashboard/users/${userId}/role/${role}`, {});
+  }
+
   getAdminPosts() {
     return this.http.get<Blog[]>(`${this.baseUrl}/api/admin/dashboard/posts`);
   }

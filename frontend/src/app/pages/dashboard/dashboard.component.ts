@@ -109,6 +109,35 @@ export class DashboardComponent implements OnInit {
     this.router.navigateByUrl(`/profile/${userId}`);
   }
 
+  private getSuperAdminId(): number | null {
+    const adminIds = this.users
+      .filter((u) => u.role === 'ADMIN')
+      .map((u) => u.userId);
+    if (!adminIds.length) return null;
+    return Math.min(...adminIds);
+  }
+
+  canChangeRole(target: UserResponse): boolean {
+    if (!this.user) return false;
+    const superAdminId = this.getSuperAdminId();
+    if (superAdminId !== null && target.userId === superAdminId) return false;
+    return true;
+  }
+
+  toggleUserRole(target: UserResponse): void {
+    if (!this.canChangeRole(target)) return;
+
+    const nextRole = target.role === 'ADMIN' ? 'USER' : 'ADMIN';
+    this.api.updateAdminUserRole(target.userId, nextRole).subscribe({
+      next: (updated) => {
+        this.users = this.users.map((u) => (u.userId === updated.userId ? updated : u));
+      },
+      error: (err: any) => {
+        this.error = err?.error?.message || err?.error || 'Failed to update user role';
+      }
+    });
+  }
+
   toggleUserStatus(target: UserResponse): void {
     if (!this.user || target.role === 'ADMIN' || target.userId === this.user.userId) return;
 

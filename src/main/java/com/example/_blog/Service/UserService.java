@@ -121,6 +121,17 @@ public class UserService {
         return toResponse(repo.save(existing));
     }
 
+    public UserResponse updateRole(Long userId, UserRole role) {
+        User existing = repo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+        User superAdmin = repo.findFirstByRoleOrderByUserIdAsc(UserRole.ADMIN);
+        if (superAdmin != null && superAdmin.getUserId().equals(existing.getUserId())) {
+            throw new ResponseStatusException(FORBIDDEN, "Super admin role cannot be changed");
+        }
+        existing.setRole(role);
+        return toResponse(repo.save(existing));
+    }
+
     private UserResponse toResponse(User user) {
         return new UserResponse(
                 user.getUserId(),

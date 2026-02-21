@@ -48,7 +48,15 @@
             <td>{{ userPostsCount[item.userId] || 0 }}</td>
             <td>0</td>
             <td>
-              <span class="badge" [class.admin]="item.role === 'ADMIN'">{{ item.role === 'ADMIN' ? 'Admin' : 'User' }}</span>
+              <button
+                class="badge role-action"
+                type="button"
+                [class.admin]="item.role === 'ADMIN'"
+                [disabled]="!canChangeRole(item)"
+                (click)="toggleUserRole(item)"
+              >
+                {{ item.role === 'ADMIN' ? 'Admin' : 'User' }}
+              </button>
             </td>
             <td>
               <span class="badge" [class.active-status]="item.status === 'ACTIVE'" [class.banned]="item.status === 'BANNED'">
