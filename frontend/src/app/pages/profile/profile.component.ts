@@ -257,6 +257,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.followersModalOpen = false;
   }
 
+  openUserProfile(userId: number): void {
+    this.closeFollowingModal();
+    this.closeFollowersModal();
+    this.router.navigateByUrl(`/profile/${userId}`);
+  }
+
   canReportUser(): boolean {
     return !!this.user && !this.isOwnProfile;
   }
