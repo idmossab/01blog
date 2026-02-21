@@ -68,7 +68,8 @@ export type ReportReason =
   | 'OTHER';
 
 export interface CreateReportRequest {
-  blogId: number;
+  blogId?: number;
+  reportedUserId?: number;
   reason: ReportReason;
   details?: string | null;
 }

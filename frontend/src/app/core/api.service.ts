@@ -197,6 +197,10 @@ export class ApiService {
     return this.http.post<ReportResponse>(`${this.baseUrl}/api/reports`, payload);
   }
 
+  reportUser(payload: CreateReportRequest) {
+    return this.http.post<ReportResponse>(`${this.baseUrl}/api/reports`, payload);
+  }
+
   getMyNotifications(limit = 20) {
     return this.http.get<AppNotification[]>(`${this.baseUrl}/api/notifications/me?limit=${limit}`);
   }

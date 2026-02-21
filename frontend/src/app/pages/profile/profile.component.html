@@ -1,12 +1,17 @@
 <div class="container py-4">
   <div class="profile-card shadow-sm" *ngIf="!loading; else loadingState">
-    <div class="profile-header">
-      <div class="avatar">{{ user?.firstName?.[0] }}{{ user?.lastName?.[0] }}</div>
-      <div>
-        <h3 class="mb-1">{{ user?.firstName }} {{ user?.lastName }}</h3>
-        <div class="text-muted">@{{ user?.userName }}</div>
-        <div class="text-muted small" *ngIf="user?.email">{{ user?.email }}</div>
+    <div class="profile-top">
+      <div class="profile-header">
+        <div class="avatar">{{ user?.firstName?.[0] }}{{ user?.lastName?.[0] }}</div>
+        <div>
+          <h3 class="mb-1">{{ user?.firstName }} {{ user?.lastName }}</h3>
+          <div class="text-muted">@{{ user?.userName }}</div>
+          <div class="text-muted small" *ngIf="user?.email">{{ user?.email }}</div>
+        </div>
       </div>
+      <button class="btn btn-outline-danger btn-sm" type="button" *ngIf="canReportUser()" (click)="openUserReportModal()">
+        Report user
+      </button>
     </div>
 
     <div class="stats-row">
@@ -128,6 +133,7 @@
   </div>
 
   <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+  <div class="alert alert-success mt-3" *ngIf="reportUserSuccess">{{ reportUserSuccess }}</div>
 </div>
 
 <div class="following-overlay" *ngIf="followingModalOpen">
@@ -186,6 +192,48 @@
         {{ deleteLoading ? 'Deleting...' : 'Yes, delete' }}
       </button>
       <button class="btn btn-outline-secondary" type="button" (click)="closeDeleteConfirmation()" [disabled]="deleteLoading">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="following-overlay" *ngIf="reportModalOpen">
+  <div class="following-modal shadow-sm">
+    <div class="following-head">
+      <h6 class="mb-0">Report user</h6>
+      <button class="btn btn-sm btn-outline-secondary" type="button" (click)="closeUserReportModal()" [disabled]="reportSubmitting">
+        Close
+      </button>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Report reason</label>
+      <select class="form-select" [(ngModel)]="selectedReportReason">
+        <option [ngValue]="''">Select a reason</option>
+        <option *ngFor="let reason of reportReasons" [ngValue]="reason.value">{{ reason.label }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Additional details</label>
+      <textarea
+        class="form-control"
+        rows="4"
+        maxlength="500"
+        [(ngModel)]="reportDetails"
+        placeholder="Optional details (max 500 chars)"
+      ></textarea>
+      <div class="text-muted small mt-1">{{ reportDetails.length }}/500</div>
+    </div>
+
+    <div class="alert alert-danger py-2" *ngIf="reportUserError">{{ reportUserError }}</div>
+
+    <div class="confirm-actions">
+      <button class="btn btn-dark" type="button" (click)="submitUserReport()" [disabled]="reportSubmitting">
+        {{ reportSubmitting ? 'Submitting...' : 'Submit report' }}
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="closeUserReportModal()" [disabled]="reportSubmitting">
         Cancel
       </button>
     </div>

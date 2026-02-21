@@ -33,12 +33,16 @@ public class Report {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "blogId", nullable = false)
+    @JoinColumn(name = "blogId")
     private Blog blog;
 
     @ManyToOne
     @JoinColumn(name = "reporterUserId", nullable = false)
     private User reporter;
+
+    @ManyToOne
+    @JoinColumn(name = "reportedUserId")
+    private User reportedUser;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

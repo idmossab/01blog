@@ -4,6 +4,7 @@ import com.example._blog.Entity.enums.ReportReason;
 
 public class CreateReportRequest {
     private Long blogId;
+    private Long reportedUserId;
     private ReportReason reason;
     private String details;
 
@@ -29,5 +30,13 @@ public class CreateReportRequest {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public Long getReportedUserId() {
+        return reportedUserId;
+    }
+
+    public void setReportedUserId(Long reportedUserId) {
+        this.reportedUserId = reportedUserId;
     }
 }

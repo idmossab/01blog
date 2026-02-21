@@ -33,11 +33,16 @@ public class ReportService {
 
     @Transactional
     public Long create(Long reporterUserId, CreateReportRequest request) {
-        if (request == null || request.getBlogId() == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Blog id is required");
+        if (request == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Invalid report request");
         }
         if (request.getReason() == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Report reason is required");
+        }
+        boolean hasBlogTarget = request.getBlogId() != null;
+        boolean hasUserTarget = request.getReportedUserId() != null;
+        if (hasBlogTarget == hasUserTarget) {
+            throw new ResponseStatusException(BAD_REQUEST, "Provide exactly one target: blogId or reportedUserId");
         }
 
         String details = request.getDetails() == null ? null : request.getDetails().trim();
@@ -47,21 +52,30 @@ public class ReportService {
 
         User reporter = userRepo.findById(reporterUserId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
-        Blog blog = blogRepo.findById(request.getBlogId())
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog not found"));
-
-        if (blog.getUser() != null && reporterUserId.equals(blog.getUser().getUserId())) {
-            throw new ResponseStatusException(BAD_REQUEST, "You cannot report your own post");
-        }
-
-        Report report = Report.builder()
-                .blog(blog)
+        Report.ReportBuilder reportBuilder = Report.builder()
                 .reporter(reporter)
                 .reason(request.getReason())
                 .details((details == null || details.isBlank()) ? null : details)
-                .createdAt(Instant.now())
-                .build();
+                .createdAt(Instant.now());
 
-        return reportRepo.save(report).getId();
+        if (hasBlogTarget) {
+            Blog blog = blogRepo.findById(request.getBlogId())
+                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog not found"));
+            if (blog.getUser() != null && reporterUserId.equals(blog.getUser().getUserId())) {
+                throw new ResponseStatusException(BAD_REQUEST, "You cannot report your own post");
+            }
+            reportBuilder.blog(blog);
+        }
+
+        if (hasUserTarget) {
+            User reportedUser = userRepo.findById(request.getReportedUserId())
+                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+            if (reporterUserId.equals(reportedUser.getUserId())) {
+                throw new ResponseStatusException(BAD_REQUEST, "You cannot report yourself");
+            }
+            reportBuilder.reportedUser(reportedUser);
+        }
+
+        return reportRepo.save(reportBuilder.build()).getId();
     }
 }

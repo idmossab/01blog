@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { Blog, FollowCounts, Media, UserResponse } from '../../core/models';
+import { Blog, FollowCounts, Media, ReportReason, UserResponse } from '../../core/models';
 import { BlogCardComponent } from '../../components/blog-card/blog-card.component';
 
 @Component({
@@ -18,6 +18,15 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card.componen
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   readonly maxBlogContentLength = 1000;
+  readonly reportReasons: Array<{ value: ReportReason; label: string }> = [
+    { value: 'HARASSMENT_BULLYING', label: 'Harassment / Bullying' },
+    { value: 'SPAM_SCAM', label: 'Spam / Scam' },
+    { value: 'HATE_SPEECH', label: 'Hate speech' },
+    { value: 'VIOLENCE_THREATS', label: 'Violence / Threats' },
+    { value: 'SEXUAL_CONTENT', label: 'Sexual content' },
+    { value: 'COPYRIGHT_IP', label: 'Copyright / IP' },
+    { value: 'OTHER', label: 'Other' }
+  ];
   user: UserResponse | null = null;
   blogs: Blog[] = [];
   followedUsers: UserResponse[] = [];
@@ -43,6 +52,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   editTotalMediaSize = 0;
   updateLoading = false;
   isOwnProfile = true;
+  reportModalOpen = false;
+  selectedReportReason: ReportReason | '' = '';
+  reportDetails = '';
+  reportUserError = '';
+  reportUserSuccess = '';
+  reportSubmitting = false;
   private routeSub?: Subscription;
 
   constructor(
@@ -71,6 +86,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.pendingDeleteBlog = null;
     this.followingModalOpen = false;
     this.followersModalOpen = false;
+    this.closeUserReportModal();
+    this.reportUserSuccess = '';
 
     this.api.getMe().subscribe({
       next: (me) => {
@@ -238,6 +255,58 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   closeFollowersModal(): void {
     this.followersModalOpen = false;
+  }
+
+  canReportUser(): boolean {
+    return !!this.user && !this.isOwnProfile;
+  }
+
+  openUserReportModal(): void {
+    this.reportModalOpen = true;
+    this.selectedReportReason = '';
+    this.reportDetails = '';
+    this.reportUserError = '';
+    this.reportUserSuccess = '';
+    this.reportSubmitting = false;
+  }
+
+  closeUserReportModal(): void {
+    this.reportModalOpen = false;
+    this.reportUserError = '';
+    this.reportSubmitting = false;
+  }
+
+  submitUserReport(): void {
+    if (!this.user?.userId || !this.selectedReportReason || this.reportSubmitting) {
+      if (!this.selectedReportReason) {
+        this.reportUserError = 'Report reason is required';
+      }
+      return;
+    }
+
+    const details = this.reportDetails.trim();
+    if (details.length > 500) {
+      this.reportUserError = 'Additional details cannot exceed 500 characters';
+      return;
+    }
+
+    this.reportSubmitting = true;
+    this.reportUserError = '';
+    this.api.reportUser({
+      reportedUserId: this.user.userId,
+      reason: this.selectedReportReason,
+      details: details || null
+    }).subscribe({
+      next: (res) => {
+        this.reportUserSuccess = res?.message || 'Report submitted. Thank you.';
+        this.reportSubmitting = false;
+        this.reportModalOpen = false;
+      },
+      error: (err: any) => {
+        this.reportSubmitting = false;
+        this.reportUserError = err?.error?.message || err?.error || 'Failed to submit report';
+      }
+    });
   }
 
   openDeleteConfirmation(blog: Blog): void {
