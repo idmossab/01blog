@@ -19,6 +19,8 @@ export interface Blog {
   title: string;
   content: string;
   status?: string;
+  userId?: number;
+  userName?: string;
   media?: string | null;
   commentCount?: number;
   likeCount?: number;

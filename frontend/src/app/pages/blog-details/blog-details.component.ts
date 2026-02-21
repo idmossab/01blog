@@ -189,8 +189,9 @@ export class BlogDetailsComponent implements OnInit {
 
   canReport(): boolean {
     if (!this.user || !this.blog) return false;
-    if (!this.blog.user?.userId) return true;
-    return this.blog.user.userId !== this.user.userId;
+    const authorId = this.blog.userId ?? this.blog.user?.userId;
+    if (!authorId) return true;
+    return authorId !== this.user.userId;
   }
 
   openReportModal(): void {
