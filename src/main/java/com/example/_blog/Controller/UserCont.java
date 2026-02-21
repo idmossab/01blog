@@ -3,6 +3,7 @@ package com.example._blog.Controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import com.example._blog.Dto.AuthResponse;
 import com.example._blog.Dto.UserLoginRequest;
 import com.example._blog.Dto.UserRegisterRequest;
 import com.example._blog.Dto.UserResponse;
+import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.UserService;
 
 @RestController
@@ -52,6 +54,12 @@ public class UserCont {
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getById(@PathVariable Long userId) {
         return ResponseEntity.ok(service.getById(userId));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal UserPrincipal principal) {
+        Long currentUserId = principal.getUser().getUserId();
+        return ResponseEntity.ok(service.getById(currentUserId));
     }
 
     @PutMapping("/{userId}")
