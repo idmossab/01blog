@@ -1,6 +1,7 @@
 package com.example._blog.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -74,6 +75,10 @@ public class MediaService {
                 if (extension == null) {
                     throw new ResponseStatusException(BAD_REQUEST, "Only .jpg, .png, and .mp4 files are allowed");
                 }
+                String detectedMimeType = detectMimeType(file);
+                if (detectedMimeType == null) {
+                    throw new ResponseStatusException(BAD_REQUEST, "Invalid file content. Only real .jpg, .png, and .mp4 files are allowed");
+                }
                 String safeName = UUID.randomUUID() + "." + extension;
                 Path target = UPLOAD_DIR.resolve(safeName);
                 Files.copy(file.getInputStream(), target);
@@ -82,7 +87,7 @@ public class MediaService {
                 Media media = Media.builder()
                         .blog(blog)
                         .url(url)
-                        .mediaType(file.getContentType())
+                        .mediaType(detectedMimeType)
                         .createdAt(Instant.now())
                         .build();
                 saved.add(mediaRepo.save(media));
@@ -178,16 +183,74 @@ public class MediaService {
         String contentType = file.getContentType();
         String extension = getExtension(file.getOriginalFilename());
 
-        if (contentType == null || extension == null) {
+        if (extension == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Only .jpg, .png, and .mp4 files are allowed");
         }
 
-        String normalizedMimeType = contentType.toLowerCase(Locale.ROOT).split(";", 2)[0].trim();
-        boolean allowedMimeType = ALLOWED_MIME_TYPES.contains(normalizedMimeType);
+        String normalizedMimeType = contentType == null
+                ? ""
+                : contentType.toLowerCase(Locale.ROOT).split(";", 2)[0].trim();
+        String detectedMimeType = detectMimeType(file);
+        if (detectedMimeType == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Invalid file content. Only real .jpg, .png, and .mp4 files are allowed");
+        }
+
+        boolean allowedMimeType = normalizedMimeType.isBlank() || ALLOWED_MIME_TYPES.contains(normalizedMimeType);
         boolean allowedExtension = ALLOWED_EXTENSIONS.contains(extension);
-        if (!allowedMimeType || !allowedExtension) {
+        boolean extensionMatches = extensionMatchesMime(extension, detectedMimeType);
+        boolean mimeMatches = normalizedMimeType.isBlank() || mimeMatchesDetected(normalizedMimeType, detectedMimeType);
+        if (!allowedMimeType || !allowedExtension || !extensionMatches || !mimeMatches) {
             throw new ResponseStatusException(BAD_REQUEST, "Only .jpg, .png, and .mp4 files are allowed");
         }
+    }
+
+    private String detectMimeType(MultipartFile file) {
+        try (InputStream in = file.getInputStream()) {
+            byte[] header = in.readNBytes(32);
+            if (header.length >= 3
+                    && (header[0] & 0xFF) == 0xFF
+                    && (header[1] & 0xFF) == 0xD8
+                    && (header[2] & 0xFF) == 0xFF) {
+                return "image/jpeg";
+            }
+            if (header.length >= 8
+                    && (header[0] & 0xFF) == 0x89
+                    && header[1] == 0x50
+                    && header[2] == 0x4E
+                    && header[3] == 0x47
+                    && header[4] == 0x0D
+                    && header[5] == 0x0A
+                    && header[6] == 0x1A
+                    && header[7] == 0x0A) {
+                return "image/png";
+            }
+            if (header.length >= 12
+                    && header[4] == 0x66
+                    && header[5] == 0x74
+                    && header[6] == 0x79
+                    && header[7] == 0x70) {
+                return "video/mp4";
+            }
+            return null;
+        } catch (IOException ex) {
+            throw new ResponseStatusException(BAD_REQUEST, "Failed to read uploaded file");
+        }
+    }
+
+    private boolean extensionMatchesMime(String extension, String mimeType) {
+        return switch (mimeType) {
+            case "image/jpeg" -> "jpg".equals(extension) || "jpeg".equals(extension);
+            case "image/png" -> "png".equals(extension);
+            case "video/mp4" -> "mp4".equals(extension);
+            default -> false;
+        };
+    }
+
+    private boolean mimeMatchesDetected(String normalizedMimeType, String detectedMimeType) {
+        if ("image/jpg".equals(normalizedMimeType)) {
+            return "image/jpeg".equals(detectedMimeType);
+        }
+        return normalizedMimeType.equals(detectedMimeType);
     }
 
     private String getExtension(String filename) {

@@ -32,8 +32,8 @@
               </button>
 
               <div class="media-tile preview-tile" *ngFor="let media of mediaPreviews; let i = index">
-                <img *ngIf="media.kind === 'image'" [src]="media.url" alt="preview" />
-                <video *ngIf="media.kind === 'video'" [src]="media.url" muted controls></video>
+                <img *ngIf="media.kind === 'image'" [src]="media.url" alt="preview" (error)="onPreviewError(i)" />
+                <video *ngIf="media.kind === 'video'" [src]="media.url" muted controls (error)="onPreviewError(i)"></video>
                 <button class="remove-btn" type="button" (click)="removeMedia(i)">Remove</button>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,7 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card.componen
 })
 export class HomeComponent implements OnInit, OnDestroy {
   readonly maxBlogContentLength = 1000;
+  private readonly allowedMediaExtensions = new Set(['jpg', 'jpeg', 'png', 'mp4']);
   user: UserResponse | null = null;
   blogs: Blog[] = [];
 
@@ -98,12 +100,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.clearMediaSelection();
       },
       error: (err: any) => {
-        this.error = err?.error?.message || err?.error || 'Failed to create blog';
+        this.error = this.extractErrorMessage(err, 'Failed to create blog');
       }
     });
   }
 
-  onMediaChange(event: Event): void {
+  async onMediaChange(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
     if (files.length > 5) {
@@ -119,14 +121,33 @@ export class HomeComponent implements OnInit, OnDestroy {
       input.value = '';
       return;
     }
-    this.error = '';
-    this.clearMediaSelection();
-    this.mediaPreviews = files.map((file) => ({
-      file,
-      url: URL.createObjectURL(file),
-      kind: file.type.startsWith('video') ? 'video' : 'image'
-    }));
-    this.totalMediaSize = totalSize;
+
+    try {
+      const preparedPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
+      for (const file of files) {
+        const kind = await this.detectRealMediaKind(file);
+        if (!kind) {
+          this.error = 'Invalid file content. Only real .jpg, .png, and .mp4 files are allowed';
+          this.clearMediaSelection();
+          input.value = '';
+          return;
+        }
+        preparedPreviews.push({
+          file,
+          url: URL.createObjectURL(file),
+          kind
+        });
+      }
+
+      this.error = '';
+      this.clearMediaSelection();
+      this.mediaPreviews = preparedPreviews;
+      this.totalMediaSize = totalSize;
+    } catch {
+      this.error = 'Failed to read selected file';
+      this.clearMediaSelection();
+      input.value = '';
+    }
   }
 
   removeMedia(index: number): void {
@@ -157,6 +178,89 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.mediaInput?.nativeElement) {
       this.mediaInput.nativeElement.value = '';
     }
+  }
+
+  onPreviewError(index: number): void {
+    this.error = 'Invalid file preview. Only real .jpg, .png, and .mp4 files are allowed';
+    this.removeMedia(index);
+  }
+
+  private getFileExtension(file: File): string {
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    return extension;
+  }
+
+  private async detectRealMediaKind(file: File): Promise<'image' | 'video' | null> {
+    const extension = this.getFileExtension(file);
+    if (!this.allowedMediaExtensions.has(extension)) {
+      return null;
+    }
+
+    const headerBytes = new Uint8Array(await file.slice(0, 32).arrayBuffer());
+    const detectedMime = this.detectMimeFromBytes(headerBytes);
+    if (!detectedMime) {
+      return null;
+    }
+
+    const extensionMatches =
+      (detectedMime === 'image/jpeg' && (extension === 'jpg' || extension === 'jpeg')) ||
+      (detectedMime === 'image/png' && extension === 'png') ||
+      (detectedMime === 'video/mp4' && extension === 'mp4');
+    if (!extensionMatches) {
+      return null;
+    }
+
+    return detectedMime.startsWith('video/') ? 'video' : 'image';
+  }
+
+  private detectMimeFromBytes(header: Uint8Array): 'image/jpeg' | 'image/png' | 'video/mp4' | null {
+    if (header.length >= 3
+      && header[0] === 0xff
+      && header[1] === 0xd8
+      && header[2] === 0xff) {
+      return 'image/jpeg';
+    }
+    if (header.length >= 8
+      && header[0] === 0x89
+      && header[1] === 0x50
+      && header[2] === 0x4e
+      && header[3] === 0x47
+      && header[4] === 0x0d
+      && header[5] === 0x0a
+      && header[6] === 0x1a
+      && header[7] === 0x0a) {
+      return 'image/png';
+    }
+    if (header.length >= 12
+      && header[4] === 0x66
+      && header[5] === 0x74
+      && header[6] === 0x79
+      && header[7] === 0x70) {
+      return 'video/mp4';
+    }
+    return null;
+  }
+
+  private extractErrorMessage(err: unknown, fallback: string): string {
+    if (typeof err === 'string' && err.trim()) {
+      return err;
+    }
+    if (err && typeof err === 'object') {
+      const asAny = err as any;
+      if (typeof asAny?.error === 'string' && asAny.error.trim()) {
+        return asAny.error;
+      }
+      if (typeof asAny?.error?.message === 'string' && asAny.error.message.trim()) {
+        return asAny.error.message;
+      }
+      if (typeof asAny?.message === 'string' && asAny.message.trim()) {
+        return asAny.message;
+      }
+      if (asAny instanceof HttpErrorResponse && asAny.status === 400) {
+        return 'Only real .jpg, .png, and .mp4 files are allowed';
+      }
+    }
+    return fallback;
   }
 
   getMedia(blogId: number | undefined): Media[] {
