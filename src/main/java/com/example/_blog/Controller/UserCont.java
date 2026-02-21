@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
+
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.example._blog.Dto.AuthResponse;
 import com.example._blog.Dto.UserLoginRequest;
@@ -23,7 +26,7 @@ import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping({"/users", "/api/users"})
 public class UserCont {
 
     private final UserService service;
@@ -58,6 +61,9 @@ public class UserCont {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal UserPrincipal principal) {
+        if (principal == null || principal.getUser() == null || principal.getUser().getUserId() == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Unauthorized");
+        }
         Long currentUserId = principal.getUser().getUserId();
         return ResponseEntity.ok(service.getById(currentUserId));
     }

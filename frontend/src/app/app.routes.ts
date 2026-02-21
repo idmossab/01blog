@@ -7,6 +7,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { BlogDetailsComponent } from './pages/blog-details/blog-details.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login'
+    component: NotFoundComponent
   }
 ];
