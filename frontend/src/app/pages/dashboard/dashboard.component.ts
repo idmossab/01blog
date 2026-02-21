@@ -30,6 +30,8 @@ export class DashboardComponent implements OnInit {
   error = '';
   pendingDeleteUser: UserResponse | null = null;
   deleteUserLoading = false;
+  pendingDeletePost: Blog | null = null;
+  deletePostLoading = false;
 
   readonly reportReasonOptions: Array<{ value: ReportReason; label: string }> = [
     { value: 'HARASSMENT_BULLYING', label: 'Harassment / Bullying' },
@@ -259,10 +261,20 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  deletePost(post: Blog): void {
+  openDeletePostModal(post: Blog): void {
     if (!post?.idBlog) return;
-    const confirmed = window.confirm('Delete this post?');
-    if (!confirmed) return;
+    this.pendingDeletePost = post;
+  }
+
+  closeDeletePostModal(): void {
+    if (this.deletePostLoading) return;
+    this.pendingDeletePost = null;
+  }
+
+  confirmDeletePost(): void {
+    const post = this.pendingDeletePost;
+    if (!post?.idBlog || this.deletePostLoading) return;
+    this.deletePostLoading = true;
 
     this.api.deleteBlog(post.idBlog).subscribe({
       next: () => {
@@ -270,9 +282,12 @@ export class DashboardComponent implements OnInit {
         this.recomputeUserPostCounts();
         this.reports = this.reports.filter((r) => r.blogId !== post.idBlog);
         this.reportsCount = this.reports.length;
+        this.pendingDeletePost = null;
+        this.deletePostLoading = false;
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to delete post';
+        this.deletePostLoading = false;
       }
     });
   }

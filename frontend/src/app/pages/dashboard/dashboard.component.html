@@ -102,7 +102,7 @@
             <td>{{ post.userName || 'Unknown' }}</td>
             <td>{{ post.status }}</td>
             <td>
-              <button class="action delete-action" type="button" (click)="deletePost(post)">
+              <button class="action delete-action" type="button" (click)="openDeletePostModal(post)">
                 Delete
               </button>
             </td>
@@ -179,6 +179,25 @@
         {{ deleteUserLoading ? 'Deleting...' : 'Yes, Delete' }}
       </button>
       <button class="action" type="button" (click)="closeDeleteUserModal()" [disabled]="deleteUserLoading">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" *ngIf="pendingDeletePost">
+  <div class="confirm-card">
+    <h5>Delete Post</h5>
+    <p>
+      Are you sure you want to delete
+      <strong>{{ pendingDeletePost.title }}</strong>?
+      This action cannot be undone.
+    </p>
+    <div class="confirm-actions">
+      <button class="action delete-action" type="button" (click)="confirmDeletePost()" [disabled]="deletePostLoading">
+        {{ deletePostLoading ? 'Deleting...' : 'Yes, Delete' }}
+      </button>
+      <button class="action" type="button" (click)="closeDeletePostModal()" [disabled]="deletePostLoading">
         Cancel
       </button>
     </div>
