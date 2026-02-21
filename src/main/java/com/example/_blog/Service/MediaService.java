@@ -8,7 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -28,7 +30,8 @@ public class MediaService {
     private static final int MAX_FILES = 5;
     private static final long MAX_TOTAL_BYTES = 10L * 1024 * 1024;
     private static final Path UPLOAD_DIR = Paths.get("uploads");
-    private static final String[] ALLOWED_PREFIXES = {"image/", "video/"};
+    private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/jpg", "image/png", "video/mp4");
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "mp4");
 
     private final MediaRepo mediaRepo;
     private final BlogRepo blogRepo;
@@ -153,22 +156,37 @@ public class MediaService {
         }
 
         for (MultipartFile file : nonEmpty) {
-            String type = file.getContentType();
-            if (type == null || !isAllowedType(type)) {
-                throw new ResponseStatusException(BAD_REQUEST, "Only image or video files are allowed");
-            }
+            validateFileType(file);
         }
 
         return nonEmpty;
     }
 
-    private boolean isAllowedType(String type) {
-        for (String prefix : ALLOWED_PREFIXES) {
-            if (type.startsWith(prefix)) {
-                return true;
-            }
+    private void validateFileType(MultipartFile file) {
+        String contentType = file.getContentType();
+        String extension = getExtension(file.getOriginalFilename());
+
+        if (contentType == null || extension == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Only .jpg, .png, and .mp4 files are allowed");
         }
-        return false;
+
+        String normalizedMimeType = contentType.toLowerCase(Locale.ROOT).split(";", 2)[0].trim();
+        boolean allowedMimeType = ALLOWED_MIME_TYPES.contains(normalizedMimeType);
+        boolean allowedExtension = ALLOWED_EXTENSIONS.contains(extension);
+        if (!allowedMimeType || !allowedExtension) {
+            throw new ResponseStatusException(BAD_REQUEST, "Only .jpg, .png, and .mp4 files are allowed");
+        }
+    }
+
+    private String getExtension(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return null;
+        }
+        int dot = filename.lastIndexOf('.');
+        if (dot < 0 || dot == filename.length() - 1) {
+            return null;
+        }
+        return filename.substring(dot + 1).toLowerCase(Locale.ROOT);
     }
 
     private void cleanupFiles(List<Path> storedPaths) {
