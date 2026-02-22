@@ -19,6 +19,11 @@
   align-items: center;
 }
 
+.blog-main.without-thumb {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
 .blog-title {
   font-size: 20px;
   font-weight: 700;
