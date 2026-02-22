@@ -58,6 +58,11 @@ public class FollowService {
         followRepo.deleteByFollowerUserIdAndFollowingUserId(currentUserId, targetUserId);
     }
 
+    @Transactional
+    public void removeFollower(Long currentUserId, Long followerUserId) {
+        followRepo.deleteByFollowerUserIdAndFollowingUserId(followerUserId, currentUserId);
+    }
+
     public List<Long> getFollowingIds(Long currentUserId) {
         return followRepo.findFollowingIdsByFollowerId(currentUserId);
     }

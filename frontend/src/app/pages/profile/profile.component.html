@@ -149,10 +149,20 @@
     <div class="following-state text-danger" *ngIf="!followingLoading && followingError">{{ followingError }}</div>
 
     <div class="following-list" *ngIf="!followingLoading && !followingError">
-      <button class="following-item following-link" type="button" *ngFor="let user of followedUsers" (click)="openUserProfile(user.userId)">
-        <div class="fw-semibold">{{ user.firstName }} {{ user.lastName }}</div>
-        <small class="text-muted">@{{ user.userName }}</small>
-      </button>
+      <div class="following-item" *ngFor="let user of followedUsers">
+        <button class="following-link following-user" type="button" (click)="openUserProfile(user.userId)">
+          <div class="fw-semibold">{{ user.firstName }} {{ user.lastName }}</div>
+          <small class="text-muted">@{{ user.userName }}</small>
+        </button>
+        <button
+          class="btn btn-sm btn-outline-danger"
+          type="button"
+          [disabled]="unfollowLoadingIds.has(user.userId)"
+          (click)="unfollow(user.userId)"
+        >
+          {{ unfollowLoadingIds.has(user.userId) ? 'Unfollowing...' : 'Unfollow' }}
+        </button>
+      </div>
       <div class="following-state" *ngIf="!followedUsers.length">You are not following anyone yet.</div>
     </div>
   </div>
@@ -171,10 +181,20 @@
     <div class="following-state text-danger" *ngIf="!followersLoading && followersError">{{ followersError }}</div>
 
     <div class="following-list" *ngIf="!followersLoading && !followersError">
-      <button class="following-item following-link" type="button" *ngFor="let user of followerUsers" (click)="openUserProfile(user.userId)">
-        <div class="fw-semibold">{{ user.firstName }} {{ user.lastName }}</div>
-        <small class="text-muted">@{{ user.userName }}</small>
-      </button>
+      <div class="following-item" *ngFor="let user of followerUsers">
+        <button class="following-link following-user" type="button" (click)="openUserProfile(user.userId)">
+          <div class="fw-semibold">{{ user.firstName }} {{ user.lastName }}</div>
+          <small class="text-muted">@{{ user.userName }}</small>
+        </button>
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          [disabled]="removeFollowerLoadingIds.has(user.userId)"
+          (click)="removeFollower(user.userId)"
+        >
+          {{ removeFollowerLoadingIds.has(user.userId) ? 'Removing...' : 'Remove' }}
+        </button>
+      </div>
       <div class="following-state" *ngIf="!followerUsers.length">You have no followers yet.</div>
     </div>
   </div>

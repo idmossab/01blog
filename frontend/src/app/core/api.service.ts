@@ -194,6 +194,14 @@ export class ApiService {
     );
   }
 
+  unfollowUser(userId: number) {
+    return this.http.delete<{ message: string; followingUserId: number }>(`${this.baseUrl}/api/follows/${userId}`);
+  }
+
+  removeFollower(userId: number) {
+    return this.http.delete<{ message: string; followingUserId: number }>(`${this.baseUrl}/api/follows/me/followers/${userId}`);
+  }
+
   reportBlog(payload: CreateReportRequest) {
     return this.http.post<ReportResponse>(`${this.baseUrl}/api/reports`, payload);
   }

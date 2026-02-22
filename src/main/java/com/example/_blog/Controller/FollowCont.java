@@ -40,6 +40,14 @@ public class FollowCont {
         return ResponseEntity.ok(new FollowResponse("unfollowed", userId));
     }
 
+    @DeleteMapping("/me/followers/{userId}")
+    public ResponseEntity<FollowResponse> removeFollower(@AuthenticationPrincipal UserPrincipal principal,
+                                                         @PathVariable Long userId) {
+        Long currentUserId = principal.getUser().getUserId();
+        service.removeFollower(currentUserId, userId);
+        return ResponseEntity.ok(new FollowResponse("removed", userId));
+    }
+
     @GetMapping("/me/following")
     public ResponseEntity<List<Long>> getFollowing(@AuthenticationPrincipal UserPrincipal principal) {
         Long currentUserId = principal.getUser().getUserId();

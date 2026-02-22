@@ -214,13 +214,24 @@
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .following-link {
-  width: 100%;
+  width: auto;
   text-align: left;
   background: #fff;
   cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+
+.following-user {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .following-link:hover {
@@ -262,5 +273,14 @@
   .edit-actions .btn,
   .confirm-actions .btn {
     flex: 1 1 auto;
+  }
+
+  .following-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .following-item .btn {
+    width: 100%;
   }
 }

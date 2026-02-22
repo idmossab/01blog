@@ -39,9 +39,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   followingModalOpen = false;
   followingLoading = false;
   followingError = '';
+  unfollowLoadingIds = new Set<number>();
   followersModalOpen = false;
   followersLoading = false;
   followersError = '';
+  removeFollowerLoadingIds = new Set<number>();
   pendingDeleteBlog: Blog | null = null;
   deleteLoading = false;
   editingBlogId: number | null = null;
@@ -220,6 +222,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   closeFollowingModal(): void {
     this.followingModalOpen = false;
+    this.unfollowLoadingIds.clear();
   }
 
   openFollowersModal(): void {
@@ -255,6 +258,47 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   closeFollowersModal(): void {
     this.followersModalOpen = false;
+    this.removeFollowerLoadingIds.clear();
+  }
+
+  unfollow(userId: number): void {
+    if (this.unfollowLoadingIds.has(userId)) return;
+    this.unfollowLoadingIds.add(userId);
+    this.followingError = '';
+    this.api.unfollowUser(userId).subscribe({
+      next: () => {
+        this.followedUsers = this.followedUsers.filter((user) => user.userId !== userId);
+        this.followCounts = {
+          ...this.followCounts,
+          following: Math.max(0, this.followCounts.following - 1)
+        };
+        this.unfollowLoadingIds.delete(userId);
+      },
+      error: (err: any) => {
+        this.followingError = err?.error?.message || err?.error || 'Failed to unfollow user';
+        this.unfollowLoadingIds.delete(userId);
+      }
+    });
+  }
+
+  removeFollower(userId: number): void {
+    if (this.removeFollowerLoadingIds.has(userId)) return;
+    this.removeFollowerLoadingIds.add(userId);
+    this.followersError = '';
+    this.api.removeFollower(userId).subscribe({
+      next: () => {
+        this.followerUsers = this.followerUsers.filter((user) => user.userId !== userId);
+        this.followCounts = {
+          ...this.followCounts,
+          followers: Math.max(0, this.followCounts.followers - 1)
+        };
+        this.removeFollowerLoadingIds.delete(userId);
+      },
+      error: (err: any) => {
+        this.followersError = err?.error?.message || err?.error || 'Failed to remove follower';
+        this.removeFollowerLoadingIds.delete(userId);
+      }
+    });
   }
 
   openUserProfile(userId: number): void {
