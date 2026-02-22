@@ -25,6 +25,7 @@
         placeholder="Search users by name or email..."
       />
 
+      <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
@@ -39,15 +40,15 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of filteredUsers">
-            <td>
+            <td data-label="User">
               <button class="user-link" type="button" (click)="openProfile(item.userId)">
                 {{ item.userName }}
               </button>
             </td>
-            <td>{{ item.email }}</td>
-            <td>{{ userPostsCount[item.userId] || 0 }}</td>
-            <td>{{ followerCountByUser[item.userId] || 0 }}</td>
-            <td>
+            <td data-label="Email">{{ item.email }}</td>
+            <td data-label="Blogs">{{ userPostsCount[item.userId] || 0 }}</td>
+            <td data-label="Followers">{{ followerCountByUser[item.userId] || 0 }}</td>
+            <td data-label="Role">
               <button
                 class="badge role-action"
                 type="button"
@@ -58,12 +59,12 @@
                 {{ item.role === 'ADMIN' ? 'Admin' : 'User' }}
               </button>
             </td>
-            <td>
+            <td data-label="Status">
               <span class="badge" [class.active-status]="item.status === 'ACTIVE'" [class.banned]="item.status === 'BANNED'">
                 {{ item.status }}
               </span>
             </td>
-            <td>
+            <td class="actions-cell" data-label="Actions">
               <button
                 class="action"
                 type="button"
@@ -84,6 +85,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </section>
 
     <section *ngIf="tab === 'posts'" class="panel">
@@ -96,6 +98,7 @@
         </select>
       </div>
 
+      <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
@@ -107,13 +110,13 @@
         </thead>
         <tbody>
           <tr *ngFor="let post of filteredPosts">
-            <td>
+            <td data-label="Blog Title">
               <button class="blog-link" type="button" (click)="openBlog(post.idBlog)">
                 {{ post.title }}
               </button>
             </td>
-            <td>{{ post.userName || 'Unknown' }}</td>
-            <td>
+            <td data-label="Author">{{ post.userName || 'Unknown' }}</td>
+            <td data-label="Status">
               <button
                 class="badge role-action"
                 type="button"
@@ -124,7 +127,7 @@
                 {{ post.status === 'HIDDEN' ? 'HIDDEN' : 'ACTIVE' }}
               </button>
             </td>
-            <td>
+            <td class="actions-cell" data-label="Actions">
               <button class="action delete-action" type="button" (click)="openDeletePostModal(post)">
                 Delete
               </button>
@@ -135,6 +138,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </section>
 
     <section *ngIf="tab === 'reports'" class="panel">
