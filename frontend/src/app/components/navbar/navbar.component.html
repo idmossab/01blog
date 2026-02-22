@@ -1,10 +1,10 @@
 <nav class="navbar navbar-expand-lg bg-white border rounded-3 shadow-sm mb-4 px-3" (click)="closeNotifications()">
-  <div class="d-flex align-items-center gap-2">
+  <div class="nav-left d-flex align-items-center gap-2">
     <button class="btn btn-outline-secondary btn-sm" *ngIf="showBack" (click)="goBack()">←</button>
     <a class="navbar-brand fw-bold mb-0 text-decoration-none" routerLink="/home">01Blog</a>
   </div>
-  <div class="ms-auto d-flex align-items-center gap-3 flex-wrap" *ngIf="user">
-    <div class="text-end">
+  <div class="nav-user ms-auto d-flex align-items-center gap-3 flex-wrap" *ngIf="user">
+    <div class="user-summary text-end">
       <div class="fw-semibold">{{ user?.firstName }} {{ user?.lastName }}</div>
       <small class="text-muted">@{{ user?.userName }}</small>
     </div>

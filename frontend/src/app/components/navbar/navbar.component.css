@@ -83,3 +83,39 @@
   color: #6b7280;
   font-size: 13px;
 }
+
+@media (max-width: 768px) {
+  .navbar {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .nav-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-user {
+    width: 100%;
+    margin-left: 0 !important;
+    align-items: center;
+    gap: 8px !important;
+  }
+
+  .user-summary {
+    width: 100%;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-user .btn {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .notif-panel {
+    right: -6px;
+    width: min(340px, 96vw);
+  }
+}

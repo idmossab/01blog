@@ -70,3 +70,35 @@
 .remove-btn:hover {
   background: rgba(0, 0, 0, 0.8);
 }
+
+@media (max-width: 768px) {
+  .media-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .media-tile {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .media-tile {
+    min-height: 110px;
+    border-radius: 10px;
+  }
+
+  .add-tile .plus {
+    font-size: 28px;
+  }
+
+  .add-tile .label {
+    font-size: 11px;
+    letter-spacing: 0.2px;
+  }
+}

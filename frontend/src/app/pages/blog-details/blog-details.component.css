@@ -27,6 +27,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .author {
@@ -62,6 +63,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .report-btn {
@@ -216,8 +218,36 @@
 }
 
 @media (max-width: 768px) {
+  .details-card,
+  .comments-card {
+    padding: 16px;
+  }
+
   .details-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .details-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .details-title {
+    font-size: 21px;
+  }
+
+  .details-content {
+    font-size: 15px;
+  }
+
+  .media-thumbs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .thumb {
+    height: 78px;
   }
 }
