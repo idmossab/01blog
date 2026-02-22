@@ -79,6 +79,10 @@ export class BlogDetailsComponent implements OnInit {
       next: (blog) => {
         this.blog = blog;
         this.likeCount = blog.likeCount || 0;
+        if (!this.media.length && (blog.mediaFiles || []).length) {
+          this.media = (blog.mediaFiles || []).map((item) => this.normalizeMedia(item));
+          this.selectedMediaIndex = 0;
+        }
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to load blog';
@@ -89,11 +93,12 @@ export class BlogDetailsComponent implements OnInit {
   loadMedia(blogId: number): void {
     this.api.getMediaByBlog(blogId).subscribe({
       next: (media) => {
-        this.media = media || [];
+        this.media = (media || []).map((item) => this.normalizeMedia(item));
         this.selectedMediaIndex = 0;
       },
       error: () => {
-        this.media = [];
+        this.media = (this.blog?.mediaFiles || []).map((item) => this.normalizeMedia(item));
+        this.selectedMediaIndex = 0;
       }
     });
   }
@@ -239,5 +244,47 @@ export class BlogDetailsComponent implements OnInit {
         this.reportError = err?.error?.message || err?.error || 'Failed to submit report';
       }
     });
+  }
+
+  getBlogAuthorName(): string {
+    if (!this.blog) return 'Unknown user';
+    const firstName = (this.blog.userFirstName || this.blog.user?.firstName || '').trim();
+    const lastName = (this.blog.userLastName || this.blog.user?.lastName || '').trim();
+    if (firstName || lastName) {
+      return `${firstName} ${lastName}`.trim();
+    }
+    const username = (this.blog.userName || this.blog.user?.userName || '').trim();
+    if (username) {
+      return `@${username}`;
+    }
+    if (this.user && this.blog.userId === this.user.userId) {
+      return `${this.user.firstName} ${this.user.lastName}`.trim() || `@${this.user.userName}`;
+    }
+    return 'Unknown user';
+  }
+
+  getCommentAuthorName(comment: Comment): string {
+    const firstName = (comment?.user?.firstName || '').trim();
+    const lastName = (comment?.user?.lastName || '').trim();
+    if (firstName || lastName) {
+      return `${firstName} ${lastName}`.trim();
+    }
+    const username = (comment?.user?.userName || '').trim();
+    if (username) {
+      return `@${username}`;
+    }
+    return 'Unknown user';
+  }
+
+  private normalizeMedia(media: Media): Media {
+    const rawUrl = (media?.url || '').trim();
+    if (!rawUrl) {
+      return media;
+    }
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('blob:')) {
+      return media;
+    }
+    const normalizedPath = rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`;
+    return { ...media, url: `http://localhost:8080${normalizedPath}` };
   }
 }

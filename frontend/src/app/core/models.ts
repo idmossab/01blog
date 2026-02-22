@@ -29,6 +29,7 @@ export interface Blog {
   createdAt?: string;
   updatedAt?: string | null;
   user?: UserResponse;
+  mediaFiles?: Media[];
 }
 
 export interface Media {

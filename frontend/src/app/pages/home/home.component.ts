@@ -103,7 +103,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  async onMediaChange(event: Event): Promise<void> {
+  onMediaChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files || []);
     if (files.length > 5) {
@@ -120,32 +120,26 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    try {
-      const preparedPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
-      for (const file of files) {
-        const kind = await this.detectRealMediaKind(file);
-        if (!kind) {
-          this.error = 'Invalid file content. Only real .jpg, .png, and .mp4 files are allowed';
-          this.clearMediaSelection();
-          input.value = '';
-          return;
-        }
-        preparedPreviews.push({
-          file,
-          url: URL.createObjectURL(file),
-          kind
-        });
+    const preparedPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
+    for (const file of files) {
+      const kind = this.detectMediaKind(file);
+      if (!kind) {
+        this.error = 'Only .jpg, .jpeg, .png images and .mp4 videos are allowed';
+        this.clearMediaSelection();
+        input.value = '';
+        return;
       }
-
-      this.error = '';
-      this.clearMediaSelection();
-      this.mediaPreviews = preparedPreviews;
-      this.totalMediaSize = totalSize;
-    } catch {
-      this.error = 'Failed to read selected file';
-      this.clearMediaSelection();
-      input.value = '';
+      preparedPreviews.push({
+        file,
+        url: URL.createObjectURL(file),
+        kind
+      });
     }
+
+    this.error = '';
+    this.clearMediaSelection();
+    this.mediaPreviews = preparedPreviews;
+    this.totalMediaSize = totalSize;
   }
 
   removeMedia(index: number): void {
@@ -186,53 +180,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     return extension;
   }
 
-  private async detectRealMediaKind(file: File): Promise<'image' | 'video' | null> {
+  private detectMediaKind(file: File): 'image' | 'video' | null {
     const extension = this.getFileExtension(file);
     if (!this.allowedMediaExtensions.has(extension)) {
       return null;
     }
-
-    const headerBytes = new Uint8Array(await file.slice(0, 32).arrayBuffer());
-    const detectedMime = this.detectMimeFromBytes(headerBytes);
-    if (!detectedMime) {
-      return null;
+    const mime = (file.type || '').toLowerCase().split(';', 2)[0].trim();
+    if (mime.startsWith('image/')) {
+      return extension === 'png' || extension === 'jpg' || extension === 'jpeg' ? 'image' : null;
     }
-
-    const extensionMatches =
-      (detectedMime === 'image/jpeg' && (extension === 'jpg' || extension === 'jpeg')) ||
-      (detectedMime === 'image/png' && extension === 'png') ||
-      (detectedMime === 'video/mp4' && extension === 'mp4');
-    if (!extensionMatches) {
-      return null;
+    if (mime.startsWith('video/')) {
+      return extension === 'mp4' ? 'video' : null;
     }
-
-    return detectedMime.startsWith('video/') ? 'video' : 'image';
-  }
-
-  private detectMimeFromBytes(header: Uint8Array): 'image/jpeg' | 'image/png' | 'video/mp4' | null {
-    if (header.length >= 3
-      && header[0] === 0xff
-      && header[1] === 0xd8
-      && header[2] === 0xff) {
-      return 'image/jpeg';
-    }
-    if (header.length >= 8
-      && header[0] === 0x89
-      && header[1] === 0x50
-      && header[2] === 0x4e
-      && header[3] === 0x47
-      && header[4] === 0x0d
-      && header[5] === 0x0a
-      && header[6] === 0x1a
-      && header[7] === 0x0a) {
-      return 'image/png';
-    }
-    if (header.length >= 12
-      && header[4] === 0x66
-      && header[5] === 0x74
-      && header[6] === 0x79
-      && header[7] === 0x70) {
-      return 'video/mp4';
+    if (!mime) {
+      if (extension === 'png' || extension === 'jpg' || extension === 'jpeg') {
+        return 'image';
+      }
+      if (extension === 'mp4') {
+        return 'video';
+      }
     }
     return null;
   }
@@ -267,10 +233,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   private preloadMetaForBlog(blog: Blog): void {
     if (!this.user || !blog.idBlog) return;
     const blogId = blog.idBlog;
+    const mediaFromBlog = (blog.mediaFiles || []).map((item) => this.normalizeMedia(item));
 
-    if (!Object.prototype.hasOwnProperty.call(this.thumbnailByBlog, blogId)) {
+    if (mediaFromBlog.length > 0) {
+      this.thumbnailByBlog[blogId] = mediaFromBlog[0];
+    } else if (!Object.prototype.hasOwnProperty.call(this.thumbnailByBlog, blogId)) {
       this.api.getFirstMediaByBlog(blogId).subscribe({
-        next: (media) => (this.thumbnailByBlog[blogId] = media),
+        next: (media) => (this.thumbnailByBlog[blogId] = media ? this.normalizeMedia(media) : null),
         error: () => (this.thumbnailByBlog[blogId] = null)
       });
     }
@@ -320,19 +289,31 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getAuthorName(blog: Blog): string {
-    if (blog.userFirstName && blog.userLastName) {
-      return `${blog.userFirstName} ${blog.userLastName}`;
+    const firstName = (blog.userFirstName || blog.user?.firstName || '').trim();
+    const lastName = (blog.userLastName || blog.user?.lastName || '').trim();
+    if (firstName || lastName) {
+      return `${firstName} ${lastName}`.trim();
     }
-    if (blog.user?.firstName && blog.user?.lastName) {
-      return `${blog.user.firstName} ${blog.user.lastName}`;
+    const username = (blog.userName || blog.user?.userName || '').trim();
+    if (username) {
+      return `@${username}`;
     }
-    if (blog.userName) {
-      return `@${blog.userName}`;
-    }
-    if (blog.user?.userName) {
-      return `@${blog.user.userName}`;
+    if (this.user && blog.userId === this.user.userId) {
+      return `${this.user.firstName} ${this.user.lastName}`.trim() || `@${this.user.userName}`;
     }
     return 'Unknown user';
+  }
+
+  private normalizeMedia(media: Media): Media {
+    const rawUrl = (media?.url || '').trim();
+    if (!rawUrl) {
+      return media;
+    }
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('blob:')) {
+      return media;
+    }
+    const normalizedPath = rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`;
+    return { ...media, url: `http://localhost:8080${normalizedPath}` };
   }
 
   formatRelative(dateValue?: string): string {
