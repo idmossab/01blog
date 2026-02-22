@@ -1,5 +1,5 @@
 <div class="list-group-item blog-card" (click)="onOpen()">
-  <div class="blog-main" [class.with-thumb]="thumbnail" [class.without-thumb]="!thumbnail">
+  <div class="blog-main" [class.with-thumb]="hasRenderableThumbnail()" [class.without-thumb]="!hasRenderableThumbnail()">
     <div class="blog-text">
       <div class="blog-meta-row">
         <span class="blog-author-avatar">{{ getAuthorInitials() }}</span>
@@ -24,10 +24,10 @@
         </button>
       </div>
     </div>
-    <div class="blog-thumb" *ngIf="thumbnail">
-      <img *ngIf="thumbnail.mediaType?.startsWith('image')" [src]="thumbnail.url" alt="thumbnail" />
-      <div class="video-thumb" *ngIf="thumbnail.mediaType?.startsWith('video')">
-        <video [src]="thumbnail.url" muted playsinline></video>
+    <div class="blog-thumb" *ngIf="hasRenderableThumbnail() && thumbnail as thumb">
+      <img *ngIf="thumb.mediaType?.startsWith('image')" [src]="thumb.url" alt="thumbnail" />
+      <div class="video-thumb" *ngIf="thumb.mediaType?.startsWith('video')">
+        <video [src]="thumb.url" muted playsinline></video>
         <div class="play-badge">▶</div>
       </div>
     </div>

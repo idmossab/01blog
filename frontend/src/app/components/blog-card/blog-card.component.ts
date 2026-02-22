@@ -27,6 +27,14 @@ export class BlogCardComponent {
   @Output() edit = new EventEmitter<Event>();
   @Output() delete = new EventEmitter<Event>();
 
+  hasRenderableThumbnail(): boolean {
+    if (!this.thumbnail) return false;
+    const url = (this.thumbnail.url || '').trim();
+    const type = (this.thumbnail.mediaType || '').toLowerCase();
+    if (!url) return false;
+    return type.startsWith('image') || type.startsWith('video');
+  }
+
   onOpen(): void {
     this.open.emit();
   }
