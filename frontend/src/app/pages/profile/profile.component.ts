@@ -140,11 +140,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private loadMyBlogs(): void {
-    this.api.getMyBlogs(0, 10).subscribe({
-      next: (data) => {
-        this.blogs = data?.content || data || [];
+    this.api.getMyBlogs().subscribe({
+      next: (blogs) => {
+        this.blogs = blogs || [];
         if (!this.blogCount) {
-          this.blogCount = data?.totalElements || this.blogs.length;
+          this.blogCount = this.blogs.length;
         }
         this.preloadThumbnails();
         this.loading = false;

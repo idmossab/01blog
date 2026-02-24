@@ -65,9 +65,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadFeed(): void {
     if (!this.user) return;
     this.loading = true;
-    this.api.getFeedBlogs(0, 20).subscribe({
-      next: (data) => {
-        this.blogs = data?.content || data || [];
+    this.api.getFeedBlogs().subscribe({
+      next: (blogs) => {
+        this.blogs = blogs || [];
         this.preloadFeedMeta();
         this.loading = false;
       },

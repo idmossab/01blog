@@ -1,11 +1,11 @@
 package com.example._blog.Controller;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example._blog.Dto.BlogResponse;
@@ -22,19 +22,15 @@ public class FeedCont {
     }
 
     @GetMapping("/feed")
-    public ResponseEntity<Page<BlogResponse>> getFeed(@AuthenticationPrincipal UserPrincipal principal,
-                                                      @RequestParam(defaultValue = "0") int page,
-                                                      @RequestParam(defaultValue = "20") int size) {
+    public ResponseEntity<List<BlogResponse>> getFeed(@AuthenticationPrincipal UserPrincipal principal) {
         Long currentUserId = principal.getUser().getUserId();
-        return ResponseEntity.ok(blogService.getFeedResponses(currentUserId, page, size));
+        return ResponseEntity.ok(blogService.getFeedResponses(currentUserId));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Page<BlogResponse>> getMyBlogs(@AuthenticationPrincipal UserPrincipal principal,
-                                                         @RequestParam(defaultValue = "0") int page,
-                                                         @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<BlogResponse>> getMyBlogs(@AuthenticationPrincipal UserPrincipal principal) {
         Long currentUserId = principal.getUser().getUserId();
-        return ResponseEntity.ok(blogService.getMyBlogsResponses(currentUserId, page, size));
+        return ResponseEntity.ok(blogService.getMyBlogsResponses(currentUserId));
     }
 
     @GetMapping("/me/count")

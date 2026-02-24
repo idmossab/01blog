@@ -7,9 +7,6 @@ import java.util.Collections;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -166,24 +163,26 @@ public class BlogService {
                 .toList();
     }
 
-    public Page<Blog> getFeed(Long currentUserId, int page, int size) {
+    public List<Blog> getFeed(Long currentUserId) {
         List<Long> authorIds = new ArrayList<>(followService.getFollowingIds(currentUserId));
         authorIds.add(currentUserId);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return blogRepo.findFeedBlogs(authorIds, BlogStatus.ACTIVE, pageable);
+        return blogRepo.findFeedBlogs(authorIds, BlogStatus.ACTIVE);
     }
 
-    public Page<BlogResponse> getFeedResponses(Long currentUserId, int page, int size) {
-        return getFeed(currentUserId, page, size).map(this::toResponse);
+    public List<BlogResponse> getFeedResponses(Long currentUserId) {
+        return getFeed(currentUserId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Page<Blog> getMyBlogs(Long currentUserId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return blogRepo.findByUserUserIdAndStatusOrderByCreatedAtDesc(currentUserId, BlogStatus.ACTIVE, pageable);
+    public List<Blog> getMyBlogs(Long currentUserId) {
+        return blogRepo.findByUserUserIdAndStatusOrderByCreatedAtDesc(currentUserId, BlogStatus.ACTIVE);
     }
 
-    public Page<BlogResponse> getMyBlogsResponses(Long currentUserId, int page, int size) {
-        return getMyBlogs(currentUserId, page, size).map(this::toResponse);
+    public List<BlogResponse> getMyBlogsResponses(Long currentUserId) {
+        return getMyBlogs(currentUserId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public long getMyBlogCount(Long currentUserId) {
