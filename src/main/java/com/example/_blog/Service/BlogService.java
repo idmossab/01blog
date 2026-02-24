@@ -1,16 +1,16 @@
 package com.example._blog.Service;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.data.domain.Sort;
-
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example._blog.Dto.BlogCreateRequest;
 import com.example._blog.Dto.BlogResponse;
@@ -40,7 +40,7 @@ public class BlogService {
     private final ReportRepo reportRepo;
 
     public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService,
-                       CommentRepo commentRepo, LikeRepo likeRepo, NotificationRepo notificationRepo, ReportRepo reportRepo) {
+            CommentRepo commentRepo, LikeRepo likeRepo, NotificationRepo notificationRepo, ReportRepo reportRepo) {
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
         this.mediaService = mediaService;
@@ -73,7 +73,7 @@ public class BlogService {
 
     @org.springframework.transaction.annotation.Transactional
     public BlogResponse createWithMedia(Long userId, String title, String content, BlogStatus status,
-                                java.util.List<org.springframework.web.multipart.MultipartFile> files) {
+            List<MultipartFile> files) {
         if (!hasText(title) || !hasText(content)) {
             throw new ResponseStatusException(BAD_REQUEST, "Blog content cannot be empty");
         }
@@ -224,7 +224,6 @@ public class BlogService {
                 blog.getLikeCount(),
                 blog.getCreatedAt(),
                 blog.getUpdatedAt(),
-                mediaFiles
-        );
+                mediaFiles);
     }
 }
