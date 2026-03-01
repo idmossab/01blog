@@ -12,10 +12,10 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.util.List;
 
-import com.example._blog.Dto.AuthResponse;
-import com.example._blog.Dto.UserLoginRequest;
-import com.example._blog.Dto.UserRegisterRequest;
-import com.example._blog.Dto.UserResponse;
+import com.example._blog.Dto.response.AuthResponse;
+import com.example._blog.Dto.request.UserLoginRequest;
+import com.example._blog.Dto.request.UserRegisterRequest;
+import com.example._blog.Dto.response.UserResponse;
 import com.example._blog.Entity.User;
 import com.example._blog.Entity.enums.UserRole;
 import com.example._blog.Entity.enums.UserStatus;

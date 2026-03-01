@@ -1,4 +1,4 @@
-package com.example._blog.Dto;
+package com.example._blog.Dto.response;
 
 import java.time.Instant;
 import java.util.List;

@@ -18,10 +18,10 @@ import jakarta.validation.Valid;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import com.example._blog.Dto.AuthResponse;
-import com.example._blog.Dto.UserLoginRequest;
-import com.example._blog.Dto.UserRegisterRequest;
-import com.example._blog.Dto.UserResponse;
+import com.example._blog.Dto.response.AuthResponse;
+import com.example._blog.Dto.request.UserLoginRequest;
+import com.example._blog.Dto.request.UserRegisterRequest;
+import com.example._blog.Dto.response.UserResponse;
 import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.UserService;
 

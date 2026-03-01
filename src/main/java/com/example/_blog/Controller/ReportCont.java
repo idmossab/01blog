@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example._blog.Dto.CreateReportRequest;
+import com.example._blog.Dto.request.CreateReportRequest;
 import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.ReportService;
 

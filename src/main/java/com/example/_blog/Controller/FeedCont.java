@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example._blog.Dto.BlogResponse;
+import com.example._blog.Dto.response.BlogResponse;
 import com.example._blog.Security.UserPrincipal;
 import com.example._blog.Service.BlogService;
 

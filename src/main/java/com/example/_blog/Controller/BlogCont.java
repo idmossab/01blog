@@ -17,9 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 
-import com.example._blog.Dto.BlogCreateRequest;
-import com.example._blog.Dto.BlogResponse;
-import com.example._blog.Dto.BlogUpdateRequest;
+import com.example._blog.Dto.request.BlogCreateRequest;
+import com.example._blog.Dto.response.BlogResponse;
+import com.example._blog.Dto.request.BlogUpdateRequest;
 import com.example._blog.Entity.enums.BlogStatus;
 import com.example._blog.Service.BlogService;
 

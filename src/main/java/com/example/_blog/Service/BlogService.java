@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example._blog.Dto.BlogCreateRequest;
-import com.example._blog.Dto.BlogResponse;
-import com.example._blog.Dto.BlogUpdateRequest;
-import com.example._blog.Dto.MediaResponse;
+import com.example._blog.Dto.request.BlogCreateRequest;
+import com.example._blog.Dto.response.BlogResponse;
+import com.example._blog.Dto.request.BlogUpdateRequest;
+import com.example._blog.Dto.response.MediaResponse;
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.User;
 import com.example._blog.Entity.enums.BlogStatus;

@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import com.example._blog.Dto.MediaResponse;
+import com.example._blog.Dto.response.MediaResponse;
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.Media;
 import com.example._blog.Repositories.BlogRepo;

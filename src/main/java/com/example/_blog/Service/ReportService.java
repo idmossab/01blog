@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example._blog.Dto.AdminReportItemResponse;
-import com.example._blog.Dto.CreateReportRequest;
+import com.example._blog.Dto.response.AdminReportItemResponse;
+import com.example._blog.Dto.request.CreateReportRequest;
 import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.Report;
 import com.example._blog.Entity.User;
