@@ -31,6 +31,7 @@ export class BlogDetailsComponent implements OnInit {
   media: Media[] = [];
   selectedMediaIndex = 0;
   comments: Comment[] = [];
+  deletingCommentIds = new Set<number>();
   newComment = '';
   error = '';
   reportSuccess = '';
@@ -188,6 +189,38 @@ export class BlogDetailsComponent implements OnInit {
       },
       error: (err: any) => {
         this.error = err?.error?.message || err?.error || 'Failed to add comment';
+      }
+    });
+  }
+
+  canDeleteComment(comment: Comment): boolean {
+    if (!this.user || !comment?.user?.userId) return false;
+    return comment.user.userId === this.user.userId;
+  }
+
+  confirmDeleteComment(comment: Comment): void {
+    const confirmed = window.confirm('Are you sure you want to delete this comment?');
+    if (!confirmed) return;
+    this.deleteComment(comment);
+  }
+
+  deleteComment(comment: Comment): void {
+    const commentId = comment?.id;
+    if (!commentId || !this.blog?.idBlog || this.deletingCommentIds.has(commentId)) return;
+
+    this.deletingCommentIds.add(commentId);
+    this.error = '';
+    this.api.deleteComment(commentId).subscribe({
+      next: () => {
+        this.comments = this.comments.filter((item) => item.id !== commentId);
+        if (this.blog) {
+          this.blog.commentCount = Math.max(0, (this.blog.commentCount || 0) - 1);
+        }
+        this.deletingCommentIds.delete(commentId);
+      },
+      error: (err: any) => {
+        this.deletingCommentIds.delete(commentId);
+        this.error = err?.error?.message || err?.error || 'Failed to delete comment';
       }
     });
   }

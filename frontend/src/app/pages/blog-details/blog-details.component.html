@@ -70,9 +70,20 @@
     <div class="comment-list">
       <div class="comment-item" *ngFor="let comment of comments">
         <div class="comment-meta">
-          <span class="comment-author">{{ getCommentAuthorName(comment) }}</span>
-          <span class="dot">•</span>
-          <span>{{ formatRelative(comment.createdAt) }}</span>
+          <div class="comment-meta-left">
+            <span class="comment-author">{{ getCommentAuthorName(comment) }}</span>
+            <span class="dot">•</span>
+            <span>{{ formatRelative(comment.createdAt) }}</span>
+          </div>
+          <button
+            class="comment-delete-btn"
+            type="button"
+            *ngIf="canDeleteComment(comment)"
+            (click)="confirmDeleteComment(comment)"
+            [disabled]="deletingCommentIds.has(comment.id || -1)"
+          >
+            {{ deletingCommentIds.has(comment.id || -1) ? 'Deleting...' : 'Delete' }}
+          </button>
         </div>
         <div class="comment-text">{{ comment.content }}</div>
       </div>
