@@ -53,15 +53,6 @@ public class CommentService {
         return saved;
     }
 
-    public Comment update(Long commentId, Comment changes) {
-        Comment existing = getById(commentId);
-        if (changes.getContent() != null) {
-            existing.setContent(changes.getContent());
-        }
-        existing.setUpdatedAt(Instant.now());
-        return commentRepo.save(existing);
-    }
-
     @Transactional
     public void delete(Long commentId) {
         Comment existing = getById(commentId);
@@ -80,9 +71,5 @@ public class CommentService {
 
     public List<Comment> getByBlog(Long blogId) {
         return commentRepo.findByBlogIdBlog(blogId);
-    }
-
-    public List<Comment> getByUser(Long userId) {
-        return commentRepo.findByUserUserId(userId);
     }
 }
