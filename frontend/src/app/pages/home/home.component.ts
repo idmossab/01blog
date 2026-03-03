@@ -67,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.api.getFeedBlogs().subscribe({
       next: (blogs) => {
-        this.blogs = blogs || [];
+        this.blogs = this.sortBlogsByIdDesc(blogs || []);
         this.preloadFeedMeta();
         this.loading = false;
       },
@@ -76,6 +76,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  private sortBlogsByIdDesc(blogs: Blog[]): Blog[] {
+    return [...blogs].sort((a, b) => (b.idBlog || 0) - (a.idBlog || 0));
   }
 
   createBlog(): void {

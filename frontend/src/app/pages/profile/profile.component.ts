@@ -142,7 +142,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private loadMyBlogs(): void {
     this.api.getMyBlogs().subscribe({
       next: (blogs) => {
-        this.blogs = blogs || [];
+        this.blogs = this.sortBlogsByIdDesc(blogs || []);
         if (!this.blogCount) {
           this.blogCount = this.blogs.length;
         }
@@ -159,7 +159,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private loadBlogsByUser(userId: number): void {
     this.api.getBlogsByUser(userId).subscribe({
       next: (blogs) => {
-        this.blogs = blogs || [];
+        this.blogs = this.sortBlogsByIdDesc(blogs || []);
         this.blogCount = this.blogs.length;
         this.preloadThumbnails();
         this.loading = false;
@@ -507,7 +507,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (updated) => {
         const newFiles = this.editMediaPreviews.map((item) => item.file);
         const finishUpdate = () => {
-          this.blogs = this.blogs.map((item) => (item.idBlog === blogId ? { ...item, ...updated } : item));
+          this.blogs = this.sortBlogsByIdDesc(
+            this.blogs.map((item) => (item.idBlog === blogId ? { ...item, ...updated } : item))
+          );
           this.api.getFirstMediaByBlog(blogId).subscribe({
             next: (media) => (this.thumbnailByBlog[blogId] = media),
             error: () => (this.thumbnailByBlog[blogId] = null)
@@ -533,6 +535,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.updateLoading = false;
       }
     });
+  }
+
+  private sortBlogsByIdDesc(blogs: Blog[]): Blog[] {
+    return [...blogs].sort((a, b) => (b.idBlog || 0) - (a.idBlog || 0));
   }
 
   ngOnDestroy(): void {

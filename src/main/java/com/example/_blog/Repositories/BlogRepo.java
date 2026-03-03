@@ -15,11 +15,11 @@ public interface BlogRepo extends JpaRepository<Blog, Long> {
     List<Blog> findByUserUserId(Long userId);
     List<Blog> findByStatus(BlogStatus status);
     List<Blog> findByUserUserIdAndStatus(Long userId, BlogStatus status);
-    List<Blog> findByUserUserIdAndStatusOrderByCreatedAtDesc(Long userId, BlogStatus status);
+    List<Blog> findByUserUserIdAndStatusOrderByIdBlogDesc(Long userId, BlogStatus status);
     long countByUserUserId(Long userId);
     long countByUserUserIdAndStatus(Long userId, BlogStatus status);
 
-    @Query("select b from Blog b where b.user.userId in :authorIds and b.status = :status")
+    @Query("select b from Blog b where b.user.userId in :authorIds and b.status = :status order by b.idBlog desc")
     List<Blog> findFeedBlogs(@Param("authorIds") List<Long> authorIds,
                              @Param("status") BlogStatus status);
 }
