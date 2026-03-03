@@ -177,7 +177,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       const blogId = blog.idBlog;
       if (!this.thumbnailByBlog[blogId]) {
         this.api.getFirstMediaByBlog(blogId).subscribe({
-          next: (media) => (this.thumbnailByBlog[blogId] = media),
+          next: (media) => (this.thumbnailByBlog[blogId] = media ? this.normalizeMedia(media) : null),
           error: () => (this.thumbnailByBlog[blogId] = null)
         });
       }
@@ -402,7 +402,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     };
     this.clearEditMediaSelection();
     this.api.getMediaByBlog(blog.idBlog).subscribe({
-      next: (media) => (this.editExistingMedia = media || []),
+      next: (media) => (this.editExistingMedia = (media || []).map((item) => this.normalizeMedia(item))),
       error: () => (this.editExistingMedia = [])
     });
   }
@@ -426,7 +426,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const blogId = this.editingBlogId;
         if (blogId) {
           this.api.getFirstMediaByBlog(blogId).subscribe({
-            next: (firstMedia) => (this.thumbnailByBlog[blogId] = firstMedia),
+            next: (firstMedia) => (this.thumbnailByBlog[blogId] = firstMedia ? this.normalizeMedia(firstMedia) : null),
             error: () => (this.thumbnailByBlog[blogId] = null)
           });
         }
@@ -511,7 +511,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
             this.blogs.map((item) => (item.idBlog === blogId ? { ...item, ...updated } : item))
           );
           this.api.getFirstMediaByBlog(blogId).subscribe({
-            next: (media) => (this.thumbnailByBlog[blogId] = media),
+            next: (media) => (this.thumbnailByBlog[blogId] = media ? this.normalizeMedia(media) : null),
             error: () => (this.thumbnailByBlog[blogId] = null)
           });
           this.cancelEditBlog();
@@ -539,6 +539,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private sortBlogsByIdDesc(blogs: Blog[]): Blog[] {
     return [...blogs].sort((a, b) => (b.idBlog || 0) - (a.idBlog || 0));
+  }
+
+  private normalizeMedia(media: Media): Media {
+    const rawUrl = (media?.url || '').trim();
+    if (!rawUrl) return media;
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('blob:')) {
+      return media;
+    }
+    const normalizedPath = rawUrl.startsWith('/') ? rawUrl : `/${rawUrl}`;
+    return { ...media, url: `http://localhost:8080${normalizedPath}` };
   }
 
   ngOnDestroy(): void {
