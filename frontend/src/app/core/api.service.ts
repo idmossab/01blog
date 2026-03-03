@@ -145,14 +145,6 @@ export class ApiService {
     return this.http.delete<void>(`${this.baseUrl}/likes?blogId=${blogId}&userId=${userId}`);
   }
 
-  getLikesByBlog(blogId: number) {
-    return this.http.get<Like[]>(`${this.baseUrl}/likes/by-blog?blogId=${blogId}`);
-  }
-
-  getLikesByUser(userId: number) {
-    return this.http.get<Like[]>(`${this.baseUrl}/likes/by-user?userId=${userId}`);
-  }
-
   uploadMedia(blogId: number, files: File[]) {
     const form = new FormData();
     files.forEach((file) => form.append('files', file));

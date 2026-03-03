@@ -1,7 +1,5 @@
 package com.example._blog.Controller;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,16 +30,6 @@ public class LikeCont {
     public ResponseEntity<Void> unlike(@RequestParam Long blogId, @RequestParam Long userId) {
         service.unlike(blogId, userId);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/by-blog")
-    public ResponseEntity<List<Like>> getByBlog(@RequestParam Long blogId) {
-        return ResponseEntity.ok(service.getByBlog(blogId));
-    }
-
-    @GetMapping("/by-user")
-    public ResponseEntity<List<Like>> getByUser(@RequestParam Long userId) {
-        return ResponseEntity.ok(service.getByUser(userId));
     }
 
     @GetMapping("/status")

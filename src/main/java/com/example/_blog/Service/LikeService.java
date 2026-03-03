@@ -1,7 +1,6 @@
 package com.example._blog.Service;
 
 import java.time.Instant;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,14 +66,6 @@ public class LikeService {
             blog.setLikeCount(blog.getLikeCount() - 1);
             blogRepo.save(blog);
         }
-    }
-
-    public List<Like> getByBlog(Long blogId) {
-        return likeRepo.findByBlogIdBlog(blogId);
-    }
-
-    public List<Like> getByUser(Long userId) {
-        return likeRepo.findByUserUserId(userId);
     }
 
     public LikeStatus getStatus(Long blogId, Long userId) {
