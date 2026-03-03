@@ -149,7 +149,7 @@ public class BlogService {
     }
 
     public List<BlogResponse> getByUser(Long userId) {
-        return blogRepo.findByUserUserIdAndStatus(userId, BlogStatus.ACTIVE).stream()
+        return blogRepo.findByUserUserIdAndStatusOrderByIdBlogDesc(userId, BlogStatus.ACTIVE).stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -176,7 +176,7 @@ public class BlogService {
     }
 
     public List<Blog> getMyBlogs(Long currentUserId) {
-        return blogRepo.findByUserUserIdAndStatusOrderByCreatedAtDesc(currentUserId, BlogStatus.ACTIVE);
+        return blogRepo.findByUserUserIdAndStatusOrderByIdBlogDesc(currentUserId, BlogStatus.ACTIVE);
     }
 
     public List<BlogResponse> getMyBlogsResponses(Long currentUserId) {
