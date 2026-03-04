@@ -100,6 +100,8 @@
           New media size: {{ editTotalMediaSize | number }} bytes
         </div>
 
+        <div class="alert alert-danger py-2 mb-3" *ngIf="error">{{ error }}</div>
+
         <div class="edit-actions">
           <button class="btn btn-dark" type="button" (click)="saveEditedBlog()" [disabled]="!hasRequiredEditText() || updateLoading">
             {{ updateLoading ? 'Saving...' : 'Save changes' }}
@@ -132,7 +134,7 @@
     </div>
   </div>
 
-  <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+  <div class="alert alert-danger mt-3" *ngIf="error && !editingBlogId">{{ error }}</div>
   <div class="alert alert-success mt-3" *ngIf="reportUserSuccess">{{ reportUserSuccess }}</div>
 </div>
 
