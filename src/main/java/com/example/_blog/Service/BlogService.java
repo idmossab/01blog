@@ -34,17 +34,20 @@ public class BlogService {
     private final UserRepo userRepo;
     private final MediaService mediaService;
     private final FollowService followService;
+    private final NotificationService notificationService;
     private final CommentRepo commentRepo;
     private final LikeRepo likeRepo;
     private final NotificationRepo notificationRepo;
     private final ReportRepo reportRepo;
 
     public BlogService(BlogRepo blogRepo, UserRepo userRepo, MediaService mediaService, FollowService followService,
+            NotificationService notificationService,
             CommentRepo commentRepo, LikeRepo likeRepo, NotificationRepo notificationRepo, ReportRepo reportRepo) {
         this.blogRepo = blogRepo;
         this.userRepo = userRepo;
         this.mediaService = mediaService;
         this.followService = followService;
+        this.notificationService = notificationService;
         this.commentRepo = commentRepo;
         this.likeRepo = likeRepo;
         this.notificationRepo = notificationRepo;
@@ -68,7 +71,9 @@ public class BlogService {
                 .updatedAt(null)
                 .build();
 
-        return toResponse(blogRepo.save(blog));
+        Blog saved = blogRepo.save(blog);
+        notificationService.notifyNewPost(saved);
+        return toResponse(saved);
     }
 
     @org.springframework.transaction.annotation.Transactional
@@ -92,6 +97,7 @@ public class BlogService {
 
         Blog saved = blogRepo.save(blog);
         mediaService.uploadToBlog(saved, files, false);
+        notificationService.notifyNewPost(saved);
         return toResponse(saved);
     }
 

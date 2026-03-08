@@ -3,6 +3,7 @@ package com.example._blog.Service;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -15,14 +16,17 @@ import com.example._blog.Entity.Blog;
 import com.example._blog.Entity.Notification;
 import com.example._blog.Entity.User;
 import com.example._blog.Entity.enums.NotificationType;
+import com.example._blog.Repositories.FollowRepo;
 import com.example._blog.Repositories.NotificationRepo;
 
 @Service
 public class NotificationService {
     private final NotificationRepo notificationRepo;
+    private final FollowRepo followRepo;
 
-    public NotificationService(NotificationRepo notificationRepo) {
+    public NotificationService(NotificationRepo notificationRepo, FollowRepo followRepo) {
         this.notificationRepo = notificationRepo;
+        this.followRepo = followRepo;
     }
 
     @Transactional
@@ -90,6 +94,39 @@ public class NotificationService {
                 .createdAt(Instant.now())
                 .build();
         notificationRepo.save(notification);
+    }
+
+    @Transactional
+    public void notifyNewPost(Blog blog) {
+        if (blog == null || blog.getUser() == null || blog.getUser().getUserId() == null) {
+            return;
+        }
+        Long authorUserId = blog.getUser().getUserId();
+        List<Long> followerIds = followRepo.findFollowerIdsByFollowingId(authorUserId);
+        if (followerIds == null || followerIds.isEmpty()) {
+            return;
+        }
+
+        List<Notification> notifications = new ArrayList<>();
+        for (Long followerId : followerIds) {
+            if (followerId == null || followerId.equals(authorUserId)) {
+                continue;
+            }
+            User recipient = User.builder().userId(followerId).build();
+            Notification notification = Notification.builder()
+                    .recipient(recipient)
+                    .actor(blog.getUser())
+                    .blog(blog)
+                    .type(NotificationType.POST)
+                    .message(blog.getUser().getUserName() + " published a new post.")
+                    .isRead(false)
+                    .createdAt(Instant.now())
+                    .build();
+            notifications.add(notification);
+        }
+        if (!notifications.isEmpty()) {
+            notificationRepo.saveAll(notifications);
+        }
     }
 
     public List<Notification> getMyNotifications(Long userId, int limit) {

@@ -100,7 +100,7 @@ export interface AdminReportItem {
   reportedUserName?: string | null;
 }
 
-export type NotificationType = 'LIKE' | 'COMMENT' | 'FOLLOW';
+export type NotificationType = 'LIKE' | 'COMMENT' | 'FOLLOW' | 'POST';
 
 export interface AppNotification {
   id: number;
