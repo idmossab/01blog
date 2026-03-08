@@ -111,10 +111,11 @@ public class NotificationService {
     }
 
     @Transactional
-    public void deleteForUser(Long userId, Long notificationId) {
+    public void markUnread(Long userId, Long notificationId) {
         Notification notification = notificationRepo.findByIdAndRecipientUserId(notificationId, userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Notification not found"));
-        notificationRepo.delete(notification);
+        notification.setRead(false);
+        notificationRepo.save(notification);
     }
 
     @Transactional

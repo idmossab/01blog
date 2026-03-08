@@ -65,6 +65,7 @@
   background: #fff;
   border-radius: 10px;
   padding: 8px;
+  cursor: pointer;
 }
 
 .notif-item.unread {
@@ -75,6 +76,17 @@
 .notif-message {
   font-size: 13px;
   color: #1f2937;
+}
+
+.notif-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notif-toggle {
+  font-size: 12px;
 }
 
 .notif-state {

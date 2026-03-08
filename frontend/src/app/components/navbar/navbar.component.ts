@@ -125,9 +125,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   openNotification(item: AppNotification, event: Event): void {
     event.stopPropagation();
-    const finalize = () => {
-      this.notifications = this.notifications.filter((n) => n.id !== item.id);
-      this.refreshUnreadCount();
+    const navigateToTarget = () => {
       this.notificationsOpen = false;
       if (item.blogId) {
         this.router.navigateByUrl(`/blogs/${item.blogId}`);
@@ -136,9 +134,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.api.deleteNotification(item.id).subscribe({
-      next: () => finalize(),
-      error: () => finalize()
+    if (item.read) {
+      navigateToTarget();
+      return;
+    }
+
+    this.api.markNotificationRead(item.id).subscribe({
+      next: () => {
+        item.read = true;
+        this.adjustUnreadCount(-1);
+        navigateToTarget();
+      },
+      error: () => navigateToTarget()
+    });
+  }
+
+  toggleNotificationRead(item: AppNotification, read: boolean, event: Event): void {
+    event.stopPropagation();
+    const request$ = read
+      ? this.api.markNotificationRead(item.id)
+      : this.api.markNotificationUnread(item.id);
+
+    request$.subscribe({
+      next: () => {
+        const delta = read ? -1 : 1;
+        item.read = read;
+        this.adjustUnreadCount(delta);
+      },
+      error: () => {}
     });
   }
 
@@ -172,5 +195,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (months < 12) return `${months}mo`;
     const years = Math.floor(days / 365);
     return `${years}y`;
+  }
+
+  private adjustUnreadCount(delta: number): void {
+    this.unreadCount = Math.max(0, this.unreadCount + delta);
   }
 }

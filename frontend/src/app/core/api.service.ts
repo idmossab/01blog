@@ -214,8 +214,8 @@ export class ApiService {
     return this.http.put<void>(`${this.baseUrl}/api/notifications/${notificationId}/read`, {});
   }
 
-  deleteNotification(notificationId: number) {
-    return this.http.delete<void>(`${this.baseUrl}/api/notifications/${notificationId}`);
+  markNotificationUnread(notificationId: number) {
+    return this.http.put<void>(`${this.baseUrl}/api/notifications/${notificationId}/unread`, {});
   }
 
   markAllNotificationsRead() {
