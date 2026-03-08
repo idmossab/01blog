@@ -34,6 +34,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   error = '';
   loading = false;
+  createConfirmOpen = false;
+  createSubmitting = false;
   private refreshSub?: Subscription;
   @ViewChild('mediaInput') mediaInput?: ElementRef<HTMLInputElement>;
 
@@ -83,16 +85,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   createBlog(): void {
-    if (!this.user) return;
-    this.error = '';
-    if (!this.hasRequiredText()) {
-      this.error = 'Blog content cannot be empty';
-      return;
-    }
-    if ((this.newBlog.content || '').length > this.maxBlogContentLength) {
-      this.error = `Blog content cannot exceed ${this.maxBlogContentLength} characters`;
-      return;
-    }
+    if (!this.validateCreateBlog()) return;
+    this.createConfirmOpen = true;
+  }
+
+  closeCreateConfirm(): void {
+    if (this.createSubmitting) return;
+    this.createConfirmOpen = false;
+  }
+
+  confirmCreateBlog(): void {
+    if (!this.user || this.createSubmitting) return;
+    if (!this.validateCreateBlog()) return;
+    this.createSubmitting = true;
     const files = this.mediaPreviews.map((item) => item.file);
     this.api.createBlogWithMedia(this.user.userId, this.newBlog, files).subscribe({
       next: (blog) => {
@@ -100,11 +105,28 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.preloadMetaForBlog(blog);
         this.newBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
         this.clearMediaSelection();
+        this.createSubmitting = false;
+        this.createConfirmOpen = false;
       },
       error: (err: any) => {
         this.error = this.extractErrorMessage(err, 'Failed to create blog');
+        this.createSubmitting = false;
       }
     });
+  }
+
+  private validateCreateBlog(): boolean {
+    if (!this.user) return false;
+    this.error = '';
+    if (!this.hasRequiredText()) {
+      this.error = 'Blog content cannot be empty';
+      return false;
+    }
+    if ((this.newBlog.content || '').length > this.maxBlogContentLength) {
+      this.error = `Blog content cannot exceed ${this.maxBlogContentLength} characters`;
+      return false;
+    }
+    return true;
   }
 
   onMediaChange(event: Event): void {

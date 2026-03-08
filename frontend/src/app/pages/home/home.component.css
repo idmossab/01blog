@@ -71,6 +71,30 @@
   background: rgba(0, 0, 0, 0.8);
 }
 
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.confirm-card {
+  width: min(420px, 100%);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 @media (max-width: 768px) {
   .media-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

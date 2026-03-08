@@ -138,6 +138,21 @@
   <div class="alert alert-success mt-3" *ngIf="reportUserSuccess">{{ reportUserSuccess }}</div>
 </div>
 
+<div class="confirm-overlay" *ngIf="editConfirmOpen">
+  <div class="confirm-card shadow-sm">
+    <h6 class="mb-2">Save changes to this post?</h6>
+    <p class="text-muted mb-3">The updated title, content, and media will replace the current post data.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-dark" type="button" (click)="confirmSaveEditedBlog()" [disabled]="updateLoading">
+        {{ updateLoading ? 'Saving...' : 'Yes, save changes' }}
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="closeEditConfirm()" [disabled]="updateLoading">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="following-overlay" *ngIf="followingModalOpen">
   <div class="following-modal shadow-sm">
     <div class="following-head">

@@ -38,6 +38,7 @@ export class BlogDetailsComponent implements OnInit {
   liked = false;
   likeCount = 0;
   reportModalOpen = false;
+  reportConfirmOpen = false;
   selectedReportReason: ReportReason | '' = '';
   reportDetails = '';
   reportError = '';
@@ -242,6 +243,7 @@ export class BlogDetailsComponent implements OnInit {
 
   closeReportModal(): void {
     this.reportModalOpen = false;
+    this.reportConfirmOpen = false;
     this.reportError = '';
     this.reportSubmitting = false;
   }
@@ -259,8 +261,24 @@ export class BlogDetailsComponent implements OnInit {
       this.reportError = 'Additional details cannot exceed 500 characters';
       return;
     }
+    this.reportConfirmOpen = true;
+  }
+
+  closeReportConfirm(): void {
+    if (this.reportSubmitting) return;
+    this.reportConfirmOpen = false;
+  }
+
+  confirmSubmitReport(): void {
+    if (!this.blog?.idBlog || !this.selectedReportReason || this.reportSubmitting) return;
+    const details = this.reportDetails.trim();
+    if (details.length > 500) {
+      this.reportError = 'Additional details cannot exceed 500 characters';
+      return;
+    }
 
     this.reportSubmitting = true;
+    this.reportConfirmOpen = false;
     this.reportError = '';
     this.api.reportBlog({
       blogId: this.blog.idBlog,

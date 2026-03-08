@@ -121,8 +121,20 @@
 
     <div class="alert alert-danger py-2" *ngIf="reportError">{{ reportError }}</div>
 
+    <div class="confirm-box" *ngIf="reportConfirmOpen">
+      <p class="mb-2">Submit this report now?</p>
+      <div class="confirm-actions">
+        <button class="btn btn-dark btn-sm" type="button" (click)="confirmSubmitReport()" [disabled]="reportSubmitting">
+          {{ reportSubmitting ? 'Submitting...' : 'Yes, submit report' }}
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="closeReportConfirm()" [disabled]="reportSubmitting">
+          Cancel
+        </button>
+      </div>
+    </div>
+
     <div class="report-actions">
-      <button class="btn btn-dark" type="button" (click)="submitReport()" [disabled]="reportSubmitting">
+      <button class="btn btn-dark" type="button" (click)="submitReport()" [disabled]="reportSubmitting || reportConfirmOpen">
         {{ reportSubmitting ? 'Submitting...' : 'Submit' }}
       </button>
       <button class="btn btn-outline-secondary" type="button" (click)="closeReportModal()" [disabled]="reportSubmitting">

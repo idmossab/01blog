@@ -53,6 +53,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   editMediaPreviews: Array<{ file: File; url: string; kind: 'image' | 'video' }> = [];
   editTotalMediaSize = 0;
   updateLoading = false;
+  editConfirmOpen = false;
   isOwnProfile = true;
   reportModalOpen = false;
   selectedReportReason: ReportReason | '' = '';
@@ -409,6 +410,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   cancelEditBlog(): void {
     this.editingBlogId = null;
+    this.editConfirmOpen = false;
     this.editBlog = { title: '', content: '', status: 'ACTIVE', media: '' };
     this.editExistingMedia = [];
     this.deletingExistingMediaId = null;
@@ -487,21 +489,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   saveEditedBlog(): void {
-    if (!this.editingBlogId || this.updateLoading) return;
+    if (!this.validateEditBlogBeforeSave()) return;
+    this.editConfirmOpen = true;
+  }
+
+  closeEditConfirm(): void {
+    if (this.updateLoading) return;
+    this.editConfirmOpen = false;
+  }
+
+  confirmSaveEditedBlog(): void {
+    if (!this.validateEditBlogBeforeSave()) return;
     const title = this.editBlog.title?.trim() || '';
     const content = this.editBlog.content?.trim() || '';
-    if (!title || !content) {
-      this.error = 'Title and content cannot be empty';
-      return;
-    }
-    if (content.length > this.maxBlogContentLength) {
-      this.error = `Blog content cannot exceed ${this.maxBlogContentLength} characters`;
+    const blogId = this.editingBlogId;
+    if (!blogId) {
+      this.updateLoading = false;
       return;
     }
 
     this.updateLoading = true;
+    this.editConfirmOpen = false;
     this.error = '';
-    const blogId = this.editingBlogId;
 
     this.api.updateBlog(blogId, { title, content, status: this.editBlog.status }).subscribe({
       next: (updated) => {
@@ -535,6 +544,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.updateLoading = false;
       }
     });
+  }
+
+  private validateEditBlogBeforeSave(): boolean {
+    if (!this.editingBlogId || this.updateLoading) return false;
+    const title = this.editBlog.title?.trim() || '';
+    const content = this.editBlog.content?.trim() || '';
+    if (!title || !content) {
+      this.error = 'Title and content cannot be empty';
+      return false;
+    }
+    if (content.length > this.maxBlogContentLength) {
+      this.error = `Blog content cannot exceed ${this.maxBlogContentLength} characters`;
+      return false;
+    }
+    return true;
   }
 
   private sortBlogsByIdDesc(blogs: Blog[]): Blog[] {
