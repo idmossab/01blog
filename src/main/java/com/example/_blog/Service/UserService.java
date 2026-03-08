@@ -112,26 +112,6 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found")));
     }
 
-    public UserResponse update(Long userId, UserRegisterRequest req) {
-        User existing = repo.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
-
-        if (!existing.getEmail().equals(req.email()) && repo.existsByEmail(req.email())) {
-            throw new ResponseStatusException(CONFLICT, "Email already used");
-        }
-        if (!existing.getUserName().equals(req.userName()) && repo.existsByUserName(req.userName())) {
-            throw new ResponseStatusException(CONFLICT, "Username already used");
-        }
-
-        existing.setFirstName(req.firstName());
-        existing.setLastName(req.lastName());
-        existing.setUserName(req.userName());
-        existing.setEmail(req.email());
-        existing.setPassword(encoder.encode(req.password()));
-
-        return toResponse(repo.save(existing));
-    }
-
     @Transactional
     public void delete(Long userId) {
         User existing = repo.findById(userId)

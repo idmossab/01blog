@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,12 +65,6 @@ public class UserCont {
         }
         Long currentUserId = principal.getUser().getUserId();
         return ResponseEntity.ok(service.getById(currentUserId));
-    }
-
-    @PutMapping("/{userId}")
-    public ResponseEntity<UserResponse> update(@PathVariable Long userId,
-                                               @RequestBody @Valid UserRegisterRequest req) {
-        return ResponseEntity.ok(service.update(userId, req));
     }
 
     @DeleteMapping("/{userId}")
